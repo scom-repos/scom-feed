@@ -1,0 +1,1 @@
+export { ScomFeedReplyInput } from './replyInput/index';
