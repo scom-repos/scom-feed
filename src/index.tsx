@@ -13,7 +13,9 @@ import {
   IdUtils,
   Modal,
   Label,
-  Button
+  Button,
+  Control,
+  Panel
 } from '@ijstech/components';
 import dataConfig from './data.json';
 import { IFeed, getBuilderSchema, getEmbedderSchema } from './global/index';
@@ -22,7 +24,7 @@ import { ScomFeedReplyInput } from './commons/replyInput';
 import { getCurrentUser } from './store/index';
 import { IPost, IPostData, ScomPost } from '@scom/scom-post';
 import assets from './assets';
-import { hoverStyle } from './index.css';
+import { getHoverStyleClass } from './index.css';
 
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost) => {}
@@ -48,6 +50,8 @@ export default class ScomFeed extends Module {
   private mdFilter: Modal;
   private lbFilter: Label;
   private btnMore: Button;
+  private mdActions: Modal;
+  private pnlActions: Panel;
 
   private isRendering: boolean = false;
   private _data: IFeed;
@@ -111,10 +115,100 @@ export default class ScomFeed extends Module {
       this.addPost(post);
     }
     this.isRendering = false;
+    this.renderActions();
+  }
+
+  private renderActions() {
+    const actions = [
+      {
+        caption: 'Zap',
+        icon: assets.fullPath('img/zap.svg')
+      },
+      {
+        caption: 'Copy note link',
+        icon: assets.fullPath('img/note_link.svg')
+      },
+      {
+        caption: 'Copy note text',
+        icon: assets.fullPath('img/note_text.svg')
+      },
+      {
+        caption: 'Copy note ID',
+        icon: assets.fullPath('img/note_id.svg')
+      },
+      {
+        caption: 'Copy raw data',
+        icon: assets.fullPath('img/raw_data.svg')
+      },
+      {
+        caption: 'Broadcast note',
+        icon: assets.fullPath('img/broadcast.svg')
+      },
+      {
+        caption: 'Copy user public key',
+        icon: assets.fullPath('img/pubkey.svg')
+      },
+      {
+        caption: 'Mute user',
+        icon: assets.fullPath('img/mute_user.svg'),
+        hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+      },
+      {
+        caption: 'Report user',
+        icon: assets.fullPath('img/report.svg'),
+        hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+      }
+    ]
+    this.pnlActions.clearInnerHTML();
+    for (let i = 0; i < actions.length; i++) {
+      const item: any = actions[i];
+      this.pnlActions.appendChild(
+        <i-hstack
+          horizontalAlignment="space-between"
+          verticalAlignment="center"
+          width="100%"
+          padding={{top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem'}}
+          background={{color: 'transparent'}}
+          border={{radius: '0.5rem'}}
+          class={getHoverStyleClass(item?.hoveredColor)}
+          onClick={() => {
+            if (item.onClick) item.onClick();
+          }}
+        >
+          <i-label caption={item.caption} font={{color: Theme.colors.secondary.light, weight: 400, size: '0.875rem'}}></i-label>
+          <i-image url={item.icon} width='0.75rem' height='0.75rem' display='inline-flex'></i-image>
+        </i-hstack>
+      )
+    }
+    this.pnlActions.appendChild(
+      <i-hstack
+        width="100%"
+        horizontalAlignment="center"
+        padding={{top: 12, bottom: 12, left: 16, right: 16}}
+        visible={false}
+        mediaQueries={[
+          {
+            maxWidth: '767px',
+            properties: { visible: true }
+          }
+        ]}
+      >
+        <i-button
+          caption='Cancel'
+          width="100%" minHeight={44}
+          padding={{left: 16, right: 16}}
+          font={{color: Theme.text.primary, weight: 600}}
+          border={{radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light}}
+          grid={{horizontalAlignment: 'center'}}
+          background={{color: 'transparent'}}
+          boxShadow="none"
+          onClick={() => this.onCloseModal('mdShare')}
+        ></i-button>
+      </i-hstack>
+    )
   }
 
   private onViewPost(target: ScomPost) {
-    console.log(this.onItemClicked)
     if (this.onItemClicked) this.onItemClicked(target);
   }
 
@@ -158,6 +252,7 @@ export default class ScomFeed extends Module {
         onClick={this.onViewPost}
       ></i-scom-post>
     )
+    postEl.onProfileClicked = (target: Control, data: IPost) => this.onShowModal(target, data, 'mdActions');
     this.pnlPosts.appendChild(postEl);
   }
 
@@ -175,6 +270,24 @@ export default class ScomFeed extends Module {
     }
     target.rightIcon.visible = true;
     target.font = {color: Theme.text.primary};
+  }
+
+  private onCloseModal(name: string) {
+    if (this[name]) this[name].visible = false;
+  }
+
+  private onShowModal(target: Control, data: IPost, name: string) {
+    if (this[name]) {
+      this[name].parent = target;
+      this[name].position = 'absolute';
+      this[name].refresh();
+      this[name].visible = true;
+      this[name].classList.add('show');
+    }
+  }
+
+  private removeShow(name: string) {
+    if (this[name]) this[name].classList.remove('show');
   }
 
   getConfigurators() {
@@ -376,7 +489,7 @@ export default class ScomFeed extends Module {
                 font={{color: Theme.text.secondary}}
                 boxShadow='none'
                 rightIcon={{name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false}}
-                class={hoverStyle}
+                class={getHoverStyleClass()}
                 onClick={this.onFilter}
               ></i-button>
               <i-button
@@ -387,7 +500,7 @@ export default class ScomFeed extends Module {
                 rightIcon={{name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false}}
                 font={{color: Theme.text.secondary}}
                 boxShadow='none'
-                class={hoverStyle}
+                class={getHoverStyleClass()}
                 onClick={this.onFilter}
               ></i-button>
             </i-vstack>
@@ -404,9 +517,38 @@ export default class ScomFeed extends Module {
           caption='0 new note'
           boxShadow={Theme.shadows[1]}
           visible={false}
-          class={hoverStyle}
+          class={getHoverStyleClass()}
         ></i-button>
         <i-vstack id="pnlPosts" />
+        <i-modal
+          id="mdActions"
+          maxWidth={'15rem'}
+          minWidth={'12.25rem'}
+          maxHeight={'27.5rem'}
+          popupPlacement='bottomRight'
+          showBackdrop={false}
+          border={{radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider}}
+          padding={{top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem'}}
+          mediaQueries={[
+            {
+              maxWidth: '767px',
+              properties: {
+                showBackdrop: true,
+                popupPlacement: 'bottom',
+                position: 'fixed',
+                zIndex: 999,
+                maxWidth: '100%',
+                width: '100%',
+                maxHeight: '50vh',
+                overflow: {y: 'auto'},
+                border: {radius: '16px 16px 0 0'}
+              }
+            }
+          ]}
+          onClose={() => this.removeShow('mdActions')}
+        >
+          <i-vstack id="pnlActions" minWidth={0} />
+        </i-modal>
       </i-vstack>
     );
   }

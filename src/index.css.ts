@@ -1,11 +1,19 @@
 import { Styles } from "@ijstech/components";
 const Theme = Styles.Theme.ThemeVars;
 
-export const hoverStyle = Styles.style({
-  $nest: {
-    '&:hover': {
-      color: `${Theme.text.primary} !important`,
-      background: `${Theme.action.hoverBackground} !important`
+export const getHoverStyleClass = (color?: string) => {
+  const styleObj = {
+    $nest: {
+      '&:hover': {
+        color: `${Theme.text.primary} !important`,
+        background: `${color || Theme.action.hoverBackground} !important`,
+        $nest: {
+          'i-label': {
+            color: `${Theme.text.primary} !important`
+          }
+        }
+      }
     }
   }
-})
+  return Styles.style(styleObj);
+}

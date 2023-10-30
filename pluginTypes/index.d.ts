@@ -619,7 +619,7 @@ declare module "@scom/scom-feed/assets.ts" {
 }
 /// <amd-module name="@scom/scom-feed/index.css.ts" />
 declare module "@scom/scom-feed/index.css.ts" {
-    export const hoverStyle: string;
+    export const getHoverStyleClass: (color?: string) => string;
 }
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
@@ -645,6 +645,8 @@ declare module "@scom/scom-feed" {
         private mdFilter;
         private lbFilter;
         private btnMore;
+        private mdActions;
+        private pnlActions;
         private isRendering;
         private _data;
         private _theme;
@@ -663,11 +665,15 @@ declare module "@scom/scom-feed" {
         private setData;
         private getData;
         private renderUI;
+        private renderActions;
         private onViewPost;
         private onReplySubmit;
         addPost(post: IPost): void;
         private onShowFilter;
         private onFilter;
+        private onCloseModal;
+        private onShowModal;
+        private removeShow;
         getConfigurators(): ({
             name: string;
             target: string;
