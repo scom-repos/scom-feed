@@ -1,23 +1,5 @@
-interface IPostAnalytics {
-  reply: string | number;
-  repost: string | number;
-  like: string | number;
-  bookmark: string | number;
-  view: string | number;
-}
+import { IPost } from "@scom/scom-post";
 
-export interface IReply {
-  cid: string;
+export interface IFeed {
+  posts: IPost[];
 }
-
-export interface IPostData {
-  username: string;
-  owner?: string;
-  description?: string;
-  dataUri?: string;
-  publishDate?: number;
-  avatar?: string;
-  replies?: IReply[];
-  analytics?: IPostAnalytics;
-}
-

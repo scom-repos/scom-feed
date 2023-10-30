@@ -1,3 +1,5 @@
+import { IAuthor } from "@scom/scom-post";
+
 export const state = {
   ipfsGatewayUrl: ""
 }
@@ -14,4 +16,14 @@ export const setIPFSGatewayUrl = (url: string) => {
 
 export const getIPFSGatewayUrl = () => {
   return state.ipfsGatewayUrl;
+}
+
+export const getCurrentUser = () => {
+  const user: IAuthor = {
+    id: "",
+    username: "",
+    description: "",
+    avatar: undefined
+  }
+  return user;
 }

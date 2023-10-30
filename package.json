@@ -15,7 +15,6 @@
     "test": "cd test && npm run test && cd .."
   },
   "dependencies": {
-    "@scom/scom-page-viewer": "^0.1.12",
     "@scom/scom-post": "https://github.com/scom-repos/scom-post"
   },
   "devDependencies": {

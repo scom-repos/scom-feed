@@ -1,11 +1,3 @@
-/// <amd-module name="@scom/scom-feed/index.css.ts" />
-declare module "@scom/scom-feed/index.css.ts" {
-    export const spinnerStyle: string;
-    export const labelStyle: string;
-    export const multiLineTextStyle: string;
-    export const customStyles: string;
-    export const modalStyle: string;
-}
 /// <amd-module name="@scom/scom-feed/data.json.ts" />
 declare module "@scom/scom-feed/data.json.ts" {
     const _default: {
@@ -15,69 +7,19 @@ declare module "@scom/scom-feed/data.json.ts" {
 }
 /// <amd-module name="@scom/scom-feed/store/index.ts" />
 declare module "@scom/scom-feed/store/index.ts" {
+    import { IAuthor } from "@scom/scom-post";
     export const state: {
         ipfsGatewayUrl: string;
     };
     export const setDataFromJson: (options: any) => void;
     export const setIPFSGatewayUrl: (url: string) => void;
     export const getIPFSGatewayUrl: () => string;
+    export const getCurrentUser: () => IAuthor;
 }
 /// <amd-module name="@scom/scom-feed/global/utils.ts" />
 declare module "@scom/scom-feed/global/utils.ts" {
     const getImageIpfsUrl: (url: string) => string;
-    const formatNumber: (value: number | string, decimal?: number) => string;
-    const getDuration: (date: number) => string;
-    export { getImageIpfsUrl, formatNumber, getDuration };
-}
-/// <amd-module name="@scom/scom-feed/global/localData/data.json.ts" />
-declare module "@scom/scom-feed/global/localData/data.json.ts" {
-    const _default_1: {
-        username: string;
-        description: string;
-        dataUri: string;
-        owner: string;
-        avatar: string;
-        publishDate: number;
-        analytics: {
-            reply: number;
-            repost: number;
-            vote: number;
-            bookmark: number;
-            view: number;
-        };
-        replies: {
-            cid: string;
-        }[];
-    };
-    export default _default_1;
-}
-/// <amd-module name="@scom/scom-feed/global/API.ts" />
-declare module "@scom/scom-feed/global/API.ts" {
-    const fetchDataByCid: (cid: string) => Promise<any>;
-    export { fetchDataByCid };
-}
-/// <amd-module name="@scom/scom-feed/global/interface.ts" />
-declare module "@scom/scom-feed/global/interface.ts" {
-    interface IPostAnalytics {
-        reply: string | number;
-        repost: string | number;
-        like: string | number;
-        bookmark: string | number;
-        view: string | number;
-    }
-    export interface IReply {
-        cid: string;
-    }
-    export interface IPostData {
-        username: string;
-        owner?: string;
-        description?: string;
-        dataUri?: string;
-        publishDate?: number;
-        avatar?: string;
-        replies?: IReply[];
-        analytics?: IPostAnalytics;
-    }
+    export { getImageIpfsUrl };
 }
 /// <amd-module name="@scom/scom-feed/global/schemas.ts" />
 declare module "@scom/scom-feed/global/schemas.ts" {
@@ -86,10 +28,11 @@ declare module "@scom/scom-feed/global/schemas.ts" {
             type: string;
             required: string[];
             properties: {
-                cids: {
+                posts: {
                     type: string;
                     items: {
                         type: string;
+                        properties: {};
                     };
                 };
                 dark: {
@@ -103,11 +46,11 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             type: string;
                             format: string;
                         };
-                        inputBackgroundColor: {
+                        cardBackground: {
                             type: string;
                             format: string;
                         };
-                        inputFontColor: {
+                        gradientBackground: {
                             type: string;
                             format: string;
                         };
@@ -156,6 +99,14 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             format: string;
                         };
                         secondaryColor: {
+                            type: string;
+                            format: string;
+                        };
+                        modalBackground: {
+                            type: string;
+                            format: string;
+                        };
+                        boxShadow: {
                             type: string;
                             format: string;
                         };
@@ -172,11 +123,11 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             type: string;
                             format: string;
                         };
-                        inputBackgroundColor: {
+                        cardBackground: {
                             type: string;
                             format: string;
                         };
-                        inputFontColor: {
+                        gradientBackground: {
                             type: string;
                             format: string;
                         };
@@ -228,6 +179,14 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             type: string;
                             format: string;
                         };
+                        modalBackground: {
+                            type: string;
+                            format: string;
+                        };
+                        boxShadow: {
+                            type: string;
+                            format: string;
+                        };
                     };
                 };
             };
@@ -241,7 +200,6 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                     type: string;
                     elements: {
                         type: string;
-                        label: string;
                         elements: {
                             type: string;
                             elements: {
@@ -249,6 +207,7 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                                 scope: string;
                             }[];
                         }[];
+                        label: string;
                     }[];
                 }[];
             } | {
@@ -268,9 +227,10 @@ declare module "@scom/scom-feed/global/schemas.ts" {
         dataSchema: {
             type: string;
             properties: {
-                cid: {
+                post: {
                     type: string;
                     required: boolean;
+                    properties: {};
                 };
                 dark: {
                     type: string;
@@ -283,11 +243,11 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             type: string;
                             format: string;
                         };
-                        inputBackgroundColor: {
+                        cardBackground: {
                             type: string;
                             format: string;
                         };
-                        inputFontColor: {
+                        gradientBackground: {
                             type: string;
                             format: string;
                         };
@@ -336,6 +296,14 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             format: string;
                         };
                         secondaryColor: {
+                            type: string;
+                            format: string;
+                        };
+                        modalBackground: {
+                            type: string;
+                            format: string;
+                        };
+                        boxShadow: {
                             type: string;
                             format: string;
                         };
@@ -352,11 +320,11 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             type: string;
                             format: string;
                         };
-                        inputBackgroundColor: {
+                        cardBackground: {
                             type: string;
                             format: string;
                         };
-                        inputFontColor: {
+                        gradientBackground: {
                             type: string;
                             format: string;
                         };
@@ -408,6 +376,14 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                             type: string;
                             format: string;
                         };
+                        modalBackground: {
+                            type: string;
+                            format: string;
+                        };
+                        boxShadow: {
+                            type: string;
+                            format: string;
+                        };
                     };
                 };
             };
@@ -421,7 +397,6 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                     type: string;
                     elements: {
                         type: string;
-                        label: string;
                         elements: {
                             type: string;
                             elements: {
@@ -429,6 +404,7 @@ declare module "@scom/scom-feed/global/schemas.ts" {
                                 scope: string;
                             }[];
                         }[];
+                        label: string;
                     }[];
                 }[];
             } | {
@@ -445,72 +421,216 @@ declare module "@scom/scom-feed/global/schemas.ts" {
         };
     };
 }
+/// <amd-module name="@scom/scom-feed/global/interface.ts" />
+declare module "@scom/scom-feed/global/interface.ts" {
+    import { IPost } from "@scom/scom-post";
+    export interface IFeed {
+        posts: IPost[];
+    }
+}
+/// <amd-module name="@scom/scom-feed/global/API.ts" />
+declare module "@scom/scom-feed/global/API.ts" {
+    export const fetchGifs: (params: any) => Promise<any>;
+    export const fetchReactionGifs: () => Promise<any>;
+    export interface IEmojiCategory {
+        name: string;
+        value: string;
+        image?: string;
+        groups?: string[];
+    }
+    export interface IEmoji {
+        name: string;
+        category: string;
+        group: string;
+        htmlCode: string[];
+        unicode: string[];
+    }
+    export const emojiCategories: {
+        name: string;
+        value: string;
+        image: string;
+        groups: string[];
+    }[];
+    export const colorsMapper: {
+        'rgb(255, 220, 93)': {
+            htmlCode: string;
+            unicode: string;
+        };
+        'rgb(247, 222, 206)': {
+            htmlCode: string;
+            unicode: string;
+        };
+        'rgb(243, 210, 162)': {
+            htmlCode: string;
+            unicode: string;
+        };
+        'rgb(213, 171, 136)': {
+            htmlCode: string;
+            unicode: string;
+        };
+        'rgb(175, 126, 87)': {
+            htmlCode: string;
+            unicode: string;
+        };
+        'rgb(124, 83, 62)': {
+            htmlCode: string;
+            unicode: string;
+        };
+    };
+    export const fetchEmojis: (params: any) => Promise<any>;
+    export const searchEmojis: (q: string, mapper: Map<string, any>) => any;
+}
 /// <amd-module name="@scom/scom-feed/global/index.ts" />
 declare module "@scom/scom-feed/global/index.ts" {
     export * from "@scom/scom-feed/global/utils.ts";
-    export * from "@scom/scom-feed/global/API.ts";
-    export * from "@scom/scom-feed/global/interface.ts";
     export * from "@scom/scom-feed/global/schemas.ts";
+    export * from "@scom/scom-feed/global/interface.ts";
+    export * from "@scom/scom-feed/global/API.ts";
 }
-/// <amd-module name="@scom/scom-feed/commons/replyInput/index.css.ts" />
-declare module "@scom/scom-feed/commons/replyInput/index.css.ts" {
-    export const editorStyle: string;
-}
-/// <amd-module name="@scom/scom-feed/commons/replyInput/index.tsx" />
-declare module "@scom/scom-feed/commons/replyInput/index.tsx" {
-    import { ControlElement, Module, Markdown, MarkdownEditor } from '@ijstech/components';
-    interface ScomFeedReplyInputElement extends ControlElement {
-        replyTo?: string;
-        avatar?: string;
-        isReplyToShown?: boolean;
-        theme?: Markdown["theme"];
-        onChanged?: (target: MarkdownEditor) => void;
-        onSubmit?: (target: MarkdownEditor) => void;
-    }
+/// <amd-module name="@scom/scom-feed/commons/replyInput.tsx" />
+declare module "@scom/scom-feed/commons/replyInput.tsx" {
+    import { Module, MarkdownEditor, ControlElement, Container } from '@ijstech/components';
+    import { IPost, IPostData } from '@scom/scom-post';
+    type IReplyType = 'reply' | 'quote';
+    type onChangedCallback = (target: MarkdownEditor) => void;
+    type onSubmitCallback = (target: MarkdownEditor, medias: IPostData[]) => void;
     interface IReplyInput {
-        replyTo?: string;
+        replyTo?: IPost;
         isReplyToShown?: boolean;
-        avatar?: string;
+        type?: IReplyType;
+        placeholder?: string;
+    }
+    interface ReplyInputElement extends ControlElement {
+        replyTo?: IPost;
+        isReplyToShown?: boolean;
+        type?: IReplyType;
+        placeholder?: string;
+        onChanged?: onChangedCallback;
+        onSubmit?: onSubmitCallback;
     }
     global {
         namespace JSX {
             interface IntrinsicElements {
-                ['i-scom-feed-reply-input']: ScomFeedReplyInputElement;
+                ['i-scom-feed--reply-input']: ReplyInputElement;
             }
         }
     }
     export class ScomFeedReplyInput extends Module {
+        private mdEmoji;
+        private mdGif;
+        private mdWidgets;
+        private lbReplyTo;
         private replyEditor;
         private btnReply;
+        private pnlReplyTo;
+        private gridReply;
         private imgReplier;
+        private pnlBorder;
+        private pnlIcons;
+        private gridGif;
+        private gridGifCate;
+        private pnlGif;
+        private iconGif;
+        private inputGif;
+        private bottomElm;
+        private gridEmojiCate;
+        private groupEmojis;
+        private pnlColors;
+        private lbEmoji;
+        private pnlEmojiResult;
+        private inputEmoji;
+        private gifLoading;
+        private autoPlaySwitch;
+        private pnlMedias;
+        private selectedColor;
+        private recent;
         private _data;
-        onChanged: (target: MarkdownEditor) => void;
-        onSubmit: (target: MarkdownEditor) => void;
-        get replyTo(): string;
-        set replyTo(value: string);
-        get avatar(): string;
-        set avatar(value: string);
+        private extensions;
+        private currentGifPage;
+        private totalGifPage;
+        private renderedMap;
+        private bottomObserver;
+        private newReply;
+        private isEmojiSearching;
+        private recentEmojis;
+        private emojiCateMapper;
+        private emojiGroupsData;
+        private searchTimer;
+        onChanged: onChangedCallback;
+        onSubmit: onSubmitCallback;
+        constructor(parent?: Container, options?: any);
+        static create(options?: ReplyInputElement, parent?: Container): Promise<ScomFeedReplyInput>;
+        get replyTo(): IPost;
+        set replyTo(value: IPost);
+        get type(): IReplyType;
+        set type(value: IReplyType);
+        get placeholder(): string;
+        set placeholder(value: string);
         get isReplyToShown(): boolean;
         set isReplyToShown(value: boolean);
-        set theme(value: Markdown["theme"]);
+        private get isQuote();
+        private get hasRecentEmojis();
+        private get emojiColors();
+        private get currentEmojiColor();
+        private isRecent;
         setData(value: IReplyInput): void;
         clear(): void;
+        private clearObservers;
+        private updateGrid;
         private onEditorChanged;
         private onReply;
+        private onUpload;
+        private onCloseModal;
+        private onShowModal;
+        private onGifMdOpen;
+        private onGifMdClose;
+        private renderGifCate;
+        private onGifSelected;
+        private onGifSearch;
+        private onToggleMainGif;
+        private renderGifs;
+        private onGifPlayChanged;
+        private onIconGifClicked;
+        private renderEmojis;
+        private renderEmojiCate;
+        private renderEmojiGroup;
+        private updateEmojiGroups;
+        private filterGroups;
+        private onRecentClear;
+        private renderEmojiColors;
+        private renderColor;
+        private onEmojiColorSelected;
+        private onEmojiCateSelected;
+        private onEmojiSelected;
+        private onEmojiSearch;
+        private onEmojiMdOpen;
+        protected _handleClick(event: MouseEvent, stopPropagation?: boolean): boolean;
         init(): void;
         render(): any;
     }
 }
-/// <amd-module name="@scom/scom-feed/commons/index.ts" />
-declare module "@scom/scom-feed/commons/index.ts" {
-    export { ScomFeedReplyInput } from "@scom/scom-feed/commons/replyInput/index.tsx";
+/// <amd-module name="@scom/scom-feed/assets.ts" />
+declare module "@scom/scom-feed/assets.ts" {
+    function fullPath(path: string): string;
+    const _default_1: {
+        fullPath: typeof fullPath;
+    };
+    export default _default_1;
+}
+/// <amd-module name="@scom/scom-feed/index.css.ts" />
+declare module "@scom/scom-feed/index.css.ts" {
+    export const hoverStyle: string;
 }
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
     import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema } from '@ijstech/components';
+    import { IFeed } from "@scom/scom-feed/global/index.ts";
+    import { IPost, ScomPost } from '@scom/scom-post';
+    type callbackType = (target: ScomPost) => {};
     interface ScomFeedElement extends ControlElement {
-        cids?: string[];
+        data?: IFeed;
         theme?: Markdown["theme"];
+        onItemClicked?: callbackType;
     }
     global {
         namespace JSX {
@@ -522,27 +642,32 @@ declare module "@scom/scom-feed" {
     export default class ScomFeed extends Module {
         private inputReply;
         private pnlPosts;
-        private pnlMore;
-        private lbMore;
+        private mdFilter;
+        private lbFilter;
+        private btnMore;
         private isRendering;
-        private _cids;
+        private _data;
         private _theme;
+        onItemClicked: callbackType;
         tag: {
             light: {};
             dark: {};
         };
         constructor(parent?: Container, options?: any);
         static create(options?: ScomFeedElement, parent?: Container): Promise<ScomFeed>;
-        get cids(): string[];
-        set cids(value: string[]);
+        get posts(): IPost[];
+        set posts(value: IPost[]);
         set theme(value: Markdown["theme"]);
         get theme(): Markdown["theme"];
         private clear;
         private setData;
         private getData;
         private renderUI;
-        private fetchData;
         private onViewPost;
+        private onReplySubmit;
+        addPost(post: IPost): void;
+        private onShowFilter;
+        private onFilter;
         getConfigurators(): ({
             name: string;
             target: string;
