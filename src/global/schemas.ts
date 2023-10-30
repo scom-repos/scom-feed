@@ -9,11 +9,11 @@ const theme = {
       type: 'string',
       format: 'color'
     },
-    inputBackgroundColor: {
+    cardBackground: {
       type: 'string',
       format: 'color'
     },
-    inputFontColor: {
+    gradientBackground: {
       type: 'string',
       format: 'color'
     },
@@ -65,7 +65,134 @@ const theme = {
       type: 'string',
       format: 'color'
     },
+    modalBackground: {
+      type: 'string',
+      format: 'color'
+    },
+    boxShadow: {
+      type: 'string',
+      format: 'color'
+    }
   }
+}
+
+const groupSchema =  {
+  type: 'Group',
+  elements: [
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/backgroundColor'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/fontColor'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/cardBackground'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/gradientBackground'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/primaryBackground'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/primaryColor'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/successBackground'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/successColor'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/errorBackground'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/errorColor'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/subcribeButtonBackground'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/placeholderColor'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/groupBorderColor'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/borderColor'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/secondaryColor'
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/modalBackground'
+        }
+      ]
+    },
+    {
+      type: 'HorizontalLayout',
+      elements: [
+        {
+          type: 'Control',
+          scope: '#/properties/dark/properties/boxShadow'
+        }
+      ]
+    }
+  ]
 }
 
 const themeUISchema = {
@@ -76,216 +203,12 @@ const themeUISchema = {
       type: 'VerticalLayout',
       elements: [
         {
-          type: 'Group',
           label: 'Dark',
-          elements: [
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/backgroundColor'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/fontColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/inputBackgroundColor'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/inputFontColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/primaryBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/primaryColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/successBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/successColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/errorBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/errorColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/subcribeButtonBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/placeholderColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/groupBorderColor'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/borderColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/dark/properties/secondaryColor'
-                }
-              ]
-            },
-          ]
+          ...groupSchema
         },
         {
-          type: 'Group',
           label: 'Light',
-          elements: [
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/backgroundColor'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/fontColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/inputBackgroundColor'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/inputFontColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/primaryBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/primaryColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/successBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/successColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/errorBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/errorColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/subcribeButtonBackground'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/placeholderColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/groupBorderColor'
-                },
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/borderColor'
-                }
-              ]
-            },
-            {
-              type: 'HorizontalLayout',
-              elements: [
-                {
-                  type: 'Control',
-                  scope: '#/properties/light/properties/secondaryColor'
-                }
-              ]
-            }
-          ]
+          ...groupSchema
         }
       ]
     }
@@ -296,12 +219,13 @@ export function getBuilderSchema() {
   return {
     dataSchema: {
       type: 'object',
-      required: ['cids'],
+      required: ['posts'],
       properties: {
-        cids: {
+        posts: {
           type: 'array',
           items: {
-            type: 'string'
+            type: 'object',
+            properties: {}
           }
         },
         dark: theme,
@@ -320,7 +244,7 @@ export function getBuilderSchema() {
               elements: [
                 {
                   type: 'Control',
-                  scope: '#/properties/cids'
+                  scope: '#/properties/posts'
                 }
               ]
             }
@@ -337,9 +261,10 @@ export function getEmbedderSchema() {
     dataSchema: {
       type: 'object',
       properties: {
-        cid: {
-          type: 'string',
-          required: true
+        post: {
+          type: 'object',
+          required: true,
+          properties: {}
         },
         dark: theme,
         light: theme
@@ -357,7 +282,7 @@ export function getEmbedderSchema() {
               elements: [
                 {
                   type: 'Control',
-                  scope: '#/properties/cids'
+                  scope: '#/properties/posts'
                 }
               ]
             }
