@@ -1109,16 +1109,25 @@ define("@scom/scom-feed/assets.ts", ["require", "exports", "@ijstech/components"
 define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.hoverStyle = void 0;
+    exports.getHoverStyleClass = void 0;
     const Theme = components_3.Styles.Theme.ThemeVars;
-    exports.hoverStyle = components_3.Styles.style({
-        $nest: {
-            '&:hover': {
-                color: `${Theme.text.primary} !important`,
-                background: `${Theme.action.hoverBackground} !important`
+    const getHoverStyleClass = (color) => {
+        const styleObj = {
+            $nest: {
+                '&:hover': {
+                    color: `${Theme.text.primary} !important`,
+                    background: `${color || Theme.action.hoverBackground} !important`,
+                    $nest: {
+                        'i-label': {
+                            color: `${Theme.text.primary} !important`
+                        }
+                    }
+                }
             }
-        }
-    });
+        };
+        return components_3.Styles.style(styleObj);
+    };
+    exports.getHoverStyleClass = getHoverStyleClass;
 });
 define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/assets.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_4, data_json_1, index_4, index_5, index_6, assets_1, index_css_1) {
     "use strict";
@@ -1176,9 +1185,68 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.addPost(post);
             }
             this.isRendering = false;
+            this.renderActions();
+        }
+        renderActions() {
+            const actions = [
+                {
+                    caption: 'Zap',
+                    icon: assets_1.default.fullPath('img/zap.svg')
+                },
+                {
+                    caption: 'Copy note link',
+                    icon: assets_1.default.fullPath('img/note_link.svg')
+                },
+                {
+                    caption: 'Copy note text',
+                    icon: assets_1.default.fullPath('img/note_text.svg')
+                },
+                {
+                    caption: 'Copy note ID',
+                    icon: assets_1.default.fullPath('img/note_id.svg')
+                },
+                {
+                    caption: 'Copy raw data',
+                    icon: assets_1.default.fullPath('img/raw_data.svg')
+                },
+                {
+                    caption: 'Broadcast note',
+                    icon: assets_1.default.fullPath('img/broadcast.svg')
+                },
+                {
+                    caption: 'Copy user public key',
+                    icon: assets_1.default.fullPath('img/pubkey.svg')
+                },
+                {
+                    caption: 'Mute user',
+                    icon: assets_1.default.fullPath('img/mute_user.svg'),
+                    hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+                },
+                {
+                    caption: 'Report user',
+                    icon: assets_1.default.fullPath('img/report.svg'),
+                    hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+                }
+            ];
+            this.pnlActions.clearInnerHTML();
+            for (let i = 0; i < actions.length; i++) {
+                const item = actions[i];
+                this.pnlActions.appendChild(this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%", padding: { top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem' }, background: { color: 'transparent' }, border: { radius: '0.5rem' }, class: (0, index_css_1.getHoverStyleClass)(item?.hoveredColor), onClick: () => {
+                        if (item.onClick)
+                            item.onClick();
+                    } },
+                    this.$render("i-label", { caption: item.caption, font: { color: Theme.colors.secondary.light, weight: 400, size: '0.875rem' } }),
+                    this.$render("i-image", { url: item.icon, width: '0.75rem', height: '0.75rem', display: 'inline-flex' })));
+            }
+            this.pnlActions.appendChild(this.$render("i-hstack", { width: "100%", horizontalAlignment: "center", padding: { top: 12, bottom: 12, left: 16, right: 16 }, visible: false, mediaQueries: [
+                    {
+                        maxWidth: '767px',
+                        properties: { visible: true }
+                    }
+                ] },
+                this.$render("i-button", { caption: 'Cancel', width: "100%", minHeight: 44, padding: { left: 16, right: 16 }, font: { color: Theme.text.primary, weight: 600 }, border: { radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light }, grid: { horizontalAlignment: 'center' }, background: { color: 'transparent' }, boxShadow: "none", onClick: () => this.onCloseModal('mdShare') })));
         }
         onViewPost(target) {
-            console.log(this.onItemClicked);
             if (this.onItemClicked)
                 this.onItemClicked(target);
         }
@@ -1215,6 +1283,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         addPost(post) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost }));
+            postEl.onProfileClicked = (target, data) => this.onShowModal(target, data, 'mdActions');
             this.pnlPosts.appendChild(postEl);
         }
         onShowFilter() {
@@ -1230,6 +1299,23 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             }
             target.rightIcon.visible = true;
             target.font = { color: Theme.text.primary };
+        }
+        onCloseModal(name) {
+            if (this[name])
+                this[name].visible = false;
+        }
+        onShowModal(target, data, name) {
+            if (this[name]) {
+                this[name].parent = target;
+                this[name].position = 'absolute';
+                this[name].refresh();
+                this[name].visible = true;
+                this[name].classList.add('show');
+            }
+        }
+        removeShow(name) {
+            if (this[name])
+                this[name].classList.remove('show');
         }
         getConfigurators() {
             const self = this;
@@ -1391,10 +1477,27 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         this.$render("i-panel", { width: '1rem', height: '1rem', background: { color: `url(${assets_1.default.fullPath('img/picker.svg')}) center/contain` }, display: "inline-flex" })),
                     this.$render("i-modal", { id: "mdFilter", popupPlacement: 'bottomRight', showBackdrop: false, minWidth: 200, maxWidth: 200, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' } },
                         this.$render("i-vstack", null,
-                            this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, class: index_css_1.hoverStyle, onClick: this.onFilter }),
-                            this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: index_css_1.hoverStyle, onClick: this.onFilter })))),
-                this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: index_css_1.hoverStyle }),
-                this.$render("i-vstack", { id: "pnlPosts" })));
+                            this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
+                            this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
+                this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
+                this.$render("i-vstack", { id: "pnlPosts" }),
+                this.$render("i-modal", { id: "mdActions", maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, mediaQueries: [
+                        {
+                            maxWidth: '767px',
+                            properties: {
+                                showBackdrop: true,
+                                popupPlacement: 'bottom',
+                                position: 'fixed',
+                                zIndex: 999,
+                                maxWidth: '100%',
+                                width: '100%',
+                                maxHeight: '50vh',
+                                overflow: { y: 'auto' },
+                                border: { radius: '16px 16px 0 0' }
+                            }
+                        }
+                    ], onClose: () => this.removeShow('mdActions') },
+                    this.$render("i-vstack", { id: "pnlActions", minWidth: 0 }))));
         }
     };
     ScomFeed = __decorate([
