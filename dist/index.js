@@ -1137,6 +1137,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         constructor(parent, options) {
             super(parent, options);
             this.isRendering = false;
+            this._data = {
+                posts: []
+            };
             this.tag = {
                 light: {},
                 dark: {}
@@ -1181,9 +1184,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (!this.posts?.length || this.isRendering)
                 return;
             this.isRendering = true;
-            for (let post of this.posts) {
-                this.addPost(post);
-            }
+            this.renderPosts();
             this.isRendering = false;
             this.renderActions();
         }
@@ -1285,6 +1286,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost }));
             postEl.onProfileClicked = (target, data) => this.onShowModal(target, data, 'mdActions');
             this.pnlPosts.appendChild(postEl);
+        }
+        setPosts(posts) {
+            if (!this._data)
+                this._data = { posts: [] };
+            this._data.posts = [...posts];
+            this.renderPosts();
+        }
+        renderPosts() {
+            this.pnlPosts.clearInnerHTML();
+            for (let post of this.posts) {
+                this.addPost(post);
+            }
         }
         onShowFilter() {
             this.mdFilter.visible = true;
@@ -1468,9 +1481,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.theme = themeVar;
         }
         render() {
-            return (this.$render("i-vstack", { width: "100%", maxWidth: 600, margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
+            return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-feed--reply-input", { id: "inputReply", type: "reply", onSubmit: this.onReplySubmit })),
+                    this.$render("i-scom-feed--reply-input", { id: "inputReply", type: "reply", placeholder: 'What is happening?', onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", onClick: this.onShowFilter },
                         this.$render("i-label", { id: "lbFilter", caption: 'Latest', font: { color: Theme.text.secondary } }),
