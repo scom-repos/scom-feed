@@ -999,7 +999,8 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             const replyTo = this.getAttribute('replyTo', true);
             const type = this.getAttribute('type', true, 'reply');
             const isReplyToShown = this.getAttribute('isReplyToShown', true, false);
-            this.setData({ isReplyToShown, replyTo, type });
+            const placeholder = this.getAttribute('placeholder', true);
+            this.setData({ isReplyToShown, replyTo, type, placeholder });
             this.renderGifCate();
             this.renderEmojis();
         }

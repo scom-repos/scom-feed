@@ -661,7 +661,7 @@ declare module "@scom/scom-feed" {
         set posts(value: IPost[]);
         set theme(value: Markdown["theme"]);
         get theme(): Markdown["theme"];
-        private clear;
+        clear(): void;
         private setData;
         private getData;
         private renderUI;

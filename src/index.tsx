@@ -94,7 +94,7 @@ export default class ScomFeed extends Module {
     return this._theme;
   }
 
-  private clear() {
+  clear() {
     this.inputReply.clear();
     this.pnlPosts.clearInnerHTML();
     this.isRendering = false;
