@@ -104,7 +104,9 @@ export default class Module1 extends Module {
         modalBackground: '#000',
         borderColor: '#666666',
         hoverColor: '#222222',
-        groupBorderColor: '#AAAAAA'
+        groupBorderColor: '#AAAAAA',
+        inputBackground: '#222222',
+        inputColor: '#757575'
       },
     };
     const builderTarget = this.feedEl

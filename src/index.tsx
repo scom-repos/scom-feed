@@ -54,7 +54,9 @@ export default class ScomFeed extends Module {
   private pnlActions: Panel;
 
   private isRendering: boolean = false;
-  private _data: IFeed;
+  private _data: IFeed = {
+    posts: []
+  };
   private _theme: Markdown['theme'];
 
   onItemClicked: callbackType;
@@ -111,9 +113,7 @@ export default class ScomFeed extends Module {
     this.clear();
     if (!this.posts?.length || this.isRendering) return;
     this.isRendering = true;
-    for (let post of this.posts) {
-      this.addPost(post);
-    }
+    this.renderPosts();
     this.isRendering = false;
     this.renderActions();
   }
@@ -254,6 +254,19 @@ export default class ScomFeed extends Module {
     )
     postEl.onProfileClicked = (target: Control, data: IPost) => this.onShowModal(target, data, 'mdActions');
     this.pnlPosts.appendChild(postEl);
+  }
+
+  setPosts(posts: IPost[]) {
+    if (!this._data) this._data = {posts: []};
+    this._data.posts = [...posts];
+    this.renderPosts();
+  }
+
+  private renderPosts() {
+    this.pnlPosts.clearInnerHTML();
+    for (let post of this.posts) {
+      this.addPost(post);
+    }
   }
 
   private onShowFilter() {
@@ -445,7 +458,7 @@ export default class ScomFeed extends Module {
   render() {
     return (
       <i-vstack
-        width="100%" maxWidth={600}
+        width="100%" maxWidth={'100%'}
         margin={{left: 'auto', right: 'auto'}}
         background={{color: Theme.background.main}}
       >
@@ -453,6 +466,7 @@ export default class ScomFeed extends Module {
           <i-scom-feed--reply-input
             id="inputReply"
             type="reply"
+            placeholder='What is happening?'
             onSubmit={this.onReplySubmit}
           />
         </i-panel>

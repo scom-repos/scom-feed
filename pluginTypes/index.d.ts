@@ -669,6 +669,8 @@ declare module "@scom/scom-feed" {
         private onViewPost;
         private onReplySubmit;
         addPost(post: IPost): void;
+        setPosts(posts: IPost[]): void;
+        private renderPosts;
         private onShowFilter;
         private onFilter;
         private onCloseModal;
