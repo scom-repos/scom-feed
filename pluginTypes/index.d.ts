@@ -661,14 +661,14 @@ declare module "@scom/scom-feed" {
         set posts(value: IPost[]);
         set theme(value: Markdown["theme"]);
         get theme(): Markdown["theme"];
-        private clear;
+        clear(): void;
         private setData;
         private getData;
         private renderUI;
         private renderActions;
         private onViewPost;
         private onReplySubmit;
-        addPost(post: IPost): void;
+        addPost(post: IPost, isPrepend?: boolean): void;
         setPosts(posts: IPost[]): void;
         private renderPosts;
         private onShowFilter;

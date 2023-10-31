@@ -999,7 +999,8 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             const replyTo = this.getAttribute('replyTo', true);
             const type = this.getAttribute('type', true, 'reply');
             const isReplyToShown = this.getAttribute('isReplyToShown', true, false);
-            this.setData({ isReplyToShown, replyTo, type });
+            const placeholder = this.getAttribute('placeholder', true);
+            this.setData({ isReplyToShown, replyTo, type, placeholder });
             this.renderGifCate();
             this.renderEmojis();
         }
@@ -1186,7 +1187,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.isRendering = true;
             this.renderPosts();
             this.isRendering = false;
-            this.renderActions();
         }
         renderActions() {
             const actions = [
@@ -1280,12 +1280,16 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 },
                 data: [...postDatas]
             };
-            this.addPost(newPost);
+            this.addPost(newPost, true);
         }
-        addPost(post) {
+        addPost(post, isPrepend) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost }));
             postEl.onProfileClicked = (target, data) => this.onShowModal(target, data, 'mdActions');
-            this.pnlPosts.appendChild(postEl);
+            postEl.onReplyClicked = () => this.onViewPost(postEl);
+            if (isPrepend)
+                this.pnlPosts.prepend(postEl);
+            else
+                this.pnlPosts.append(postEl);
         }
         setPosts(posts) {
             if (!this._data)
@@ -1479,6 +1483,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const themeVar = theme || document.body.style.getPropertyValue('--theme');
             if (themeVar)
                 this.theme = themeVar;
+            this.renderActions();
         }
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
@@ -1493,7 +1498,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                             this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
                             this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
                 this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
-                this.$render("i-vstack", { id: "pnlPosts" }),
+                this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem" }),
                 this.$render("i-modal", { id: "mdActions", maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, mediaQueries: [
                         {
                             maxWidth: '767px',

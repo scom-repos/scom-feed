@@ -94,7 +94,7 @@ export default class ScomFeed extends Module {
     return this._theme;
   }
 
-  private clear() {
+  clear() {
     this.inputReply.clear();
     this.pnlPosts.clearInnerHTML();
     this.isRendering = false;
@@ -115,7 +115,6 @@ export default class ScomFeed extends Module {
     this.isRendering = true;
     this.renderPosts();
     this.isRendering = false;
-    this.renderActions();
   }
 
   private renderActions() {
@@ -241,19 +240,22 @@ export default class ScomFeed extends Module {
       },
       data: [...postDatas]
     }
-    this.addPost(newPost)
+    this.addPost(newPost, true)
   }
 
-  addPost(post: IPost) {
+  addPost(post: IPost, isPrepend?: boolean) {
     const postEl = (
       <i-scom-post
         data={post}
         type="short"
         onClick={this.onViewPost}
       ></i-scom-post>
-    )
+    ) as ScomPost;
     postEl.onProfileClicked = (target: Control, data: IPost) => this.onShowModal(target, data, 'mdActions');
-    this.pnlPosts.appendChild(postEl);
+    postEl.onReplyClicked = () => this.onViewPost(postEl);
+    if (isPrepend)
+      this.pnlPosts.prepend(postEl);
+    else this.pnlPosts.append(postEl);
   }
 
   setPosts(posts: IPost[]) {
@@ -453,6 +455,7 @@ export default class ScomFeed extends Module {
     const theme = this.getAttribute('theme', true);
     const themeVar = theme || document.body.style.getPropertyValue('--theme');
     if (themeVar) this.theme = themeVar as Markdown['theme'];
+    this.renderActions();
   }
 
   render() {
@@ -533,7 +536,7 @@ export default class ScomFeed extends Module {
           visible={false}
           class={getHoverStyleClass()}
         ></i-button>
-        <i-vstack id="pnlPosts" />
+        <i-vstack id="pnlPosts" gap="0.5rem"/>
         <i-modal
           id="mdActions"
           maxWidth={'15rem'}

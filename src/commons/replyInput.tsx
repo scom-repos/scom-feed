@@ -708,7 +708,8 @@ export class ScomFeedReplyInput extends Module {
     const replyTo = this.getAttribute('replyTo', true);
     const type = this.getAttribute('type', true, 'reply');
     const isReplyToShown = this.getAttribute('isReplyToShown', true, false);
-    this.setData({ isReplyToShown, replyTo, type });
+    const placeholder = this.getAttribute('placeholder', true);
+    this.setData({ isReplyToShown, replyTo, type, placeholder });
     this.renderGifCate();
     this.renderEmojis();
   }
