@@ -5,22 +5,6 @@ declare module "@scom/scom-feed/data.json.ts" {
     };
     export default _default;
 }
-/// <amd-module name="@scom/scom-feed/store/index.ts" />
-declare module "@scom/scom-feed/store/index.ts" {
-    import { IAuthor } from "@scom/scom-post";
-    export const state: {
-        ipfsGatewayUrl: string;
-    };
-    export const setDataFromJson: (options: any) => void;
-    export const setIPFSGatewayUrl: (url: string) => void;
-    export const getIPFSGatewayUrl: () => string;
-    export const getCurrentUser: () => IAuthor;
-}
-/// <amd-module name="@scom/scom-feed/global/utils.ts" />
-declare module "@scom/scom-feed/global/utils.ts" {
-    const getImageIpfsUrl: (url: string) => string;
-    export { getImageIpfsUrl };
-}
 /// <amd-module name="@scom/scom-feed/global/schemas.ts" />
 declare module "@scom/scom-feed/global/schemas.ts" {
     export function getBuilderSchema(): {
@@ -482,10 +466,20 @@ declare module "@scom/scom-feed/global/API.ts" {
 }
 /// <amd-module name="@scom/scom-feed/global/index.ts" />
 declare module "@scom/scom-feed/global/index.ts" {
-    export * from "@scom/scom-feed/global/utils.ts";
     export * from "@scom/scom-feed/global/schemas.ts";
     export * from "@scom/scom-feed/global/interface.ts";
     export * from "@scom/scom-feed/global/API.ts";
+}
+/// <amd-module name="@scom/scom-feed/store/index.ts" />
+declare module "@scom/scom-feed/store/index.ts" {
+    import { IAuthor } from "@scom/scom-post";
+    export const state: {
+        ipfsGatewayUrl: string;
+    };
+    export const setDataFromJson: (options: any) => void;
+    export const setIPFSGatewayUrl: (url: string) => void;
+    export const getIPFSGatewayUrl: () => string;
+    export const getCurrentUser: () => IAuthor;
 }
 /// <amd-module name="@scom/scom-feed/commons/replyInput.tsx" />
 declare module "@scom/scom-feed/commons/replyInput.tsx" {
@@ -629,6 +623,7 @@ declare module "@scom/scom-feed" {
     type callbackType = (target: ScomPost) => {};
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
+        isListView?: boolean;
         theme?: Markdown["theme"];
         onItemClicked?: callbackType;
     }
@@ -640,15 +635,18 @@ declare module "@scom/scom-feed" {
         }
     }
     export default class ScomFeed extends Module {
+        private pnlInput;
         private inputReply;
         private pnlPosts;
         private mdFilter;
         private lbFilter;
+        private pnlFilter;
         private btnMore;
         private mdActions;
         private pnlActions;
         private isRendering;
         private _data;
+        private _isListView;
         private _theme;
         onItemClicked: callbackType;
         tag: {
@@ -659,6 +657,8 @@ declare module "@scom/scom-feed" {
         static create(options?: ScomFeedElement, parent?: Container): Promise<ScomFeed>;
         get posts(): IPost[];
         set posts(value: IPost[]);
+        get isListView(): boolean;
+        set isListView(value: boolean);
         set theme(value: Markdown["theme"]);
         get theme(): Markdown["theme"];
         clear(): void;

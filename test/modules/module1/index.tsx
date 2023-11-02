@@ -80,7 +80,7 @@ export default class Module1 extends Module {
             },
           ],
         }
-      ],
+      ]
     };
   }
 

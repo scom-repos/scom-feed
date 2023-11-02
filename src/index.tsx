@@ -31,6 +31,7 @@ type callbackType = (target: ScomPost) => {}
 
 interface ScomFeedElement extends ControlElement {
   data?: IFeed;
+  isListView?: boolean;
   theme?: Markdown["theme"];
   onItemClicked?: callbackType;
 }
@@ -45,10 +46,12 @@ declare global {
 
 @customElements('i-scom-feed')
 export default class ScomFeed extends Module {
+  private pnlInput: Panel;
   private inputReply: ScomFeedReplyInput;
   private pnlPosts: VStack;
   private mdFilter: Modal;
   private lbFilter: Label;
+  private pnlFilter: Panel;
   private btnMore: Button;
   private mdActions: Modal;
   private pnlActions: Panel;
@@ -57,6 +60,7 @@ export default class ScomFeed extends Module {
   private _data: IFeed = {
     posts: []
   };
+  private _isListView: boolean = false;
   private _theme: Markdown['theme'];
 
   onItemClicked: callbackType;
@@ -84,6 +88,16 @@ export default class ScomFeed extends Module {
   }
   set posts(value: IPost[]) {
     this._data.posts = value || [];
+  }
+
+  get isListView() {
+    return this._isListView ?? false;
+  }
+  set isListView(value: boolean) {
+    this._isListView = value ?? false;
+    this.pnlFilter.visible = !this.isListView;
+    this.btnMore.visible = false; // !this.isListView;
+    this.pnlInput.visible = !this.isListView;
   }
 
   set theme(value: Markdown["theme"]) {
@@ -452,6 +466,8 @@ export default class ScomFeed extends Module {
     this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
     const data = this.getAttribute('data', true);
     if (data) this.setData(data);
+    const isListView = this.getAttribute('isListView', true, false);
+    this.isListView = isListView;
     const theme = this.getAttribute('theme', true);
     const themeVar = theme || document.body.style.getPropertyValue('--theme');
     if (themeVar) this.theme = themeVar as Markdown['theme'];
@@ -465,7 +481,7 @@ export default class ScomFeed extends Module {
         margin={{left: 'auto', right: 'auto'}}
         background={{color: Theme.background.main}}
       >
-        <i-panel padding={{top: '1.625rem', left: '1.25rem', right: '1.25rem'}}>
+        <i-panel id="pnlInput" padding={{top: '1.625rem', left: '1.25rem', right: '1.25rem'}}>
           <i-scom-feed--reply-input
             id="inputReply"
             type="reply"
@@ -473,7 +489,7 @@ export default class ScomFeed extends Module {
             onSubmit={this.onReplySubmit}
           />
         </i-panel>
-        <i-panel minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}}>
+        <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}}>
           <i-hstack
             width={'100%'}
             horizontalAlignment="end"
@@ -530,7 +546,7 @@ export default class ScomFeed extends Module {
           background={{color: Theme.background.paper}}
           border={{radius: '0.5rem'}}
           height={'2.5rem'}
-          margin={{top: '0.25rem'}}
+          margin={{top: '0.25rem', bottom: '0.5rem'}}
           caption='0 new note'
           boxShadow={Theme.shadows[1]}
           visible={false}
