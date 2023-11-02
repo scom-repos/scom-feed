@@ -26,54 +26,6 @@ define("@scom/scom-feed/data.json.ts", ["require", "exports"], function (require
         "ipfsGatewayUrl": "https://ipfs.scom.dev/ipfs/"
     };
 });
-define("@scom/scom-feed/store/index.ts", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getCurrentUser = exports.getIPFSGatewayUrl = exports.setIPFSGatewayUrl = exports.setDataFromJson = exports.state = void 0;
-    exports.state = {
-        ipfsGatewayUrl: ""
-    };
-    const setDataFromJson = (options) => {
-        if (options.ipfsGatewayUrl) {
-            (0, exports.setIPFSGatewayUrl)(options.ipfsGatewayUrl);
-        }
-    };
-    exports.setDataFromJson = setDataFromJson;
-    const setIPFSGatewayUrl = (url) => {
-        exports.state.ipfsGatewayUrl = url;
-    };
-    exports.setIPFSGatewayUrl = setIPFSGatewayUrl;
-    const getIPFSGatewayUrl = () => {
-        return exports.state.ipfsGatewayUrl;
-    };
-    exports.getIPFSGatewayUrl = getIPFSGatewayUrl;
-    const getCurrentUser = () => {
-        const user = {
-            id: "",
-            username: "",
-            description: "",
-            avatar: undefined
-        };
-        return user;
-    };
-    exports.getCurrentUser = getCurrentUser;
-});
-define("@scom/scom-feed/global/utils.ts", ["require", "exports", "@scom/scom-feed/store/index.ts"], function (require, exports, index_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getImageIpfsUrl = void 0;
-    const getImageIpfsUrl = (url) => {
-        const ipfsBaseUrl = (0, index_1.getIPFSGatewayUrl)();
-        if (isIpfsCid(url))
-            return ipfsBaseUrl + url;
-        return url;
-    };
-    exports.getImageIpfsUrl = getImageIpfsUrl;
-    const isIpfsCid = (value) => {
-        const regex = new RegExp('^(Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})$');
-        return regex.test(value);
-    };
-});
 define("@scom/scom-feed/global/schemas.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -523,16 +475,47 @@ define("@scom/scom-feed/global/API.ts", ["require", "exports"], function (requir
     };
     exports.searchEmojis = searchEmojis;
 });
-define("@scom/scom-feed/global/index.ts", ["require", "exports", "@scom/scom-feed/global/utils.ts", "@scom/scom-feed/global/schemas.ts", "@scom/scom-feed/global/interface.ts", "@scom/scom-feed/global/API.ts"], function (require, exports, utils_1, schemas_1, interface_1, API_1) {
+define("@scom/scom-feed/global/index.ts", ["require", "exports", "@scom/scom-feed/global/schemas.ts", "@scom/scom-feed/global/interface.ts", "@scom/scom-feed/global/API.ts"], function (require, exports, schemas_1, interface_1, API_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     ///<amd-module name='@scom/scom-feed/global/index.ts'/> 
-    __exportStar(utils_1, exports);
     __exportStar(schemas_1, exports);
     __exportStar(interface_1, exports);
     __exportStar(API_1, exports);
 });
-define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstech/components", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts"], function (require, exports, components_1, index_2, index_3) {
+define("@scom/scom-feed/store/index.ts", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.getCurrentUser = exports.getIPFSGatewayUrl = exports.setIPFSGatewayUrl = exports.setDataFromJson = exports.state = void 0;
+    exports.state = {
+        ipfsGatewayUrl: ""
+    };
+    const setDataFromJson = (options) => {
+        if (options.ipfsGatewayUrl) {
+            (0, exports.setIPFSGatewayUrl)(options.ipfsGatewayUrl);
+        }
+    };
+    exports.setDataFromJson = setDataFromJson;
+    const setIPFSGatewayUrl = (url) => {
+        exports.state.ipfsGatewayUrl = url;
+    };
+    exports.setIPFSGatewayUrl = setIPFSGatewayUrl;
+    const getIPFSGatewayUrl = () => {
+        return exports.state.ipfsGatewayUrl;
+    };
+    exports.getIPFSGatewayUrl = getIPFSGatewayUrl;
+    const getCurrentUser = () => {
+        const user = {
+            id: "",
+            username: "",
+            description: "",
+            avatar: undefined
+        };
+        return user;
+    };
+    exports.getCurrentUser = getCurrentUser;
+});
+define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstech/components", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts"], function (require, exports, components_1, index_1, index_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ScomFeedReplyInput = void 0;
@@ -605,7 +588,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             return !!Object.values(this.recentEmojis).length;
         }
         get emojiColors() {
-            return Object.keys(index_2.colorsMapper);
+            return Object.keys(index_1.colorsMapper);
         }
         get currentEmojiColor() {
             return this.selectedColor?.background?.color || this.emojiColors[0];
@@ -617,7 +600,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             this.clear();
             this._data = value;
             this.lbReplyTo.caption = `@${this.replyTo?.author?.username || ''}`;
-            this.imgReplier.url = (0, index_3.getCurrentUser)()?.avatar || '';
+            this.imgReplier.url = (0, index_2.getCurrentUser)()?.avatar || '';
             const defaultPlaceholder = this.isQuote ? 'Add a comment' : 'Post your reply';
             this.replyEditor.placeholder = this.placeholder || defaultPlaceholder;
             this.btnReply.caption = this.isQuote ? 'Post' : 'Reply';
@@ -704,7 +687,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
         }
         async renderGifCate() {
             this.gridGifCate.clearInnerHTML();
-            const { data = [] } = await (0, index_2.fetchReactionGifs)();
+            const { data = [] } = await (0, index_1.fetchReactionGifs)();
             const limitedList = [...data].slice(0, 8);
             for (let cate of limitedList) {
                 this.gridGifCate.appendChild(this.$render("i-panel", { overflow: 'hidden', onClick: () => this.onGifSearch(cate.name) },
@@ -774,7 +757,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             this.gifLoading.visible = true;
             this.renderedMap[this.currentGifPage] = true;
             const params = { q, offset: this.currentGifPage - 1 };
-            const { data = [], pagination: { total_count, count } } = await (0, index_2.fetchGifs)(params);
+            const { data = [], pagination: { total_count, count } } = await (0, index_1.fetchGifs)(params);
             this.totalGifPage = Math.ceil(total_count / count);
             this.bottomElm.visible = this.totalGifPage > 1;
             const autoPlay = this.autoPlaySwitch.checked;
@@ -801,14 +784,14 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             this.recentEmojis = {};
             this.emojiCateMapper = new Map();
             this.renderEmojiCate();
-            for (let category of index_2.emojiCategories) {
+            for (let category of index_1.emojiCategories) {
                 this.renderEmojiGroup(this.groupEmojis, category);
             }
             this.renderColor(this.emojiColors[0]);
         }
         async renderEmojiCate() {
             this.gridEmojiCate.clearInnerHTML();
-            for (let category of index_2.emojiCategories) {
+            for (let category of index_1.emojiCategories) {
                 const cateEl = (this.$render("i-vstack", { id: `cate-${category.value}`, overflow: 'hidden', cursor: 'pointer', opacity: 0.5, padding: { top: '0.25rem', bottom: '0.25rem' }, horizontalAlignment: "center", position: 'relative', class: "emoji-cate", gap: '0.5rem', onClick: (target) => this.onEmojiCateSelected(target, category) },
                     this.$render("i-image", { url: category.image, width: '1.25rem', height: '1.25rem', display: 'block' }),
                     this.$render("i-hstack", { visible: false, border: { radius: '9999px' }, height: '0.25rem', width: '100%', position: 'absolute', bottom: "0px", background: { color: Theme.colors.primary.main } })));
@@ -829,12 +812,12 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
                 data = Object.values(this.recentEmojis);
             }
             else if (category.value === 'search') {
-                const result = (0, index_2.searchEmojis)(this.inputEmoji.value, this.emojiGroupsData);
+                const result = (0, index_1.searchEmojis)(this.inputEmoji.value, this.emojiGroupsData);
                 data = this.filterGroups(result);
             }
             else {
                 if (!this.emojiGroupsData.has(category.value)) {
-                    const list = await (0, index_2.fetchEmojis)({ category: category.value });
+                    const list = await (0, index_1.fetchEmojis)({ category: category.value });
                     this.emojiGroupsData.set(category.value, JSON.parse(JSON.stringify(list)));
                 }
                 data = this.filterGroups(this.emojiGroupsData.get(category.value));
@@ -850,8 +833,8 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             }
         }
         updateEmojiGroups() {
-            for (let i = 1; i < index_2.emojiCategories.length; i++) {
-                const category = index_2.emojiCategories[i];
+            for (let i = 1; i < index_1.emojiCategories.length; i++) {
+                const category = index_1.emojiCategories[i];
                 const gridElm = this.groupEmojis.querySelector(`#group-${category.value}`);
                 if (!gridElm)
                     continue;
@@ -865,7 +848,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             }
         }
         filterGroups(data) {
-            const colorHtmlCode = index_2.colorsMapper[this.currentEmojiColor].htmlCode;
+            const colorHtmlCode = index_1.colorsMapper[this.currentEmojiColor].htmlCode;
             return [...data].filter(item => {
                 if (colorHtmlCode) {
                     return item.htmlCode.includes(colorHtmlCode);
@@ -882,7 +865,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
                 this.recent.clearInnerHTML();
                 this.recent = null;
             }
-            this.onEmojiCateSelected(this.gridEmojiCate.children[1], index_2.emojiCategories[1]);
+            this.onEmojiCateSelected(this.gridEmojiCate.children[1], index_1.emojiCategories[1]);
         }
         renderEmojiColors() {
             this.pnlColors.clearInnerHTML();
@@ -973,13 +956,13 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             if (this.hasRecentEmojis) {
                 const recent = this.groupEmojis.querySelector('#recent');
                 recent && this.groupEmojis.removeChild(recent);
-                this.renderEmojiGroup(this.groupEmojis, index_2.emojiCategories[0]);
+                this.renderEmojiGroup(this.groupEmojis, index_1.emojiCategories[0]);
             }
             else {
                 this.recent && this.recent.clearInnerHTML();
             }
             const index = this.hasRecentEmojis ? 0 : 1;
-            this.onEmojiCateSelected(this.gridEmojiCate.children[index], index_2.emojiCategories[index]);
+            this.onEmojiCateSelected(this.gridEmojiCate.children[index], index_1.emojiCategories[index]);
             this.pnlColors.clearInnerHTML();
             this.renderColor(this.currentEmojiColor);
             this.mdEmoji.refresh();
@@ -1017,7 +1000,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
                     this.$render("i-panel", { grid: { area: 'editor' } },
                         this.$render("i-markdown-editor", { id: "replyEditor", width: "100%", viewer: false, hideModeSwitch: true, mode: "wysiwyg", toolbarItems: [], font: { size: '1.25rem', color: Theme.text.primary }, lineHeight: 1.5, padding: { top: 12, bottom: 12, left: 0, right: 0 }, background: { color: 'transparent' }, height: "auto", minHeight: 0, onChanged: this.onEditorChanged, cursor: 'text', border: { style: 'none' } }),
                         this.$render("i-vstack", { id: "pnlMedias", margin: { bottom: '1rem' } })),
-                    this.$render("i-hstack", { id: "pnlBorder", horizontalAlignment: "space-between", grid: { area: 'reply' }, padding: { top: '0.75rem' } },
+                    this.$render("i-hstack", { id: "pnlBorder", horizontalAlignment: "space-between", grid: { area: 'reply' } },
                         this.$render("i-hstack", { id: "pnlIcons", gap: "4px", verticalAlignment: "center", visible: false },
                             this.$render("i-icon", { name: "image", width: 28, height: 28, fill: Theme.colors.primary.main, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, tooltip: { content: 'Media', placement: 'bottom' }, onClick: this.onUpload }),
                             this.$render("i-icon", { name: "images", width: 28, height: 28, fill: Theme.colors.primary.main, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, tooltip: { content: 'GIF', placement: 'bottom' }, onClick: () => this.onShowModal('mdGif') }),
@@ -1130,7 +1113,7 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
     };
     exports.getHoverStyleClass = getHoverStyleClass;
 });
-define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/assets.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_4, data_json_1, index_4, index_5, index_6, assets_1, index_css_1) {
+define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/assets.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_4, data_json_1, index_3, index_4, index_5, assets_1, index_css_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_4.Styles.Theme.ThemeVars;
@@ -1141,12 +1124,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._data = {
                 posts: []
             };
+            this._isListView = false;
             this.tag = {
                 light: {},
                 dark: {}
             };
             if (data_json_1.default)
-                (0, index_5.setDataFromJson)(data_json_1.default);
+                (0, index_4.setDataFromJson)(data_json_1.default);
             this.onReplySubmit = this.onReplySubmit.bind(this);
             this.onViewPost = this.onViewPost.bind(this);
         }
@@ -1160,6 +1144,15 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         set posts(value) {
             this._data.posts = value || [];
+        }
+        get isListView() {
+            return this._isListView ?? false;
+        }
+        set isListView(value) {
+            this._isListView = value ?? false;
+            this.pnlFilter.visible = !this.isListView;
+            this.btnMore.visible = false; // !this.isListView;
+            this.pnlInput.visible = !this.isListView;
         }
         set theme(value) {
             this._theme = value;
@@ -1270,7 +1263,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const newPost = {
                 id: components_4.IdUtils.generateUUID(),
                 publishDate: (0, components_4.moment)().utc().toString(),
-                author: (0, index_6.getCurrentUser)(),
+                author: (0, index_5.getCurrentUser)(),
                 stat: {
                     reply: 0,
                     repost: 0,
@@ -1341,7 +1334,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     name: 'Builder Configurator',
                     target: 'Builders',
                     getActions: () => {
-                        const builderSchema = (0, index_4.getBuilderSchema)();
+                        const builderSchema = (0, index_3.getBuilderSchema)();
                         const dataSchema = builderSchema.dataSchema;
                         const uiSchema = builderSchema.uiSchema;
                         return this._getActions(dataSchema, uiSchema);
@@ -1355,7 +1348,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     name: 'Emdedder Configurator',
                     target: 'Embedders',
                     getActions: () => {
-                        const embedderSchema = (0, index_4.getEmbedderSchema)();
+                        const embedderSchema = (0, index_3.getEmbedderSchema)();
                         const dataSchema = embedderSchema.dataSchema;
                         const uiSchema = embedderSchema.uiSchema;
                         return this._getActions(dataSchema, uiSchema);
@@ -1479,6 +1472,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const data = this.getAttribute('data', true);
             if (data)
                 this.setData(data);
+            const isListView = this.getAttribute('isListView', true, false);
+            this.isListView = isListView;
             const theme = this.getAttribute('theme', true);
             const themeVar = theme || document.body.style.getPropertyValue('--theme');
             if (themeVar)
@@ -1487,9 +1482,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
-                this.$render("i-panel", { padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
+                this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
                     this.$render("i-scom-feed--reply-input", { id: "inputReply", type: "reply", placeholder: 'What is happening?', onSubmit: this.onReplySubmit })),
-                this.$render("i-panel", { minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
+                this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", onClick: this.onShowFilter },
                         this.$render("i-label", { id: "lbFilter", caption: 'Latest', font: { color: Theme.text.secondary } }),
                         this.$render("i-panel", { width: '1rem', height: '1rem', background: { color: `url(${assets_1.default.fullPath('img/picker.svg')}) center/contain` }, display: "inline-flex" })),
@@ -1497,7 +1492,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         this.$render("i-vstack", null,
                             this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
                             this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
-                this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
+                this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem', bottom: '0.5rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
                 this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem" }),
                 this.$render("i-modal", { id: "mdActions", maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, mediaQueries: [
                         {
