@@ -1184,10 +1184,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         renderActions() {
             const actions = [
                 {
-                    caption: 'Zap',
-                    icon: assets_1.default.fullPath('img/zap.svg')
-                },
-                {
                     caption: 'Copy note link',
                     icon: assets_1.default.fullPath('img/note_link.svg')
                 },
