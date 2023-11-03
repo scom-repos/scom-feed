@@ -134,10 +134,6 @@ export default class ScomFeed extends Module {
   private renderActions() {
     const actions = [
       {
-        caption: 'Zap',
-        icon: assets.fullPath('img/zap.svg')
-      },
-      {
         caption: 'Copy note link',
         icon: assets.fullPath('img/note_link.svg')
       },
