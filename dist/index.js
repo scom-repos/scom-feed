@@ -1173,6 +1173,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.pnlPosts.clearInnerHTML();
             this.isRendering = false;
         }
+        showLoading() {
+            this.pnlLoading.visible = true;
+        }
+        hideLoading() {
+            this.pnlLoading.visible = false;
+        }
         async setData(data) {
             this._data = data;
             await this.renderUI();
@@ -1499,7 +1505,11 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                             this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
                             this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
                 this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem', bottom: '0.5rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
-                this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem" }),
+                this.$render("i-panel", null,
+                    this.$render("i-vstack", { id: "pnlLoading", padding: { top: '0.5rem', bottom: '0.5rem' }, visible: false, height: "100%", width: "100%", minHeight: 200, position: "absolute", top: 0, bottom: 0, zIndex: 999, background: { color: Theme.background.main }, class: "i-loading-overlay" },
+                        this.$render("i-vstack", { horizontalAlignment: "center", verticalAlignment: "center", position: "absolute", top: "calc(50% - 0.75rem)", left: "calc(50% - 0.75rem)" },
+                            this.$render("i-icon", { class: "i-loading-spinner_icon", name: "spinner", width: 24, height: 24, fill: Theme.colors.primary.main }))),
+                    this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem" })),
                 this.$render("i-modal", { id: "mdActions", maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, mediaQueries: [
                         {
                             maxWidth: '767px',
