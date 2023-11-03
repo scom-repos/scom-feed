@@ -493,12 +493,14 @@ declare module "@scom/scom-feed/commons/replyInput.tsx" {
         isReplyToShown?: boolean;
         type?: IReplyType;
         placeholder?: string;
+        buttonCaption?: string;
     }
     interface ReplyInputElement extends ControlElement {
         replyTo?: IPost;
         isReplyToShown?: boolean;
         type?: IReplyType;
         placeholder?: string;
+        buttonCaption?: string;
         onChanged?: onChangedCallback;
         onSubmit?: onSubmitCallback;
     }
@@ -560,6 +562,8 @@ declare module "@scom/scom-feed/commons/replyInput.tsx" {
         set type(value: IReplyType);
         get placeholder(): string;
         set placeholder(value: string);
+        get buttonCaption(): string;
+        set buttonCaption(value: string);
         get isReplyToShown(): boolean;
         set isReplyToShown(value: boolean);
         private get isQuote();
@@ -620,12 +624,14 @@ declare module "@scom/scom-feed" {
     import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema } from '@ijstech/components';
     import { IFeed } from "@scom/scom-feed/global/index.ts";
     import { IPost, ScomPost } from '@scom/scom-post';
-    type callbackType = (target: ScomPost) => {};
+    type callbackType = (target: ScomPost) => void;
+    type submitCallbackType = (newPost: IPost) => void;
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
         isListView?: boolean;
         theme?: Markdown["theme"];
         onItemClicked?: callbackType;
+        onPostButtonClicked?: submitCallbackType;
     }
     global {
         namespace JSX {
@@ -649,6 +655,7 @@ declare module "@scom/scom-feed" {
         private _isListView;
         private _theme;
         onItemClicked: callbackType;
+        onPostButtonClicked: submitCallbackType;
         tag: {
             light: {};
             dark: {};
