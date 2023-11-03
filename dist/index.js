@@ -575,6 +575,12 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
         set placeholder(value) {
             this._data.placeholder = value ?? '';
         }
+        get buttonCaption() {
+            return this._data.buttonCaption ?? '';
+        }
+        set buttonCaption(value) {
+            this._data.buttonCaption = value ?? '';
+        }
         get isReplyToShown() {
             return this._data.isReplyToShown ?? false;
         }
@@ -603,7 +609,8 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             this.imgReplier.url = (0, index_2.getCurrentUser)()?.avatar || '';
             const defaultPlaceholder = this.isQuote ? 'Add a comment' : 'Post your reply';
             this.replyEditor.placeholder = this.placeholder || defaultPlaceholder;
-            this.btnReply.caption = this.isQuote ? 'Post' : 'Reply';
+            if (this.buttonCaption)
+                this.btnReply.caption = this.buttonCaption;
             this.pnlBorder.style.borderTopStyle = this.isQuote ? 'solid' : 'none';
             this.updateGrid();
         }
@@ -619,7 +626,6 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
                     color: Theme.divider,
                 }
             };
-            this.btnReply.caption = 'Reply';
             this.currentGifPage = 1;
             this.totalGifPage = 1;
             this.pnlMedias.clearInnerHTML();
@@ -983,7 +989,8 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
             const type = this.getAttribute('type', true, 'reply');
             const isReplyToShown = this.getAttribute('isReplyToShown', true, false);
             const placeholder = this.getAttribute('placeholder', true);
-            this.setData({ isReplyToShown, replyTo, type, placeholder });
+            const buttonCaption = this.getAttribute('buttonCaption', true);
+            this.setData({ isReplyToShown, replyTo, type, placeholder, buttonCaption });
             this.renderGifCate();
             this.renderEmojis();
         }
@@ -1018,7 +1025,7 @@ define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstec
                                             this.$render("i-label", { id: "lbEmoji", width: '1.25rem', height: '1.25rem', display: "inline-block" }),
                                             this.$render("i-hstack", { id: "pnlColors", verticalAlignment: "center", gap: '0.25rem', overflow: 'hidden', cursor: "pointer", padding: { top: '0.25rem', left: '0.25rem', right: '0.25rem', bottom: '0.25rem' } }))))),
                             this.$render("i-icon", { name: "map-marker-alt", width: 28, height: 28, fill: Theme.colors.primary.main, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, tooltip: { content: 'SCOM widgets', placement: 'bottom' }, onClick: () => this.onShowModal('mdWidgets') })),
-                        this.$render("i-button", { id: "btnReply", height: 36, padding: { left: '1rem', right: '1rem' }, background: { color: Theme.colors.primary.main }, font: { color: Theme.colors.primary.contrastText, bold: true }, border: { radius: '30px' }, enabled: false, margin: { left: 'auto' }, caption: "Reply", onClick: this.onReply }))),
+                        this.$render("i-button", { id: "btnReply", height: 36, padding: { left: '1rem', right: '1rem' }, background: { color: Theme.colors.primary.main }, font: { color: Theme.colors.primary.contrastText, bold: true }, border: { radius: '30px' }, enabled: false, margin: { left: 'auto' }, caption: "Post", onClick: this.onReply }))),
                 this.$render("i-modal", { id: "mdGif", border: { radius: '1rem' }, maxWidth: '600px', maxHeight: '90vh', padding: { top: 0, right: 0, left: 0, bottom: 0 }, mediaQueries: [
                         {
                             maxWidth: '767px',
@@ -1269,6 +1276,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 },
                 data: [...postDatas]
             };
+            if (this.onPostButtonClicked)
+                this.onPostButtonClicked(newPost);
             this.addPost(newPost, true);
         }
         addPost(post, isPrepend) {
@@ -1465,6 +1474,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         init() {
             super.init();
             this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
+            this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
             const data = this.getAttribute('data', true);
             if (data)
                 this.setData(data);
@@ -1479,7 +1489,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-feed--reply-input", { id: "inputReply", type: "reply", placeholder: 'What is happening?', onSubmit: this.onReplySubmit })),
+                    this.$render("i-scom-feed--reply-input", { id: "inputReply", placeholder: 'What is happening?', onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", onClick: this.onShowFilter },
                         this.$render("i-label", { id: "lbFilter", caption: 'Latest', font: { color: Theme.text.secondary } }),

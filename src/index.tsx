@@ -27,13 +27,15 @@ import assets from './assets';
 import { getHoverStyleClass } from './index.css';
 
 const Theme = Styles.Theme.ThemeVars;
-type callbackType = (target: ScomPost) => {}
+type callbackType = (target: ScomPost) => void
+type submitCallbackType = (newPost: IPost) => void
 
 interface ScomFeedElement extends ControlElement {
   data?: IFeed;
   isListView?: boolean;
   theme?: Markdown["theme"];
   onItemClicked?: callbackType;
+  onPostButtonClicked?: submitCallbackType;
 }
 
 declare global {
@@ -64,6 +66,7 @@ export default class ScomFeed extends Module {
   private _theme: Markdown['theme'];
 
   onItemClicked: callbackType;
+  onPostButtonClicked: submitCallbackType;
 
   tag = {
     light: {},
@@ -250,6 +253,7 @@ export default class ScomFeed extends Module {
       },
       data: [...postDatas]
     }
+    if (this.onPostButtonClicked) this.onPostButtonClicked(newPost);
     this.addPost(newPost, true)
   }
 
@@ -460,6 +464,7 @@ export default class ScomFeed extends Module {
   init() {
     super.init();
     this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
+    this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
     const data = this.getAttribute('data', true);
     if (data) this.setData(data);
     const isListView = this.getAttribute('isListView', true, false);
@@ -480,7 +485,6 @@ export default class ScomFeed extends Module {
         <i-panel id="pnlInput" padding={{top: '1.625rem', left: '1.25rem', right: '1.25rem'}}>
           <i-scom-feed--reply-input
             id="inputReply"
-            type="reply"
             placeholder='What is happening?'
             onSubmit={this.onReplySubmit}
           />

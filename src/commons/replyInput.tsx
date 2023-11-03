@@ -44,6 +44,7 @@ interface IReplyInput {
   isReplyToShown?: boolean;
   type?: IReplyType;
   placeholder?: string;
+  buttonCaption?: string;
 }
 
 interface ReplyInputElement extends ControlElement {
@@ -51,6 +52,7 @@ interface ReplyInputElement extends ControlElement {
   isReplyToShown?: boolean;
   type?: IReplyType;
   placeholder?: string;
+  buttonCaption?: string;
   onChanged?: onChangedCallback;
   onSubmit?: onSubmitCallback;
 }
@@ -158,6 +160,13 @@ export class ScomFeedReplyInput extends Module {
     this._data.placeholder = value ?? '';
   }
 
+  get buttonCaption() {
+    return this._data.buttonCaption ?? '';
+  }
+  set buttonCaption(value: string) {
+    this._data.buttonCaption = value ?? '';
+  }
+
   get isReplyToShown(): boolean {
     return this._data.isReplyToShown ?? false;
   }
@@ -192,7 +201,7 @@ export class ScomFeedReplyInput extends Module {
     this.imgReplier.url = getCurrentUser()?.avatar || ''
     const defaultPlaceholder = this.isQuote ? 'Add a comment' : 'Post your reply';
     this.replyEditor.placeholder = this.placeholder || defaultPlaceholder;
-    this.btnReply.caption = this.isQuote ? 'Post' : 'Reply';
+    if (this.buttonCaption) this.btnReply.caption = this.buttonCaption;
     this.pnlBorder.style.borderTopStyle = this.isQuote ? 'solid' : 'none';
     this.updateGrid();
   }
@@ -209,7 +218,6 @@ export class ScomFeedReplyInput extends Module {
         color: Theme.divider,
       }
     };
-    this.btnReply.caption = 'Reply';
     this.currentGifPage = 1;
     this.totalGifPage = 1
     this.pnlMedias.clearInnerHTML();
@@ -709,7 +717,8 @@ export class ScomFeedReplyInput extends Module {
     const type = this.getAttribute('type', true, 'reply');
     const isReplyToShown = this.getAttribute('isReplyToShown', true, false);
     const placeholder = this.getAttribute('placeholder', true);
-    this.setData({ isReplyToShown, replyTo, type, placeholder });
+    const buttonCaption = this.getAttribute('buttonCaption', true);
+    this.setData({ isReplyToShown, replyTo, type, placeholder, buttonCaption });
     this.renderGifCate();
     this.renderEmojis();
   }
@@ -898,7 +907,7 @@ export class ScomFeedReplyInput extends Module {
               border={{ radius: '30px' }}
               enabled={false}
               margin={{left: 'auto'}}
-              caption="Reply"
+              caption="Post"
               onClick={this.onReply}
             ></i-button>
           </i-hstack>
