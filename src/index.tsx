@@ -191,7 +191,10 @@ export default class ScomFeed extends Module {
           padding={{top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem'}}
           background={{color: 'transparent'}}
           border={{radius: '0.5rem'}}
-          class={getHoverStyleClass(item?.hoveredColor)}
+          hover={{
+            backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
+            fontColor: Theme.text.primary
+          }}
           onClick={() => {
             if (item.onClick) item.onClick();
           }}
@@ -260,7 +263,7 @@ export default class ScomFeed extends Module {
         downvote: 0,
         view: 0
       },
-      data: [...postDatas]
+      contentElements: [...postDatas]
     }
     if (this.onPostButtonClicked) this.onPostButtonClicked(newPost);
     this.addPost(newPost, true)

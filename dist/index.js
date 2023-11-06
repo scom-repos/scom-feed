@@ -508,6 +508,9 @@ define("@scom/scom-feed/store/index.ts", ["require", "exports"], function (requi
         const user = {
             id: "",
             username: "",
+            internetIdentifier: "",
+            pubKey: "",
+            displayName: "",
             description: "",
             avatar: undefined
         };
@@ -1234,7 +1237,10 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.pnlActions.clearInnerHTML();
             for (let i = 0; i < actions.length; i++) {
                 const item = actions[i];
-                this.pnlActions.appendChild(this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%", padding: { top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem' }, background: { color: 'transparent' }, border: { radius: '0.5rem' }, class: (0, index_css_1.getHoverStyleClass)(item?.hoveredColor), onClick: () => {
+                this.pnlActions.appendChild(this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%", padding: { top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem' }, background: { color: 'transparent' }, border: { radius: '0.5rem' }, hover: {
+                        backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
+                        fontColor: Theme.text.primary
+                    }, onClick: () => {
                         if (item.onClick)
                             item.onClick();
                     } },
@@ -1280,7 +1286,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     downvote: 0,
                     view: 0
                 },
-                data: [...postDatas]
+                contentElements: [...postDatas]
             };
             if (this.onPostButtonClicked)
                 this.onPostButtonClicked(newPost);
