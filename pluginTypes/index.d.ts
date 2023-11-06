@@ -650,6 +650,7 @@ declare module "@scom/scom-feed" {
         private btnMore;
         private mdActions;
         private pnlActions;
+        private pnlLoading;
         private isRendering;
         private _data;
         private _isListView;
@@ -669,6 +670,8 @@ declare module "@scom/scom-feed" {
         set theme(value: Markdown["theme"]);
         get theme(): Markdown["theme"];
         clear(): void;
+        showLoading(): void;
+        hideLoading(): void;
         private setData;
         private getData;
         private renderUI;

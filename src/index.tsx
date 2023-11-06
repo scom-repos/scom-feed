@@ -57,6 +57,7 @@ export default class ScomFeed extends Module {
   private btnMore: Button;
   private mdActions: Modal;
   private pnlActions: Panel;
+  private pnlLoading: VStack;
 
   private isRendering: boolean = false;
   private _data: IFeed = {
@@ -115,6 +116,14 @@ export default class ScomFeed extends Module {
     this.inputReply.clear();
     this.pnlPosts.clearInnerHTML();
     this.isRendering = false;
+  }
+
+  showLoading() {
+    this.pnlLoading.visible = true;
+  }
+
+  hideLoading() {
+    this.pnlLoading.visible = false;
   }
 
   private async setData(data: IFeed) {
@@ -182,7 +191,10 @@ export default class ScomFeed extends Module {
           padding={{top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem'}}
           background={{color: 'transparent'}}
           border={{radius: '0.5rem'}}
-          class={getHoverStyleClass(item?.hoveredColor)}
+          hover={{
+            backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
+            fontColor: Theme.text.primary
+          }}
           onClick={() => {
             if (item.onClick) item.onClick();
           }}
@@ -251,7 +263,7 @@ export default class ScomFeed extends Module {
         downvote: 0,
         view: 0
       },
-      data: [...postDatas]
+      contentElements: [...postDatas]
     }
     if (this.onPostButtonClicked) this.onPostButtonClicked(newPost);
     this.addPost(newPost, true)
@@ -552,7 +564,33 @@ export default class ScomFeed extends Module {
           visible={false}
           class={getHoverStyleClass()}
         ></i-button>
-        <i-vstack id="pnlPosts" gap="0.5rem"/>
+        <i-panel>
+          <i-vstack
+            id="pnlLoading"
+            padding={{top: '0.5rem', bottom: '0.5rem'}}
+            visible={false}
+            height="100%" width="100%" minHeight={200}
+            position="absolute"
+            top={0} bottom={0}
+            zIndex={999}
+            background={{color: Theme.background.main}}
+            class="i-loading-overlay"
+          >
+            <i-vstack
+              horizontalAlignment="center" verticalAlignment="center"
+              position="absolute" top="calc(50% - 0.75rem)" left="calc(50% - 0.75rem)"
+            >
+              <i-icon
+                class="i-loading-spinner_icon"
+                name="spinner"
+                width={24}
+                height={24}
+                fill={Theme.colors.primary.main}
+              />
+            </i-vstack>
+          </i-vstack>
+          <i-vstack id="pnlPosts" gap="0.5rem"/>
+        </i-panel>
         <i-modal
           id="mdActions"
           maxWidth={'15rem'}
