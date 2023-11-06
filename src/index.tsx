@@ -20,11 +20,10 @@ import {
 import dataConfig from './data.json';
 import { IFeed, getBuilderSchema, getEmbedderSchema } from './global/index';
 import { setDataFromJson } from './store/index';
-import { ScomFeedReplyInput } from './commons/replyInput';
 import { getCurrentUser } from './store/index';
 import { IPost, IPostData, ScomPost } from '@scom/scom-post';
-import assets from './assets';
 import { getHoverStyleClass } from './index.css';
+import { ScomPostComposer } from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost) => void
@@ -49,7 +48,7 @@ declare global {
 @customElements('i-scom-feed')
 export default class ScomFeed extends Module {
   private pnlInput: Panel;
-  private inputReply: ScomFeedReplyInput;
+  private inputReply: ScomPostComposer;
   private pnlPosts: VStack;
   private mdFilter: Modal;
   private lbFilter: Label;
@@ -147,36 +146,36 @@ export default class ScomFeed extends Module {
     const actions = [
       {
         caption: 'Copy note link',
-        icon: assets.fullPath('img/note_link.svg')
+        icon: { name: 'copy' }
       },
       {
         caption: 'Copy note text',
-        icon: assets.fullPath('img/note_text.svg')
+        icon: { name: 'copy' }
       },
       {
         caption: 'Copy note ID',
-        icon: assets.fullPath('img/note_id.svg')
+        icon: { name: 'copy' }
       },
       {
         caption: 'Copy raw data',
-        icon: assets.fullPath('img/raw_data.svg')
+        icon: { name: 'copy' }
       },
       {
         caption: 'Broadcast note',
-        icon: assets.fullPath('img/broadcast.svg')
+        icon: { name: "broadcast-tower" }
       },
       {
         caption: 'Copy user public key',
-        icon: assets.fullPath('img/pubkey.svg')
+        icon: { name: 'copy' }
       },
       {
         caption: 'Mute user',
-        icon: assets.fullPath('img/mute_user.svg'),
+        icon: { name: "user-slash", fill: Theme.colors.error.main },
         hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
       },
       {
         caption: 'Report user',
-        icon: assets.fullPath('img/report.svg'),
+        icon: { name: "exclamation-circle", fill: Theme.colors.error.main },
         hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
       }
     ]
@@ -199,8 +198,16 @@ export default class ScomFeed extends Module {
             if (item.onClick) item.onClick();
           }}
         >
-          <i-label caption={item.caption} font={{color: Theme.colors.secondary.light, weight: 400, size: '0.875rem'}}></i-label>
-          <i-image url={item.icon} width='0.75rem' height='0.75rem' display='inline-flex'></i-image>
+          <i-icon
+            name={item.icon.name}
+            width='0.75rem' height='0.75rem'
+            display='inline-flex'
+            fill={item.icon?.fill || Theme.text.primary}
+          ></i-icon>
+          <i-label
+            caption={item.caption}
+            font={{color: item.icon?.fill || Theme.colors.secondary.light, weight: 400, size: '0.875rem'}}
+          ></i-label>
         </i-hstack>
       )
     }
@@ -266,7 +273,7 @@ export default class ScomFeed extends Module {
       contentElements: [...postDatas]
     }
     if (this.onPostButtonClicked) this.onPostButtonClicked(newPost);
-    this.addPost(newPost, true)
+    // this.addPost(newPost, true)
   }
 
   addPost(post: IPost, isPrepend?: boolean) {
@@ -495,11 +502,12 @@ export default class ScomFeed extends Module {
         background={{color: Theme.background.main}}
       >
         <i-panel id="pnlInput" padding={{top: '1.625rem', left: '1.25rem', right: '1.25rem'}}>
-          <i-scom-feed--reply-input
+          <i-scom-post-composer
             id="inputReply"
             placeholder='What is happening?'
+            buttonCaption='Post'
             onSubmit={this.onReplySubmit}
-          />
+          ></i-scom-post-composer>
         </i-panel>
         <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}}>
           <i-hstack
@@ -507,14 +515,19 @@ export default class ScomFeed extends Module {
             horizontalAlignment="end"
             gap={'0.5rem'}
             cursor="pointer"
+            opacity={0.5}
+            hover={{
+              opacity: 1
+            }}
             onClick={this.onShowFilter}
           >
-            <i-label id="lbFilter" caption='Latest' font={{color: Theme.text.secondary}}></i-label>
-            <i-panel
+            <i-label id="lbFilter" caption='Latest' font={{color: Theme.text.primary}}></i-label>
+            <i-icon
               width={'1rem'} height={'1rem'}
-              background={{color: `url(${assets.fullPath('img/picker.svg')}) center/contain`}}
               display="inline-flex"
-            ></i-panel>
+              fill={Theme.text.primary}
+              name="stream"
+            ></i-icon>
           </i-hstack>
           <i-modal
             id="mdFilter"
