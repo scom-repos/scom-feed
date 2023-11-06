@@ -518,593 +518,11 @@ define("@scom/scom-feed/store/index.ts", ["require", "exports"], function (requi
     };
     exports.getCurrentUser = getCurrentUser;
 });
-define("@scom/scom-feed/commons/replyInput.tsx", ["require", "exports", "@ijstech/components", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts"], function (require, exports, components_1, index_1, index_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.ScomFeedReplyInput = void 0;
-    const Theme = components_1.Styles.Theme.ThemeVars;
-    let ScomFeedReplyInput = class ScomFeedReplyInput extends components_1.Module {
-        constructor(parent, options) {
-            super(parent, options);
-            this.extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'tiff', 'tif', 'mp4', 'avi', 'mkv', 'mov', 'm3u8'];
-            this.currentGifPage = 0;
-            this.totalGifPage = 1;
-            this.renderedMap = {};
-            this.bottomObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting)
-                        return;
-                    if (this.currentGifPage < this.totalGifPage) {
-                        ++this.currentGifPage;
-                        this.renderGifs(this.inputGif.value || '');
-                    }
-                    // else {
-                    //   this.clearObservers();
-                    // }
-                });
-            }, {
-                root: null,
-                rootMargin: "20px",
-                threshold: 0.9
-            });
-            this.newReply = [];
-            this.isEmojiSearching = false;
-            this.recentEmojis = {};
-            this.emojiCateMapper = new Map();
-            this.emojiGroupsData = new Map();
-            this.onRecentClear = this.onRecentClear.bind(this);
-            this.onEmojiColorSelected = this.onEmojiColorSelected.bind(this);
-        }
-        static async create(options, parent) {
-            let self = new this(parent, options);
-            await self.ready();
-            return self;
-        }
-        get replyTo() {
-            return this._data.replyTo;
-        }
-        set replyTo(value) {
-            this._data.replyTo = value;
-        }
-        get type() {
-            return this._data.type ?? 'reply';
-        }
-        set type(value) {
-            this._data.type = value ?? 'reply';
-        }
-        get placeholder() {
-            return this._data.placeholder ?? '';
-        }
-        set placeholder(value) {
-            this._data.placeholder = value ?? '';
-        }
-        get buttonCaption() {
-            return this._data.buttonCaption ?? '';
-        }
-        set buttonCaption(value) {
-            this._data.buttonCaption = value ?? '';
-        }
-        get isReplyToShown() {
-            return this._data.isReplyToShown ?? false;
-        }
-        set isReplyToShown(value) {
-            this._data.isReplyToShown = value ?? false;
-        }
-        get isQuote() {
-            return this.type === 'quote';
-        }
-        get hasRecentEmojis() {
-            return !!Object.values(this.recentEmojis).length;
-        }
-        get emojiColors() {
-            return Object.keys(index_1.colorsMapper);
-        }
-        get currentEmojiColor() {
-            return this.selectedColor?.background?.color || this.emojiColors[0];
-        }
-        isRecent(category) {
-            return category.value === 'recent';
-        }
-        setData(value) {
-            this.clear();
-            this._data = value;
-            this.lbReplyTo.caption = `@${this.replyTo?.author?.username || ''}`;
-            this.imgReplier.url = (0, index_2.getCurrentUser)()?.avatar || '';
-            const defaultPlaceholder = this.isQuote ? 'Add a comment' : 'Post your reply';
-            this.replyEditor.placeholder = this.placeholder || defaultPlaceholder;
-            if (this.buttonCaption)
-                this.btnReply.caption = this.buttonCaption;
-            this.pnlBorder.style.borderTopStyle = this.isQuote ? 'solid' : 'none';
-            this.updateGrid();
-        }
-        clear() {
-            this.pnlReplyTo.visible = false;
-            this.lbReplyTo.caption = '';
-            this.imgReplier.url = '';
-            this.replyEditor.value = '';
-            this.pnlBorder.border = {
-                top: {
-                    width: '1px',
-                    style: 'none',
-                    color: Theme.divider,
-                }
-            };
-            this.currentGifPage = 1;
-            this.totalGifPage = 1;
-            this.pnlMedias.clearInnerHTML();
-            this.emojiGroupsData = new Map();
-        }
-        clearObservers() {
-            this.bottomElm.visible = false;
-            this.bottomObserver.unobserve(this.bottomElm);
-            this.renderedMap = {};
-        }
-        updateGrid() {
-            if (this.isQuote) {
-                this.gridReply.templateColumns = ['2.75rem', 'auto'];
-                this.gridReply.templateAreas = [
-                    ['avatar', 'editor'],
-                    ['avatar', 'quoted'],
-                    ['avatar', 'reply'],
-                ];
-                this.isReplyToShown = false;
-                this.pnlReplyTo.visible = false;
-            }
-            else {
-                if (this.isReplyToShown && !this.pnlReplyTo.visible) {
-                    this.gridReply.templateAreas = [['avatar', 'editor', 'reply']];
-                    this.gridReply.templateColumns = ['2.75rem', 'auto', '5.5rem'];
-                }
-                else {
-                    this.gridReply.templateColumns = ['2.75rem', 'auto'];
-                    this.gridReply.templateAreas = [
-                        ['avatar', 'editor'],
-                        ['avatar', 'reply'],
-                    ];
-                }
-            }
-            this.pnlReplyTo.visible = this.isReplyToShown;
-        }
-        onEditorChanged() {
-            this.btnReply.enabled = !!this.replyEditor.getMarkdownValue();
-            if (this.onChanged)
-                this.onChanged(this.replyEditor);
-        }
-        onReply() {
-            if (this.onSubmit)
-                this.onSubmit(this.replyEditor, [...this.newReply]);
-            this.replyEditor.value = '';
-            this.pnlMedias.clearInnerHTML();
-        }
-        async onUpload() {
-            const result = components_1.application.uploadFile(this.extensions);
-            console.log('onUpload', result);
-        }
-        onCloseModal(name) {
-            this[name].visible = false;
-        }
-        onShowModal(name) {
-            this[name].refresh();
-            this[name].visible = true;
-        }
-        onGifMdOpen() {
-            this.autoPlaySwitch.checked = true;
-            this.onToggleMainGif(true);
-        }
-        onGifMdClose() {
-            this.clearObservers();
-        }
-        async renderGifCate() {
-            this.gridGifCate.clearInnerHTML();
-            const { data = [] } = await (0, index_1.fetchReactionGifs)();
-            const limitedList = [...data].slice(0, 8);
-            for (let cate of limitedList) {
-                this.gridGifCate.appendChild(this.$render("i-panel", { overflow: 'hidden', onClick: () => this.onGifSearch(cate.name) },
-                    this.$render("i-image", { url: cate.gif.images['480w_still'].url, width: '100%', display: 'block' }),
-                    this.$render("i-label", { caption: cate.name, font: { size: '1.25rem', weight: 700 }, position: "absolute", bottom: "0px", display: "block", width: '100%', padding: { left: '0.5rem', top: '0.5rem', right: '0.5rem', bottom: '0.5rem' } })));
-            }
-        }
-        onGifSelected(gif) {
-            this.onCloseModal('mdGif');
-            this.btnReply.enabled = true;
-            let index = this.newReply.length;
-            const mediaWrap = this.$render("i-panel", { background: { color: Theme.action.hover } },
-                this.$render("i-panel", { width: '100%', height: '100%', position: 'absolute', zIndex: 5, background: { color: Theme.action.hoverOpacity } }),
-                this.$render("i-icon", { name: "times", width: 16, height: 16, fill: Theme.text.primary, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, background: { color: 'rgba(15, 20, 25, 0.75)' }, position: 'absolute', right: "10px", top: "10px", zIndex: 9, onClick: () => {
-                        mediaWrap.remove();
-                        this.newReply.splice(index, 1);
-                    } }));
-            mediaWrap.parent = this.pnlMedias;
-            this.pnlMedias.appendChild(mediaWrap);
-            const getPostData = (render) => {
-                return {
-                    module: '@scom/scom-image',
-                    data: {
-                        "properties": {
-                            url: render ? gif.images.original_still.url : gif.images.original.url
-                        },
-                        "tag": {
-                            "width": "100%",
-                            "height": "auto",
-                            "pt": 0,
-                            "pb": 0,
-                            "pl": 0,
-                            "pr": 0
-                        }
-                    }
-                };
-            };
-            this.newReply.push(getPostData(false));
-            // TODO: check
-            // getEmbedElement(getPostData(true), mediaWrap);
-        }
-        onGifSearch(q) {
-            this.onToggleMainGif(false);
-            this.inputGif.value = q;
-            this.renderGifs(q);
-        }
-        onToggleMainGif(value) {
-            this.gridGifCate.visible = value;
-            this.pnlGif.visible = !value;
-            this.currentGifPage = 1;
-            this.totalGifPage = 1;
-            if (value) {
-                this.bottomObserver.unobserve(this.bottomElm);
-                this.iconGif.name = 'times';
-            }
-            else {
-                this.bottomObserver.observe(this.bottomElm);
-                this.iconGif.name = 'arrow-left';
-            }
-            this.gridGif.clearInnerHTML();
-            this.renderedMap = {};
-            this.mdGif.refresh();
-        }
-        async renderGifs(q) {
-            if (this.renderedMap[this.currentGifPage])
-                return;
-            this.gifLoading.visible = true;
-            this.renderedMap[this.currentGifPage] = true;
-            const params = { q, offset: this.currentGifPage - 1 };
-            const { data = [], pagination: { total_count, count } } = await (0, index_1.fetchGifs)(params);
-            this.totalGifPage = Math.ceil(total_count / count);
-            this.bottomElm.visible = this.totalGifPage > 1;
-            const autoPlay = this.autoPlaySwitch.checked;
-            for (let gif of data) {
-                this.gridGif.appendChild(this.$render("i-panel", { onClick: () => this.onGifSelected(gif), width: "100%", overflow: 'hidden' },
-                    this.$render("i-image", { url: autoPlay ? gif.images.fixed_height.url : gif.images.fixed_height_still.url, width: '100%', height: '100%', objectFit: 'cover', display: 'block' })));
-            }
-            this.gifLoading.visible = false;
-            this.mdGif.refresh();
-        }
-        onGifPlayChanged(target) {
-            this.renderGifs(this.inputGif.value);
-        }
-        onIconGifClicked(icon) {
-            if (icon.name === 'times') {
-                this.onCloseModal('mdGif');
-            }
-            else {
-                this.pnlGif.visible = false;
-                this.gridGifCate.visible = true;
-            }
-        }
-        async renderEmojis() {
-            this.recentEmojis = {};
-            this.emojiCateMapper = new Map();
-            this.renderEmojiCate();
-            for (let category of index_1.emojiCategories) {
-                this.renderEmojiGroup(this.groupEmojis, category);
-            }
-            this.renderColor(this.emojiColors[0]);
-        }
-        async renderEmojiCate() {
-            this.gridEmojiCate.clearInnerHTML();
-            for (let category of index_1.emojiCategories) {
-                const cateEl = (this.$render("i-vstack", { id: `cate-${category.value}`, overflow: 'hidden', cursor: 'pointer', opacity: 0.5, padding: { top: '0.25rem', bottom: '0.25rem' }, horizontalAlignment: "center", position: 'relative', class: "emoji-cate", gap: '0.5rem', onClick: (target) => this.onEmojiCateSelected(target, category) },
-                    this.$render("i-image", { url: category.image, width: '1.25rem', height: '1.25rem', display: 'block' }),
-                    this.$render("i-hstack", { visible: false, border: { radius: '9999px' }, height: '0.25rem', width: '100%', position: 'absolute', bottom: "0px", background: { color: Theme.colors.primary.main } })));
-                this.gridEmojiCate.appendChild(cateEl);
-                this.emojiCateMapper.set(`cate-${category.value}`, cateEl);
-            }
-        }
-        async renderEmojiGroup(parent, category) {
-            const group = (this.$render("i-vstack", { id: `${category.value}`, border: { bottom: { width: '1px', style: 'solid', color: Theme.divider } }, gap: "0.75rem", class: "emoji-group" },
-                this.$render("i-hstack", { padding: { top: '0.75rem', left: '0.75rem', right: '0.75rem', bottom: '0.75rem' }, position: "sticky", top: "0px", width: '100%', zIndex: 9, background: { color: Theme.background.modal }, verticalAlignment: "center", horizontalAlignment: "space-between" },
-                    this.$render("i-label", { caption: category.name, font: { size: '1.063rem', weight: 700 }, wordBreak: "break-word" }),
-                    this.$render("i-button", { caption: "Clear all", font: { size: '0.9rem', weight: 700, color: Theme.colors.primary.main }, cursor: 'pointer', boxShadow: 'none', padding: { left: '0.75rem', right: '0.75rem' }, lineHeight: '1.25rem', border: { radius: '9999px' }, background: { color: Theme.colors.info.light }, visible: this.isRecent(category) && this.hasRecentEmojis, onClick: this.onRecentClear }))));
-            const itemWrap = this.$render("i-grid-layout", { id: `group-${category.value}`, columnsPerRow: 9, padding: { left: '0.75rem', right: '0.75rem', bottom: '0.75rem' } });
-            group.append(itemWrap);
-            parent.appendChild(group);
-            let data = [];
-            if (this.isRecent(category)) {
-                data = Object.values(this.recentEmojis);
-            }
-            else if (category.value === 'search') {
-                const result = (0, index_1.searchEmojis)(this.inputEmoji.value, this.emojiGroupsData);
-                data = this.filterGroups(result);
-            }
-            else {
-                if (!this.emojiGroupsData.has(category.value)) {
-                    const list = await (0, index_1.fetchEmojis)({ category: category.value });
-                    this.emojiGroupsData.set(category.value, JSON.parse(JSON.stringify(list)));
-                }
-                data = this.filterGroups(this.emojiGroupsData.get(category.value));
-            }
-            for (let i = 0; i < data.length; i++) {
-                const item = data[i];
-                itemWrap.appendChild(this.$render("i-panel", { width: '1.5rem', height: '1.5rem', onClick: (target, event) => this.onEmojiSelected(event, item) },
-                    this.$render("i-label", { caption: item.htmlCode.join(''), display: "inline-block" })));
-            }
-            if (this.isRecent(category)) {
-                this.recent = group;
-                parent.insertAdjacentElement('afterbegin', group);
-            }
-        }
-        updateEmojiGroups() {
-            for (let i = 1; i < index_1.emojiCategories.length; i++) {
-                const category = index_1.emojiCategories[i];
-                const gridElm = this.groupEmojis.querySelector(`#group-${category.value}`);
-                if (!gridElm)
-                    continue;
-                gridElm.clearInnerHTML();
-                const data = this.filterGroups(this.emojiGroupsData.get(category.value));
-                for (let i = 0; i < data.length; i++) {
-                    const item = data[i];
-                    gridElm.appendChild(this.$render("i-panel", { width: '1.5rem', height: '1.5rem', onClick: (target, event) => this.onEmojiSelected(event, item) },
-                        this.$render("i-label", { caption: item.htmlCode.join(''), display: "inline-block" })));
-                }
-            }
-        }
-        filterGroups(data) {
-            const colorHtmlCode = index_1.colorsMapper[this.currentEmojiColor].htmlCode;
-            return [...data].filter(item => {
-                if (colorHtmlCode) {
-                    return item.htmlCode.includes(colorHtmlCode);
-                }
-                else {
-                    const itemLength = item.htmlCode?.length;
-                    return itemLength && itemLength !== 2;
-                }
-            });
-        }
-        onRecentClear() {
-            this.recentEmojis = {};
-            if (this.recent) {
-                this.recent.clearInnerHTML();
-                this.recent = null;
-            }
-            this.onEmojiCateSelected(this.gridEmojiCate.children[1], index_1.emojiCategories[1]);
-        }
-        renderEmojiColors() {
-            this.pnlColors.clearInnerHTML();
-            for (let color of this.emojiColors) {
-                this.renderColor(color);
-            }
-        }
-        renderColor(color) {
-            const isCurrentColor = color === this.currentEmojiColor;
-            const colorEl = (this.$render("i-panel", { background: { color }, border: { radius: '50%' }, width: '1.188rem', height: '1.188rem', padding: { left: '0.35rem' }, stack: { grow: '0', shrink: '0', basis: '1.188rem' }, boxShadow: `${isCurrentColor ? 'rgb(29, 155, 240) 0px 0px 0px 2px' : 'none'}`, onClick: this.onEmojiColorSelected },
-                this.$render("i-icon", { name: 'check', width: '0.5rem', height: '0.5rem', lineHeight: '0.35rem', fill: 'rgb(21, 32, 43)', visible: isCurrentColor })));
-            if (isCurrentColor)
-                this.selectedColor = colorEl;
-            this.pnlColors.appendChild(colorEl);
-        }
-        onEmojiColorSelected(target) {
-            if (!this.pnlColors?.children || this.pnlColors?.children?.length < 2) {
-                this.renderEmojiColors();
-                return;
-            }
-            if (this.selectedColor) {
-                this.selectedColor.boxShadow = 'none';
-                const icon = this.selectedColor.querySelector('i-icon');
-                if (icon)
-                    icon.visible = false;
-            }
-            target.boxShadow = 'rgb(29, 155, 240) 0px 0px 0px 2px';
-            const icon = target.querySelector('i-icon');
-            if (icon)
-                icon.visible = true;
-            this.selectedColor = target;
-            this.updateEmojiGroups();
-        }
-        onEmojiCateSelected(target, category) {
-            const preventSelected = this.isEmojiSearching || (this.isRecent(category) && !this.recent?.children[1]?.innerHTML);
-            if (preventSelected)
-                return;
-            const cates = this.querySelectorAll('.emoji-cate');
-            for (let cateEl of cates) {
-                cateEl.opacity = 0.5;
-                cateEl.children[1].visible = false;
-            }
-            target.children[1].visible = true;
-            target.opacity = 1;
-            if (this.isRecent(category)) {
-                this.groupEmojis.scrollTo({ top: 0 });
-            }
-            else {
-                const groupEl = this.querySelector(`#${category.value}`);
-                if (groupEl) {
-                    this.groupEmojis.scrollTo({ top: groupEl.offsetTop });
-                }
-            }
-        }
-        onEmojiSelected(event, emoji) {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-            this.lbEmoji.caption = `${emoji.htmlCode.join('')}`;
-            this.replyEditor.value = this.replyEditor.getMarkdownValue() + `<span style='font-size:1.25rem;'>${emoji.htmlCode.join('')}</span>`;
-            this.recentEmojis[emoji.name] = emoji;
-            const parent = event.target.closest('.emoji-group');
-            if (parent) {
-                this.groupEmojis.scrollTo({ top: parent.offsetTop + event.clientY });
-            }
-        }
-        async onEmojiSearch() {
-            if (this.searchTimer)
-                clearTimeout(this.searchTimer);
-            this.pnlEmojiResult.visible = true;
-            this.groupEmojis.visible = false;
-            this.pnlEmojiResult.clearInnerHTML();
-            this.searchTimer = setTimeout(() => {
-                const category = {
-                    name: 'Search results',
-                    value: 'search'
-                };
-                this.renderEmojiGroup(this.pnlEmojiResult, category);
-                this.mdEmoji.refresh();
-            }, 100);
-            this.isEmojiSearching = true;
-        }
-        onEmojiMdOpen() {
-            this.pnlEmojiResult.visible = false;
-            this.groupEmojis.visible = true;
-            this.inputEmoji.value = '';
-            this.lbEmoji.caption = '';
-            this.isEmojiSearching = false;
-            if (this.hasRecentEmojis) {
-                const recent = this.groupEmojis.querySelector('#recent');
-                recent && this.groupEmojis.removeChild(recent);
-                this.renderEmojiGroup(this.groupEmojis, index_1.emojiCategories[0]);
-            }
-            else {
-                this.recent && this.recent.clearInnerHTML();
-            }
-            const index = this.hasRecentEmojis ? 0 : 1;
-            this.onEmojiCateSelected(this.gridEmojiCate.children[index], index_1.emojiCategories[index]);
-            this.pnlColors.clearInnerHTML();
-            this.renderColor(this.currentEmojiColor);
-            this.mdEmoji.refresh();
-        }
-        _handleClick(event, stopPropagation) {
-            this.pnlIcons.visible = true;
-            if (this.isReplyToShown) {
-                this.pnlReplyTo.visible = true;
-                this.updateGrid();
-            }
-            return true;
-        }
-        init() {
-            super.init();
-            this.onChanged = this.getAttribute('onChanged', true) || this.onChanged;
-            this.onSubmit = this.getAttribute('onSubmit', true) || this.onSubmit;
-            const replyTo = this.getAttribute('replyTo', true);
-            const type = this.getAttribute('type', true, 'reply');
-            const isReplyToShown = this.getAttribute('isReplyToShown', true, false);
-            const placeholder = this.getAttribute('placeholder', true);
-            const buttonCaption = this.getAttribute('buttonCaption', true);
-            this.setData({ isReplyToShown, replyTo, type, placeholder, buttonCaption });
-            this.renderGifCate();
-            this.renderEmojis();
-        }
-        render() {
-            return (this.$render("i-panel", { padding: { bottom: '0.75rem', top: '0.75rem' }, cursor: 'default' },
-                this.$render("i-hstack", { id: "pnlReplyTo", visible: false, gap: "0.5rem", verticalAlignment: "center", padding: { top: '0.25rem', bottom: '0.75rem', left: '3.25rem' } },
-                    this.$render("i-label", { caption: "Replying to", font: { size: '1rem', color: Theme.text.secondary } }),
-                    this.$render("i-label", { id: "lbReplyTo", link: { href: '' }, font: { size: '1rem', color: Theme.colors.primary.main } })),
-                this.$render("i-grid-layout", { id: "gridReply", gap: { column: '0.75rem' }, templateColumns: ['2.75rem', 'auto'], templateRows: ['auto'], templateAreas: [
-                        ['avatar', 'editor'],
-                        ['avatar', 'reply']
-                    ] },
-                    this.$render("i-image", { id: "imgReplier", grid: { area: 'avatar' }, width: '2.75rem', height: '2.75rem', display: "block", background: { color: Theme.background.gradient }, border: { radius: '50%' }, overflow: 'hidden', margin: { top: '0.75rem' }, objectFit: 'cover' }),
-                    this.$render("i-panel", { grid: { area: 'editor' } },
-                        this.$render("i-markdown-editor", { id: "replyEditor", width: "100%", viewer: false, hideModeSwitch: true, mode: "wysiwyg", toolbarItems: [], font: { size: '1.25rem', color: Theme.text.primary }, lineHeight: 1.5, padding: { top: 12, bottom: 12, left: 0, right: 0 }, background: { color: 'transparent' }, height: "auto", minHeight: 0, onChanged: this.onEditorChanged, cursor: 'text', border: { style: 'none' } }),
-                        this.$render("i-vstack", { id: "pnlMedias", margin: { bottom: '1rem' } })),
-                    this.$render("i-hstack", { id: "pnlBorder", horizontalAlignment: "space-between", grid: { area: 'reply' } },
-                        this.$render("i-hstack", { id: "pnlIcons", gap: "4px", verticalAlignment: "center", visible: false },
-                            this.$render("i-icon", { name: "image", width: 28, height: 28, fill: Theme.colors.primary.main, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, tooltip: { content: 'Media', placement: 'bottom' }, onClick: this.onUpload }),
-                            this.$render("i-icon", { name: "images", width: 28, height: 28, fill: Theme.colors.primary.main, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, tooltip: { content: 'GIF', placement: 'bottom' }, onClick: () => this.onShowModal('mdGif') }),
-                            this.$render("i-panel", null,
-                                this.$render("i-icon", { name: "smile", width: 28, height: 28, fill: Theme.colors.primary.main, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, tooltip: { content: 'Emoji', placement: 'bottom' }, onClick: () => this.onShowModal('mdEmoji') }),
-                                this.$render("i-modal", { id: "mdEmoji", maxWidth: '100%', minWidth: 320, popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '1rem' }, boxShadow: 'rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px', padding: { top: 0, left: 0, right: 0, bottom: 0 }, onOpen: this.onEmojiMdOpen },
-                                    this.$render("i-vstack", { position: 'relative', padding: { left: '0.25rem', right: '0.25rem' } },
-                                        this.$render("i-hstack", { verticalAlignment: "center", border: { radius: '9999px', width: '1px', style: 'solid', color: Theme.divider }, minHeight: 40, width: '100%', background: { color: Theme.input.background }, padding: { left: '0.75rem', right: '0.75rem' }, margin: { top: '0.25rem', bottom: '0.25rem' }, gap: "4px" },
-                                            this.$render("i-icon", { width: '1rem', height: '1rem', name: 'search', fill: Theme.text.secondary }),
-                                            this.$render("i-input", { id: "inputEmoji", placeholder: 'Search emojis', width: '100%', height: '100%', border: { style: 'none' }, captionWidth: '0px', showClearButton: true, onClearClick: this.onEmojiMdOpen, onKeyUp: this.onEmojiSearch })),
-                                        this.$render("i-grid-layout", { id: "gridEmojiCate", verticalAlignment: "center", columnsPerRow: 9, margin: { top: 4 }, grid: { verticalAlignment: 'center', horizontalAlignment: 'center' }, border: { bottom: { width: '1px', style: 'solid', color: Theme.divider } } }),
-                                        this.$render("i-vstack", { id: "groupEmojis", maxHeight: 400, overflow: { y: 'auto' } }),
-                                        this.$render("i-vstack", { id: "pnlEmojiResult", border: { bottom: { width: '1px', style: 'solid', color: Theme.divider } }, maxHeight: 400, overflow: { y: 'auto' }, minHeight: 200, gap: "0.75rem", visible: false }),
-                                        this.$render("i-hstack", { bottom: "0px", left: "0px", position: "absolute", width: '100%', verticalAlignment: "center", horizontalAlignment: "space-between", padding: { top: '0.75rem', left: '0.75rem', right: '0.75rem', bottom: '0.75rem' }, gap: "0.75rem", zIndex: 20, background: { color: Theme.background.modal }, border: { radius: '0 0 1rem 1rem', top: { width: '1px', style: 'solid', color: Theme.divider } } },
-                                            this.$render("i-label", { id: "lbEmoji", width: '1.25rem', height: '1.25rem', display: "inline-block" }),
-                                            this.$render("i-hstack", { id: "pnlColors", verticalAlignment: "center", gap: '0.25rem', overflow: 'hidden', cursor: "pointer", padding: { top: '0.25rem', left: '0.25rem', right: '0.25rem', bottom: '0.25rem' } }))))),
-                            this.$render("i-icon", { name: "map-marker-alt", width: 28, height: 28, fill: Theme.colors.primary.main, border: { radius: '50%' }, padding: { top: 5, bottom: 5, left: 5, right: 5 }, tooltip: { content: 'SCOM widgets', placement: 'bottom' }, onClick: () => this.onShowModal('mdWidgets') })),
-                        this.$render("i-button", { id: "btnReply", height: 36, padding: { left: '1rem', right: '1rem' }, background: { color: Theme.colors.primary.main }, font: { color: Theme.colors.primary.contrastText, bold: true }, border: { radius: '30px' }, enabled: false, margin: { left: 'auto' }, caption: "Post", onClick: this.onReply }))),
-                this.$render("i-modal", { id: "mdGif", border: { radius: '1rem' }, maxWidth: '600px', maxHeight: '90vh', padding: { top: 0, right: 0, left: 0, bottom: 0 }, mediaQueries: [
-                        {
-                            maxWidth: '767px',
-                            properties: {
-                                showBackdrop: true,
-                                popupPlacement: 'top',
-                                position: 'fixed',
-                                zIndex: 999,
-                                maxWidth: '100%',
-                                height: '100%',
-                                width: '100%',
-                                border: { radius: 0 }
-                            }
-                        }
-                    ], onOpen: this.onGifMdOpen, onClose: this.onGifMdClose },
-                    this.$render("i-vstack", null,
-                        this.$render("i-hstack", { verticalAlignment: "center", height: 53, margin: { top: 8, bottom: 8 }, padding: { right: '1rem', left: '1rem' }, position: "sticky", zIndex: 2, top: '0px', background: { color: Theme.background.modal } },
-                            this.$render("i-panel", { stack: { basis: '56px' } },
-                                this.$render("i-icon", { id: "iconGif", name: "times", cursor: 'pointer', width: 20, height: 20, fill: Theme.colors.secondary.main, onClick: this.onIconGifClicked })),
-                            this.$render("i-hstack", { verticalAlignment: "center", padding: { left: '0.75rem', right: '0.75rem' }, border: { radius: '9999px', width: '1px', style: 'solid', color: Theme.divider }, minHeight: 40, width: '100%', background: { color: Theme.input.background }, gap: "4px" },
-                                this.$render("i-icon", { width: 16, height: 16, name: 'search', fill: Theme.text.secondary }),
-                                this.$render("i-input", { id: "inputGif", placeholder: 'Search for Gifs', width: '100%', height: '100%', captionWidth: '0px', border: { style: 'none' }, showClearButton: true, onClearClick: () => this.onToggleMainGif(true), onKeyUp: (target) => this.onGifSearch(target.value) }))),
-                        this.$render("i-card-layout", { id: "gridGifCate", cardMinWidth: '18rem', cardHeight: '9.375rem' }),
-                        this.$render("i-vstack", { id: "pnlGif", visible: false },
-                            this.$render("i-hstack", { horizontalAlignment: "space-between", gap: "0.5rem", padding: { left: '0.75rem', right: '0.75rem', top: '0.75rem', bottom: '0.75rem' } },
-                                this.$render("i-label", { caption: "Auto-play GIFs", font: { color: Theme.text.secondary, size: '0.9rem' } }),
-                                this.$render("i-switch", { id: "autoPlaySwitch", checked: true, checkedThumbColor: Theme.colors.info.main, checkedTrackColor: Theme.colors.info.light, uncheckedTrackColor: 'rgb(147, 147, 147)', uncheckedThumbColor: Theme.colors.secondary.contrastText, onChanged: this.onGifPlayChanged })),
-                            this.$render("i-panel", { id: "topElm", width: '100%' }),
-                            this.$render("i-card-layout", { id: "gridGif", autoRowSize: "auto", autoColumnSize: "auto", cardHeight: 'auto', columnsPerRow: 4 }),
-                            this.$render("i-panel", { id: "bottomElm", width: '100%', minHeight: 20 },
-                                this.$render("i-vstack", { id: "gifLoading", padding: { top: '0.5rem', bottom: '0.5rem' }, visible: false, height: "100%", width: "100%", class: "i-loading-overlay", background: { color: Theme.background.modal } },
-                                    this.$render("i-vstack", { class: "i-loading-spinner", horizontalAlignment: "center", verticalAlignment: "center" },
-                                        this.$render("i-icon", { class: "i-loading-spinner_icon", name: "spinner", width: 24, height: 24, fill: Theme.colors.primary.main }))))))),
-                this.$render("i-modal", { id: "mdWidgets", border: { radius: '1rem' }, maxWidth: '600px', maxHeight: '90vh', padding: { top: 0, right: 0, left: 0, bottom: 0 }, mediaQueries: [
-                        {
-                            maxWidth: '767px',
-                            properties: {
-                                showBackdrop: true,
-                                popupPlacement: 'top',
-                                position: 'fixed',
-                                zIndex: 999,
-                                maxWidth: '100%',
-                                height: '100%',
-                                width: '100%',
-                                border: { radius: 0 }
-                            }
-                        }
-                    ] },
-                    this.$render("i-vstack", null,
-                        this.$render("i-hstack", { verticalAlignment: "center", horizontalAlignment: "space-between", padding: { right: '1rem', left: '1rem', top: '1rem', bottom: '1rem' } },
-                            this.$render("i-label", { caption: 'SCOM Widgets', font: { color: Theme.colors.primary.main, size: '1rem', bold: true } }),
-                            this.$render("i-icon", { name: "times", cursor: 'pointer', width: 20, height: 20, fill: Theme.colors.secondary.main, onClick: () => this.onCloseModal('mdWidgets') }))))));
-        }
-    };
-    ScomFeedReplyInput = __decorate([
-        (0, components_1.customElements)('i-scom-feed--reply-input')
-    ], ScomFeedReplyInput);
-    exports.ScomFeedReplyInput = ScomFeedReplyInput;
-});
-define("@scom/scom-feed/assets.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    const moduleDir = components_2.application.currentModuleDir;
-    function fullPath(path) {
-        return `${moduleDir}/${path}`;
-    }
-    ;
-    exports.default = {
-        fullPath
-    };
-});
-define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_3) {
+define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getHoverStyleClass = void 0;
-    const Theme = components_3.Styles.Theme.ThemeVars;
+    const Theme = components_1.Styles.Theme.ThemeVars;
     const getHoverStyleClass = (color) => {
         const styleObj = {
             $nest: {
@@ -1119,15 +537,15 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
                 }
             }
         };
-        return components_3.Styles.style(styleObj);
+        return components_1.Styles.style(styleObj);
     };
     exports.getHoverStyleClass = getHoverStyleClass;
 });
-define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/assets.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_4, data_json_1, index_3, index_4, index_5, assets_1, index_css_1) {
+define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_2, data_json_1, index_1, index_2, index_3, index_css_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const Theme = components_4.Styles.Theme.ThemeVars;
-    let ScomFeed = class ScomFeed extends components_4.Module {
+    const Theme = components_2.Styles.Theme.ThemeVars;
+    let ScomFeed = class ScomFeed extends components_2.Module {
         constructor(parent, options) {
             super(parent, options);
             this.isRendering = false;
@@ -1140,7 +558,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 dark: {}
             };
             if (data_json_1.default)
-                (0, index_4.setDataFromJson)(data_json_1.default);
+                (0, index_2.setDataFromJson)(data_json_1.default);
             this.onReplySubmit = this.onReplySubmit.bind(this);
             this.onViewPost = this.onViewPost.bind(this);
         }
@@ -1201,36 +619,36 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const actions = [
                 {
                     caption: 'Copy note link',
-                    icon: assets_1.default.fullPath('img/note_link.svg')
+                    icon: { name: 'copy' }
                 },
                 {
                     caption: 'Copy note text',
-                    icon: assets_1.default.fullPath('img/note_text.svg')
+                    icon: { name: 'copy' }
                 },
                 {
                     caption: 'Copy note ID',
-                    icon: assets_1.default.fullPath('img/note_id.svg')
+                    icon: { name: 'copy' }
                 },
                 {
                     caption: 'Copy raw data',
-                    icon: assets_1.default.fullPath('img/raw_data.svg')
+                    icon: { name: 'copy' }
                 },
                 {
                     caption: 'Broadcast note',
-                    icon: assets_1.default.fullPath('img/broadcast.svg')
+                    icon: { name: "broadcast-tower" }
                 },
                 {
                     caption: 'Copy user public key',
-                    icon: assets_1.default.fullPath('img/pubkey.svg')
+                    icon: { name: 'copy' }
                 },
                 {
                     caption: 'Mute user',
-                    icon: assets_1.default.fullPath('img/mute_user.svg'),
+                    icon: { name: "user-slash", fill: Theme.colors.error.main },
                     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
                 },
                 {
                     caption: 'Report user',
-                    icon: assets_1.default.fullPath('img/report.svg'),
+                    icon: { name: "exclamation-circle", fill: Theme.colors.error.main },
                     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
                 }
             ];
@@ -1244,8 +662,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         if (item.onClick)
                             item.onClick();
                     } },
-                    this.$render("i-label", { caption: item.caption, font: { color: Theme.colors.secondary.light, weight: 400, size: '0.875rem' } }),
-                    this.$render("i-image", { url: item.icon, width: '0.75rem', height: '0.75rem', display: 'inline-flex' })));
+                    this.$render("i-icon", { name: item.icon.name, width: '0.75rem', height: '0.75rem', display: 'inline-flex', fill: item.icon?.fill || Theme.text.primary }),
+                    this.$render("i-label", { caption: item.caption, font: { color: item.icon?.fill || Theme.colors.secondary.light, weight: 400, size: '0.875rem' } })));
             }
             this.pnlActions.appendChild(this.$render("i-hstack", { width: "100%", horizontalAlignment: "center", padding: { top: 12, bottom: 12, left: 16, right: 16 }, visible: false, mediaQueries: [
                     {
@@ -1276,9 +694,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             };
             const postDatas = content ? [textData, ...medias] : [...medias];
             const newPost = {
-                id: components_4.IdUtils.generateUUID(),
-                publishDate: (0, components_4.moment)().utc().toString(),
-                author: (0, index_5.getCurrentUser)(),
+                id: components_2.IdUtils.generateUUID(),
+                publishDate: (0, components_2.moment)().utc().toString(),
+                author: (0, index_3.getCurrentUser)(),
                 stat: {
                     reply: 0,
                     repost: 0,
@@ -1290,7 +708,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             };
             if (this.onPostButtonClicked)
                 this.onPostButtonClicked(newPost);
-            this.addPost(newPost, true);
+            // this.addPost(newPost, true)
         }
         addPost(post, isPrepend) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost }));
@@ -1351,7 +769,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     name: 'Builder Configurator',
                     target: 'Builders',
                     getActions: () => {
-                        const builderSchema = (0, index_3.getBuilderSchema)();
+                        const builderSchema = (0, index_1.getBuilderSchema)();
                         const dataSchema = builderSchema.dataSchema;
                         const uiSchema = builderSchema.uiSchema;
                         return this._getActions(dataSchema, uiSchema);
@@ -1365,7 +783,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     name: 'Emdedder Configurator',
                     target: 'Embedders',
                     getActions: () => {
-                        const embedderSchema = (0, index_3.getEmbedderSchema)();
+                        const embedderSchema = (0, index_1.getEmbedderSchema)();
                         const dataSchema = embedderSchema.dataSchema;
                         const uiSchema = embedderSchema.uiSchema;
                         return this._getActions(dataSchema, uiSchema);
@@ -1501,11 +919,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-feed--reply-input", { id: "inputReply", placeholder: 'What is happening?', onSubmit: this.onReplySubmit })),
+                    this.$render("i-scom-post-composer", { id: "inputReply", placeholder: 'What is happening?', buttonCaption: 'Post', onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
-                    this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", onClick: this.onShowFilter },
-                        this.$render("i-label", { id: "lbFilter", caption: 'Latest', font: { color: Theme.text.secondary } }),
-                        this.$render("i-panel", { width: '1rem', height: '1rem', background: { color: `url(${assets_1.default.fullPath('img/picker.svg')}) center/contain` }, display: "inline-flex" })),
+                    this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
+                            opacity: 1
+                        }, onClick: this.onShowFilter },
+                        this.$render("i-label", { id: "lbFilter", caption: 'Latest', font: { color: Theme.text.primary } }),
+                        this.$render("i-icon", { width: '1rem', height: '1rem', display: "inline-flex", fill: Theme.text.primary, name: "stream" })),
                     this.$render("i-modal", { id: "mdFilter", popupPlacement: 'bottomRight', showBackdrop: false, minWidth: 200, maxWidth: 200, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' } },
                         this.$render("i-vstack", null,
                             this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
@@ -1536,7 +956,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
     };
     ScomFeed = __decorate([
-        (0, components_4.customElements)('i-scom-feed')
+        (0, components_2.customElements)('i-scom-feed')
     ], ScomFeed);
     exports.default = ScomFeed;
 });
