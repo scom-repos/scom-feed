@@ -190,24 +190,25 @@ export default class ScomFeed extends Module {
           padding={{top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem'}}
           background={{color: 'transparent'}}
           border={{radius: '0.5rem'}}
+          opacity={item.hoveredColor ? 1 : 0.667}
           hover={{
             backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
-            fontColor: Theme.text.primary
+            opacity: 1
           }}
           onClick={() => {
             if (item.onClick) item.onClick();
           }}
         >
+          <i-label
+            caption={item.caption}
+            font={{color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem'}}
+          ></i-label>
           <i-icon
             name={item.icon.name}
             width='0.75rem' height='0.75rem'
             display='inline-flex'
             fill={item.icon?.fill || Theme.text.primary}
           ></i-icon>
-          <i-label
-            caption={item.caption}
-            font={{color: item.icon?.fill || Theme.colors.secondary.light, weight: 400, size: '0.875rem'}}
-          ></i-label>
         </i-hstack>
       )
     }
