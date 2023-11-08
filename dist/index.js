@@ -541,7 +541,7 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
     };
     exports.getHoverStyleClass = getHoverStyleClass;
 });
-define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_2, data_json_1, index_1, index_2, index_3, index_css_1) {
+define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_2, data_json_1, index_1, index_2, index_css_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_2.Styles.Theme.ThemeVars;
@@ -671,7 +671,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         properties: { visible: true }
                     }
                 ] },
-                this.$render("i-button", { caption: 'Cancel', width: "100%", minHeight: 44, padding: { left: 16, right: 16 }, font: { color: Theme.text.primary, weight: 600 }, border: { radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light }, grid: { horizontalAlignment: 'center' }, background: { color: 'transparent' }, boxShadow: "none", onClick: () => this.onCloseModal('mdShare') })));
+                this.$render("i-button", { caption: 'Cancel', width: "100%", minHeight: 44, padding: { left: 16, right: 16 }, font: { color: Theme.text.primary, weight: 600 }, border: { radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light }, grid: { horizontalAlignment: 'center' }, background: { color: 'transparent' }, boxShadow: "none", onClick: () => this.onCloseModal('mdActions') })));
         }
         onViewPost(target) {
             if (this.onItemClicked)
@@ -679,36 +679,35 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         onReplySubmit(target, medias) {
             const content = target.getMarkdownValue();
-            const textData = {
-                module: '@scom/scom-markdown-editor',
-                data: {
-                    "properties": { content },
-                    "tag": {
-                        "width": "100%",
-                        "pt": 0,
-                        "pb": 0,
-                        "pl": 0,
-                        "pr": 0
-                    }
-                }
-            };
-            const postDatas = content ? [textData, ...medias] : [...medias];
-            const newPost = {
-                id: components_2.IdUtils.generateUUID(),
-                publishDate: (0, components_2.moment)().utc().toString(),
-                author: (0, index_3.getCurrentUser)(),
-                stat: {
-                    reply: 0,
-                    repost: 0,
-                    upvote: 0,
-                    downvote: 0,
-                    view: 0
-                },
-                contentElements: [...postDatas]
-            };
             if (this.onPostButtonClicked)
-                this.onPostButtonClicked(newPost);
-            // this.addPost(newPost, true)
+                this.onPostButtonClicked(content, medias);
+            // const textData = {
+            //   module: '@scom/scom-markdown-editor',
+            //   data: {
+            //     "properties": { content },
+            //     "tag": {
+            //       "width": "100%",
+            //       "pt": 0,
+            //       "pb": 0,
+            //       "pl": 0,
+            //       "pr": 0
+            //     }
+            //   }
+            // }
+            // const postDatas = content ? [textData, ...medias] : [...medias];
+            // const newPost = {
+            //   id: IdUtils.generateUUID(),
+            //   publishDate: moment().utc().toString(),
+            //   author: getCurrentUser(),
+            //   stat: {
+            //     reply: 0,
+            //     repost: 0,
+            //     upvote: 0,
+            //     downvote: 0,
+            //     view: 0
+            //   },
+            //   contentElements: [...postDatas]
+            // }
         }
         addPost(post, isPrepend) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost }));
