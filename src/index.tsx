@@ -9,8 +9,6 @@ import {
   IDataSchema,
   IUISchema,
   MarkdownEditor,
-  moment,
-  IdUtils,
   Modal,
   Label,
   Button,
@@ -20,14 +18,13 @@ import {
 import dataConfig from './data.json';
 import { IFeed, getBuilderSchema, getEmbedderSchema } from './global/index';
 import { setDataFromJson } from './store/index';
-import { getCurrentUser } from './store/index';
 import { IPost, IPostData, ScomPost } from '@scom/scom-post';
 import { getHoverStyleClass } from './index.css';
 import { ScomPostComposer } from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost) => void
-type submitCallbackType = (newPost: IPost) => void
+type submitCallbackType = (content: string, medias: IPostData[]) => void
 
 interface ScomFeedElement extends ControlElement {
   data?: IFeed;
@@ -234,7 +231,7 @@ export default class ScomFeed extends Module {
           grid={{horizontalAlignment: 'center'}}
           background={{color: 'transparent'}}
           boxShadow="none"
-          onClick={() => this.onCloseModal('mdShare')}
+          onClick={() => this.onCloseModal('mdActions')}
         ></i-button>
       </i-hstack>
     )
@@ -246,35 +243,34 @@ export default class ScomFeed extends Module {
 
   private onReplySubmit(target: MarkdownEditor, medias: IPostData[]) {
     const content = target.getMarkdownValue();
-    const textData = {
-      module: '@scom/scom-markdown-editor',
-      data: {
-        "properties": { content },
-        "tag": {
-          "width": "100%",
-          "pt": 0,
-          "pb": 0,
-          "pl": 0,
-          "pr": 0
-        }
-      }
-    }
-    const postDatas = content ? [textData, ...medias] : [...medias];
-    const newPost = {
-      id: IdUtils.generateUUID(),
-      publishDate: moment().utc().toString(),
-      author: getCurrentUser(),
-      stat: {
-        reply: 0,
-        repost: 0,
-        upvote: 0,
-        downvote: 0,
-        view: 0
-      },
-      contentElements: [...postDatas]
-    }
-    if (this.onPostButtonClicked) this.onPostButtonClicked(newPost);
-    // this.addPost(newPost, true)
+    if (this.onPostButtonClicked) this.onPostButtonClicked(content, medias);
+    // const textData = {
+    //   module: '@scom/scom-markdown-editor',
+    //   data: {
+    //     "properties": { content },
+    //     "tag": {
+    //       "width": "100%",
+    //       "pt": 0,
+    //       "pb": 0,
+    //       "pl": 0,
+    //       "pr": 0
+    //     }
+    //   }
+    // }
+    // const postDatas = content ? [textData, ...medias] : [...medias];
+    // const newPost = {
+    //   id: IdUtils.generateUUID(),
+    //   publishDate: moment().utc().toString(),
+    //   author: getCurrentUser(),
+    //   stat: {
+    //     reply: 0,
+    //     repost: 0,
+    //     upvote: 0,
+    //     downvote: 0,
+    //     view: 0
+    //   },
+    //   contentElements: [...postDatas]
+    // }
   }
 
   addPost(post: IPost, isPrepend?: boolean) {

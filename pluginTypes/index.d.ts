@@ -489,9 +489,9 @@ declare module "@scom/scom-feed/index.css.ts" {
 declare module "@scom/scom-feed" {
     import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema } from '@ijstech/components';
     import { IFeed } from "@scom/scom-feed/global/index.ts";
-    import { IPost, ScomPost } from '@scom/scom-post';
+    import { IPost, IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost) => void;
-    type submitCallbackType = (newPost: IPost) => void;
+    type submitCallbackType = (content: string, medias: IPostData[]) => void;
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
         isListView?: boolean;
