@@ -679,35 +679,28 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         onReplySubmit(target, medias) {
             const content = target.getMarkdownValue();
+            let postDataArr;
+            if (content) {
+                const textData = {
+                    module: '@scom/scom-markdown-editor',
+                    data: {
+                        "properties": { content },
+                        "tag": {
+                            "width": "100%",
+                            "pt": 0,
+                            "pb": 0,
+                            "pl": 0,
+                            "pr": 0
+                        }
+                    }
+                };
+                postDataArr = [textData, ...medias];
+            }
+            else {
+                postDataArr = [...medias];
+            }
             if (this.onPostButtonClicked)
-                this.onPostButtonClicked(content, medias);
-            // const textData = {
-            //   module: '@scom/scom-markdown-editor',
-            //   data: {
-            //     "properties": { content },
-            //     "tag": {
-            //       "width": "100%",
-            //       "pt": 0,
-            //       "pb": 0,
-            //       "pl": 0,
-            //       "pr": 0
-            //     }
-            //   }
-            // }
-            // const postDatas = content ? [textData, ...medias] : [...medias];
-            // const newPost = {
-            //   id: IdUtils.generateUUID(),
-            //   publishDate: moment().utc().toString(),
-            //   author: getCurrentUser(),
-            //   stat: {
-            //     reply: 0,
-            //     repost: 0,
-            //     upvote: 0,
-            //     downvote: 0,
-            //     view: 0
-            //   },
-            //   contentElements: [...postDatas]
-            // }
+                this.onPostButtonClicked(content, postDataArr);
         }
         addPost(post, isPrepend) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost }));

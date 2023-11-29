@@ -243,34 +243,27 @@ export default class ScomFeed extends Module {
 
   private onReplySubmit(target: MarkdownEditor, medias: IPostData[]) {
     const content = target.getMarkdownValue();
-    if (this.onPostButtonClicked) this.onPostButtonClicked(content, medias);
-    // const textData = {
-    //   module: '@scom/scom-markdown-editor',
-    //   data: {
-    //     "properties": { content },
-    //     "tag": {
-    //       "width": "100%",
-    //       "pt": 0,
-    //       "pb": 0,
-    //       "pl": 0,
-    //       "pr": 0
-    //     }
-    //   }
-    // }
-    // const postDatas = content ? [textData, ...medias] : [...medias];
-    // const newPost = {
-    //   id: IdUtils.generateUUID(),
-    //   publishDate: moment().utc().toString(),
-    //   author: getCurrentUser(),
-    //   stat: {
-    //     reply: 0,
-    //     repost: 0,
-    //     upvote: 0,
-    //     downvote: 0,
-    //     view: 0
-    //   },
-    //   contentElements: [...postDatas]
-    // }
+    let postDataArr;
+    if (content) {
+      const textData = {
+        module: '@scom/scom-markdown-editor',
+        data: {
+          "properties": { content },
+          "tag": {
+            "width": "100%",
+            "pt": 0,
+            "pb": 0,
+            "pl": 0,
+            "pr": 0
+          }
+        }
+      }
+      postDataArr = [textData, ...medias];
+    }
+    else {
+      postDataArr = [...medias];
+    }
+    if (this.onPostButtonClicked) this.onPostButtonClicked(content, postDataArr);
   }
 
   addPost(post: IPost, isPrepend?: boolean) {
