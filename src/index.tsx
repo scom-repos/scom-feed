@@ -30,6 +30,7 @@ interface ScomFeedElement extends ControlElement {
   data?: IFeed;
   isListView?: boolean;
   theme?: Markdown["theme"];
+  isComposerVisible?: boolean;
   onItemClicked?: callbackType;
   onPostButtonClicked?: submitCallbackType;
 }
@@ -61,6 +62,7 @@ export default class ScomFeed extends Module {
   };
   private _isListView: boolean = false;
   private _theme: Markdown['theme'];
+  private _isComposerVisible: boolean = false;
 
   onItemClicked: callbackType;
   onPostButtonClicked: submitCallbackType;
@@ -106,6 +108,15 @@ export default class ScomFeed extends Module {
   }
   get theme() {
     return this._theme;
+  }
+
+  get isComposerVisible() {
+    return this._isComposerVisible;
+  }
+
+  set isComposerVisible(value: boolean) {
+    this._isComposerVisible = value ?? false;
+    this.inputReply.visible = this._isComposerVisible;
   }
 
   clear() {
@@ -481,6 +492,7 @@ export default class ScomFeed extends Module {
     const theme = this.getAttribute('theme', true);
     const themeVar = theme || document.body.style.getPropertyValue('--theme');
     if (themeVar) this.theme = themeVar as Markdown['theme'];
+    this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
     this.renderActions();
   }
 
@@ -496,6 +508,7 @@ export default class ScomFeed extends Module {
             id="inputReply"
             placeholder='What is happening?'
             buttonCaption='Post'
+            visible={false}
             onSubmit={this.onReplySubmit}
           ></i-scom-post-composer>
         </i-panel>

@@ -496,6 +496,7 @@ declare module "@scom/scom-feed" {
         data?: IFeed;
         isListView?: boolean;
         theme?: Markdown["theme"];
+        isComposerVisible?: boolean;
         onItemClicked?: callbackType;
         onPostButtonClicked?: submitCallbackType;
     }
@@ -521,6 +522,7 @@ declare module "@scom/scom-feed" {
         private _data;
         private _isListView;
         private _theme;
+        private _isComposerVisible;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         tag: {
@@ -535,6 +537,8 @@ declare module "@scom/scom-feed" {
         set isListView(value: boolean);
         set theme(value: Markdown["theme"]);
         get theme(): Markdown["theme"];
+        get isComposerVisible(): boolean;
+        set isComposerVisible(value: boolean);
         clear(): void;
         showLoading(): void;
         hideLoading(): void;
