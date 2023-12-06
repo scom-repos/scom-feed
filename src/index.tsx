@@ -23,7 +23,7 @@ import { getHoverStyleClass } from './index.css';
 import { ScomPostComposer } from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
-type callbackType = (target: ScomPost) => void
+type callbackType = (target: ScomPost, event: MouseEvent) => void
 type submitCallbackType = (content: string, medias: IPostData[]) => void
 
 interface ScomFeedElement extends ControlElement {
@@ -248,8 +248,8 @@ export default class ScomFeed extends Module {
     )
   }
 
-  private onViewPost(target: ScomPost) {
-    if (this.onItemClicked) this.onItemClicked(target);
+  private onViewPost(target: ScomPost, event?: MouseEvent) {
+    if (this.onItemClicked) this.onItemClicked(target, event);
   }
 
   private onReplySubmit(target: MarkdownEditor, medias: IPostData[]) {
