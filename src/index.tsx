@@ -536,6 +536,7 @@ export default class ScomFeed extends Module {
             id="mdFilter"
             popupPlacement='bottomRight'
             showBackdrop={false}
+            visible={false}
             minWidth={200}
             maxWidth={200}
             border={{radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider}}
@@ -609,6 +610,7 @@ export default class ScomFeed extends Module {
         </i-panel>
         <i-modal
           id="mdActions"
+          visible={false}
           maxWidth={'15rem'}
           minWidth={'12.25rem'}
           maxHeight={'27.5rem'}
