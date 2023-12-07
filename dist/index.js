@@ -681,9 +681,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 ] },
                 this.$render("i-button", { caption: 'Cancel', width: "100%", minHeight: 44, padding: { left: 16, right: 16 }, font: { color: Theme.text.primary, weight: 600 }, border: { radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light }, grid: { horizontalAlignment: 'center' }, background: { color: 'transparent' }, boxShadow: "none", onClick: () => this.onCloseModal('mdActions') })));
         }
-        onViewPost(target) {
+        onViewPost(target, event) {
             if (this.onItemClicked)
-                this.onItemClicked(target);
+                this.onItemClicked(target, event);
         }
         onReplySubmit(target, medias) {
             const content = target.getMarkdownValue();
