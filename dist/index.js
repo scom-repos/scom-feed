@@ -711,7 +711,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.onPostButtonClicked(content, postDataArr);
         }
         addPost(post, isPrepend) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost }));
+            const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost }));
             postEl.onProfileClicked = (target, data) => this.onShowModal(target, data, 'mdActions');
             postEl.onReplyClicked = () => this.onViewPost(postEl);
             if (isPrepend)
