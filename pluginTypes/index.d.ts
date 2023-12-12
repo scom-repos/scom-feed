@@ -496,6 +496,7 @@ declare module "@scom/scom-feed" {
         data?: IFeed;
         isListView?: boolean;
         theme?: Markdown["theme"];
+        composerPlaceholder?: string;
         isComposerVisible?: boolean;
         onItemClicked?: callbackType;
         onPostButtonClicked?: submitCallbackType;
@@ -523,6 +524,7 @@ declare module "@scom/scom-feed" {
         private _isListView;
         private _theme;
         private _isComposerVisible;
+        private _composerPlaceholder;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         tag: {
@@ -539,6 +541,8 @@ declare module "@scom/scom-feed" {
         get theme(): Markdown["theme"];
         get isComposerVisible(): boolean;
         set isComposerVisible(value: boolean);
+        get composerPlaceholder(): string;
+        set composerPlaceholder(value: string);
         clear(): void;
         showLoading(): void;
         hideLoading(): void;
@@ -548,8 +552,11 @@ declare module "@scom/scom-feed" {
         private renderActions;
         private onViewPost;
         private onReplySubmit;
+        constructPostElement(post: IPost): ScomPost;
         addPost(post: IPost, isPrepend?: boolean): void;
+        addPosts(posts: IPost[], isPrepend?: boolean): void;
         setPosts(posts: IPost[]): void;
+        private addPostToPanel;
         private renderPosts;
         private onShowFilter;
         private onFilter;
