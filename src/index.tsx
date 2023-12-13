@@ -265,8 +265,7 @@ export default class ScomFeed extends Module {
     if (this.onItemClicked) this.onItemClicked(target, event);
   }
 
-  private onReplySubmit(target: MarkdownEditor, medias: IPostData[]) {
-    const content = target.getMarkdownValue();
+  private onReplySubmit(content: string, medias: IPostData[]) {
     let postDataArr;
     if (content) {
       const textData = {
