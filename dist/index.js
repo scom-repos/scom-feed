@@ -545,6 +545,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_2.Styles.Theme.ThemeVars;
+    const DefaultPlaceholder = "What's on your mind today?";
     let ScomFeed = class ScomFeed extends components_2.Module {
         constructor(parent, options) {
             super(parent, options);
@@ -554,6 +555,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             };
             this._isListView = false;
             this._isComposerVisible = false;
+            this._composerPlaceholder = DefaultPlaceholder;
             this.tag = {
                 light: {},
                 dark: {}
@@ -596,6 +598,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set isComposerVisible(value) {
             this._isComposerVisible = value ?? false;
             this.inputReply.visible = this._isComposerVisible;
+        }
+        get composerPlaceholder() {
+            return this._composerPlaceholder;
+        }
+        set composerPlaceholder(value) {
+            this._composerPlaceholder = value ?? '';
+            this.inputReply.placeholder = this._composerPlaceholder;
         }
         clear() {
             this.inputReply.clear();
@@ -710,14 +719,31 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (this.onPostButtonClicked)
                 this.onPostButtonClicked(content, postDataArr);
         }
-        addPost(post, isPrepend) {
+        constructPostElement(post) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost }));
             postEl.onProfileClicked = (target, data) => this.onShowModal(target, data, 'mdActions');
             postEl.onReplyClicked = () => this.onViewPost(postEl);
+            return postEl;
+        }
+        addPost(post, isPrepend) {
+            if (post.id && this._data.posts.find(p => p.id === post.id))
+                return;
+            this._data.posts.push(post);
+            this.addPostToPanel(post, isPrepend);
+        }
+        addPosts(posts, isPrepend) {
+            let postEls = [];
+            for (let post of posts) {
+                if (this._data.posts.find(p => p.id === post.id))
+                    continue;
+                this._data.posts.push(post);
+                const postEl = this.constructPostElement(post);
+                postEls.push(postEl);
+            }
             if (isPrepend)
-                this.pnlPosts.prepend(postEl);
+                this.pnlPosts.prepend(...postEls);
             else
-                this.pnlPosts.append(postEl);
+                this.pnlPosts.append(...postEls);
         }
         setPosts(posts) {
             if (!this._data)
@@ -725,10 +751,17 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._data.posts = [...posts];
             this.renderPosts();
         }
+        addPostToPanel(post, isPrepend) {
+            const postEl = this.constructPostElement(post);
+            if (isPrepend)
+                this.pnlPosts.prepend(postEl);
+            else
+                this.pnlPosts.append(postEl);
+        }
         renderPosts() {
             this.pnlPosts.clearInnerHTML();
             for (let post of this.posts) {
-                this.addPost(post);
+                this.addPostToPanel(post);
             }
         }
         onShowFilter() {
@@ -915,12 +948,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (themeVar)
                 this.theme = themeVar;
             this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
+            this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
             this.renderActions();
         }
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-post-composer", { id: "inputReply", placeholder: 'What is happening?', buttonCaption: 'Post', visible: false, onSubmit: this.onReplySubmit })),
+                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
                             opacity: 1

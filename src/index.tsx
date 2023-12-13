@@ -30,6 +30,7 @@ interface ScomFeedElement extends ControlElement {
   data?: IFeed;
   isListView?: boolean;
   theme?: Markdown["theme"];
+  composerPlaceholder?: string;
   isComposerVisible?: boolean;
   onItemClicked?: callbackType;
   onPostButtonClicked?: submitCallbackType;
@@ -42,6 +43,8 @@ declare global {
     }
   }
 }
+
+const DefaultPlaceholder = "What's on your mind today?";
 
 @customElements('i-scom-feed')
 export default class ScomFeed extends Module {
@@ -63,6 +66,7 @@ export default class ScomFeed extends Module {
   private _isListView: boolean = false;
   private _theme: Markdown['theme'];
   private _isComposerVisible: boolean = false;
+  private _composerPlaceholder: string = DefaultPlaceholder;
 
   onItemClicked: callbackType;
   onPostButtonClicked: submitCallbackType;
@@ -117,6 +121,15 @@ export default class ScomFeed extends Module {
   set isComposerVisible(value: boolean) {
     this._isComposerVisible = value ?? false;
     this.inputReply.visible = this._isComposerVisible;
+  }
+
+  get composerPlaceholder() {
+    return this._composerPlaceholder;
+  }
+
+  set composerPlaceholder(value: string) {
+    this._composerPlaceholder = value ?? '';
+    this.inputReply.placeholder = this._composerPlaceholder;
   }
 
   clear() {
@@ -277,7 +290,7 @@ export default class ScomFeed extends Module {
     if (this.onPostButtonClicked) this.onPostButtonClicked(content, postDataArr);
   }
 
-  addPost(post: IPost, isPrepend?: boolean) {
+  constructPostElement(post: IPost) {
     const postEl = (
       <i-scom-post
         data={post}
@@ -288,9 +301,26 @@ export default class ScomFeed extends Module {
     ) as ScomPost;
     postEl.onProfileClicked = (target: Control, data: IPost) => this.onShowModal(target, data, 'mdActions');
     postEl.onReplyClicked = () => this.onViewPost(postEl);
+    return postEl;
+  }
+  
+  addPost(post: IPost, isPrepend?: boolean) {
+    if (post.id && this._data.posts.find(p => p.id === post.id)) return;
+    this._data.posts.push(post);
+    this.addPostToPanel(post, isPrepend);
+  }
+
+  addPosts(posts: IPost[], isPrepend?: boolean) {
+    let postEls = [];
+    for (let post of posts) {
+      if (this._data.posts.find(p => p.id === post.id)) continue;
+      this._data.posts.push(post);
+      const postEl = this.constructPostElement(post);
+      postEls.push(postEl);
+    }
     if (isPrepend)
-      this.pnlPosts.prepend(postEl);
-    else this.pnlPosts.append(postEl);
+      this.pnlPosts.prepend(...postEls);
+    else this.pnlPosts.append(...postEls);
   }
 
   setPosts(posts: IPost[]) {
@@ -299,10 +329,17 @@ export default class ScomFeed extends Module {
     this.renderPosts();
   }
 
+  private addPostToPanel(post: IPost, isPrepend?: boolean) {
+    const postEl = this.constructPostElement(post);
+    if (isPrepend)
+      this.pnlPosts.prepend(postEl);
+    else this.pnlPosts.append(postEl);
+  }
+
   private renderPosts() {
     this.pnlPosts.clearInnerHTML();
     for (let post of this.posts) {
-      this.addPost(post);
+      this.addPostToPanel(post);
     }
   }
 
@@ -494,6 +531,7 @@ export default class ScomFeed extends Module {
     const themeVar = theme || document.body.style.getPropertyValue('--theme');
     if (themeVar) this.theme = themeVar as Markdown['theme'];
     this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
+    this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
     this.renderActions();
   }
 
@@ -507,7 +545,6 @@ export default class ScomFeed extends Module {
         <i-panel id="pnlInput" padding={{top: '1.625rem', left: '1.25rem', right: '1.25rem'}}>
           <i-scom-post-composer
             id="inputReply"
-            placeholder='What is happening?'
             buttonCaption='Post'
             visible={false}
             onSubmit={this.onReplySubmit}
