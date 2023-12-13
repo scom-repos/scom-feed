@@ -694,8 +694,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (this.onItemClicked)
                 this.onItemClicked(target, event);
         }
-        onReplySubmit(target, medias) {
-            const content = target.getMarkdownValue();
+        onReplySubmit(content, medias) {
             let postDataArr;
             if (content) {
                 const textData = {
