@@ -953,7 +953,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, onSubmit: this.onReplySubmit })),
+                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
                             opacity: 1

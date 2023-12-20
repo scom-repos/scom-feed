@@ -546,6 +546,7 @@ export default class ScomFeed extends Module {
             id="inputReply"
             buttonCaption='Post'
             visible={false}
+            placeholder={'Post your thoughts...'}
             onSubmit={this.onReplySubmit}
           ></i-scom-post-composer>
         </i-panel>
