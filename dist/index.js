@@ -540,6 +540,16 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
         return components_1.Styles.style(styleObj);
     };
     exports.getHoverStyleClass = getHoverStyleClass;
+    components_1.Styles.cssRule('#mdCreatePost', {
+        $nest: {
+            '.modal': {
+                height: '100%',
+                top: 0,
+                position: 'absolute',
+                padding: 0
+            }
+        }
+    });
 });
 define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_2, data_json_1, index_1, index_2, index_css_1) {
     "use strict";
@@ -717,6 +727,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             }
             if (this.onPostButtonClicked)
                 this.onPostButtonClicked(content, postDataArr);
+            this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost }));
@@ -876,7 +887,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                                 else
                                     this.setTag(this.tag);
                             },
-                            redo: () => { }
+                            redo: () => {
+                            }
                         };
                     },
                     userInputDataSchema: dataSchema,
@@ -949,6 +961,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
             this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
             this.renderActions();
+            components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
+                this.mdCreatePost.visible = true;
+            });
+        }
+        handleModalClose() {
+            this.mdCreatePost.visible = false;
         }
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
@@ -962,8 +980,20 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         this.$render("i-icon", { width: '1rem', height: '1rem', display: "inline-flex", fill: Theme.text.primary, name: "stream" })),
                     this.$render("i-modal", { id: "mdFilter", popupPlacement: 'bottomRight', showBackdrop: false, visible: false, minWidth: 200, maxWidth: 200, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' } },
                         this.$render("i-vstack", null,
-                            this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
-                            this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: { name: 'check', fill: Theme.text.primary, width: '0.875rem', height: '0.875rem', visible: false }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
+                            this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: {
+                                    name: 'check',
+                                    fill: Theme.text.primary,
+                                    width: '0.875rem',
+                                    height: '0.875rem',
+                                    visible: false
+                                }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
+                            this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: {
+                                    name: 'check',
+                                    fill: Theme.text.primary,
+                                    width: '0.875rem',
+                                    height: '0.875rem',
+                                    visible: false
+                                }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
                 this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem', bottom: '0.5rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
                 this.$render("i-panel", null,
                     this.$render("i-vstack", { id: "pnlLoading", padding: { top: '0.5rem', bottom: '0.5rem' }, visible: false, height: "100%", width: "100%", minHeight: 200, position: "absolute", top: 0, bottom: 0, zIndex: 999, background: { color: Theme.background.main }, class: "i-loading-overlay" },
@@ -986,7 +1016,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                             }
                         }
                     ], onClose: () => this.removeShow('mdActions') },
-                    this.$render("i-vstack", { id: "pnlActions", minWidth: 0 }))));
+                    this.$render("i-vstack", { id: "pnlActions", minWidth: 0 })),
+                this.$render("i-modal", { id: "mdCreatePost", visible: false },
+                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) }))));
         }
     };
     ScomFeed = __decorate([
