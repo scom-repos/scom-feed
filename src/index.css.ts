@@ -17,3 +17,14 @@ export const getHoverStyleClass = (color?: string) => {
   }
   return Styles.style(styleObj);
 }
+
+Styles.cssRule('#mdCreatePost', {
+  $nest: {
+    '.modal': {
+      height: '100%',
+      top: 0,
+      position: 'absolute',
+      padding: 0
+    }
+  }
+})

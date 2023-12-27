@@ -519,6 +519,7 @@ declare module "@scom/scom-feed" {
         private mdActions;
         private pnlActions;
         private pnlLoading;
+        private mdCreatePost;
         private isRendering;
         private _data;
         private _isListView;
@@ -613,6 +614,7 @@ declare module "@scom/scom-feed" {
         private updateStyle;
         private updateTheme;
         init(): void;
+        private handleModalClose;
         render(): any;
     }
 }
