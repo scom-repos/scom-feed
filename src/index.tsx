@@ -562,6 +562,14 @@ export default class ScomFeed extends Module {
                         visible={false}
                         placeholder={'Post your thoughts...'}
                         onSubmit={this.onReplySubmit}
+                        mediaQueries={[
+                            {
+                                maxWidth: '767px',
+                                properties: {
+                                    display: 'none'
+                                }
+                            }
+                        ]}
                     ></i-scom-post-composer>
                 </i-panel>
                 <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}}>
