@@ -546,7 +546,8 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
                 height: '100%',
                 top: 0,
                 position: 'absolute',
-                padding: 0
+                padding: 0,
+                overflow: 'hidden'
             }
         }
     });
