@@ -543,7 +543,6 @@ export default class ScomFeed extends Module {
             this.mdCreatePost.visible = true;
             history.pushState(null, 'Create Post', '#/home/create-post')
         });
-
     }
 
     onShow(options) {
