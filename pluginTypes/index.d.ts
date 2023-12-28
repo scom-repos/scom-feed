@@ -614,6 +614,7 @@ declare module "@scom/scom-feed" {
         private updateStyle;
         private updateTheme;
         init(): void;
+        onShow(options: any): void;
         private handleModalClose;
         render(): any;
     }

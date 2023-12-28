@@ -963,10 +963,15 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.renderActions();
             components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
                 this.mdCreatePost.visible = true;
+                history.pushState(null, 'Create Post', '#/home/create-post');
             });
+        }
+        onShow(options) {
+            this.mdCreatePost.visible = options.isCreatePost;
         }
         handleModalClose() {
             this.mdCreatePost.visible = false;
+            history.pushState(null, 'Home', '#/home');
         }
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
@@ -975,7 +980,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                             {
                                 maxWidth: '767px',
                                 properties: {
-                                    display: 'none'
+                                    visible: false
                                 }
                             }
                         ] })),
