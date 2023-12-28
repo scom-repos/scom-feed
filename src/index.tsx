@@ -541,11 +541,18 @@ export default class ScomFeed extends Module {
         this.renderActions();
         application.EventBus.register(this, 'FAB_CREATE_POST', () => {
             this.mdCreatePost.visible = true;
+            history.pushState(null, 'Create Post', '#/home/create-post')
         });
+
+    }
+
+    onShow(options) {
+        this.mdCreatePost.visible = options.isCreatePost;
     }
 
     private handleModalClose() {
         this.mdCreatePost.visible = false;
+        history.pushState(null, 'Home', '#/home');
     }
 
     render() {
@@ -566,7 +573,7 @@ export default class ScomFeed extends Module {
                             {
                                 maxWidth: '767px',
                                 properties: {
-                                    display: 'none'
+                                    visible: false
                                 }
                             }
                         ]}
