@@ -972,7 +972,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         handleModalClose() {
             this.mdCreatePost.visible = false;
-            history.pushState(null, 'Home', '#/home');
+            history.replaceState(null, 'Home', '#/home');
         }
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
