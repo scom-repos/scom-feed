@@ -551,7 +551,7 @@ export default class ScomFeed extends Module {
 
     private handleModalClose() {
         this.mdCreatePost.visible = false;
-        history.pushState(null, 'Home', '#/home');
+        history.replaceState(null, 'Home', '#/home');
     }
 
     render() {
