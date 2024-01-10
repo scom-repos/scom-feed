@@ -731,7 +731,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost }));
+            const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true }));
             postEl.onProfileClicked = (target, data) => this.onShowModal(target, data, 'mdActions');
             postEl.onReplyClicked = () => this.onViewPost(postEl);
             return postEl;
