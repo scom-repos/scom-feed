@@ -520,6 +520,8 @@ declare module "@scom/scom-feed" {
         private pnlActions;
         private pnlLoading;
         private mdCreatePost;
+        private currentContent;
+        private currentPost;
         private isRendering;
         private _data;
         private _isListView;
@@ -550,6 +552,7 @@ declare module "@scom/scom-feed" {
         private setData;
         private getData;
         private renderUI;
+        private onCopyNoteText;
         private renderActions;
         private onViewPost;
         private onReplySubmit;

@@ -14,7 +14,8 @@ import {
     Button,
     Control,
     Panel,
-    application
+    application,
+    IconName
 
 } from '@ijstech/components';
 import dataConfig from './data.json';
@@ -62,6 +63,8 @@ export default class ScomFeed extends Module {
     private pnlLoading: VStack;
     private mdCreatePost: Modal;
 
+    private currentContent: Control;
+    private currentPost: IPost;
     private isRendering: boolean = false;
     private _data: IFeed = {
         posts: []
@@ -169,23 +172,49 @@ export default class ScomFeed extends Module {
         this.isRendering = false;
     }
 
+    private onCopyNoteText() {
+        const range = document.createRange();
+        range.selectNodeContents(this.currentContent);
+        const selectedText = range.toString();
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = selectedText;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
+    }
+
     private renderActions() {
         const actions = [
             {
                 caption: 'Copy note link',
-                icon: {name: 'copy'}
+                icon: {name: 'copy'},
+                tooltip: 'The link has been copied successfully',
+                onClick: () => {
+                    application.copyToClipboard(`${window.location.origin}/#/e/${this.currentPost.id}`)
+                }
             },
             {
                 caption: 'Copy note text',
-                icon: {name: 'copy'}
+                icon: {name: 'copy'},
+                tooltip: 'The text has been copied successfully',
+                onClick: () => this.onCopyNoteText()
             },
             {
                 caption: 'Copy note ID',
-                icon: {name: 'copy'}
+                icon: {name: 'copy'},
+                tooltip: 'The ID has been copied successfully',
+                onClick: () => {
+                    application.copyToClipboard(this.currentPost.id)
+                }
             },
             {
                 caption: 'Copy raw data',
-                icon: {name: 'copy'}
+                tooltip: 'The raw data has been copied successfully',
+                icon: {name: 'copy'},
+                onClick: () => {
+                    application.copyToClipboard(JSON.stringify(this.currentPost.contentElements))
+                }
             },
             {
                 caption: 'Broadcast note',
@@ -193,7 +222,11 @@ export default class ScomFeed extends Module {
             },
             {
                 caption: 'Copy user public key',
-                icon: {name: 'copy'}
+                icon: {name: 'copy'},
+                tooltip: 'The public key has been copied successfully',
+                onClick: () => {
+                    application.copyToClipboard(this.currentPost.author.pubKey || '')
+                }
             },
             {
                 caption: 'Mute user',
@@ -208,7 +241,7 @@ export default class ScomFeed extends Module {
         ]
         this.pnlActions.clearInnerHTML();
         for (let i = 0; i < actions.length; i++) {
-            const item: any = actions[i];
+            const item = actions[i];
             this.pnlActions.appendChild(
                 <i-hstack
                     horizontalAlignment="space-between"
@@ -225,13 +258,18 @@ export default class ScomFeed extends Module {
                     onClick={() => {
                         if (item.onClick) item.onClick();
                     }}
+                    tooltip={{
+                        content: item.tooltip,
+                        trigger: 'click',
+                        placement: 'bottom'
+                    }}
                 >
                     <i-label
                         caption={item.caption}
                         font={{color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem'}}
                     ></i-label>
                     <i-icon
-                        name={item.icon.name}
+                        name={item.icon.name as IconName}
                         width='0.75rem' height='0.75rem'
                         display='inline-flex'
                         fill={item.icon?.fill || Theme.text.primary}
@@ -305,7 +343,7 @@ export default class ScomFeed extends Module {
                 limitHeight={true}
             ></i-scom-post>
         ) as ScomPost;
-        postEl.onProfileClicked = (target: Control, data: IPost) => this.onShowModal(target, data, 'mdActions');
+        postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.onShowModal(target, data, 'mdActions', contentElement);
         postEl.onReplyClicked = () => this.onViewPost(postEl);
         return postEl;
     }
@@ -369,13 +407,17 @@ export default class ScomFeed extends Module {
         if (this[name]) this[name].visible = false;
     }
 
-    private onShowModal(target: Control, data: IPost, name: string) {
+    private onShowModal(target: Control, data: IPost, name: string, contentElement?: Control) {
         if (this[name]) {
             this[name].parent = target;
             this[name].position = 'absolute';
             this[name].refresh();
             this[name].visible = true;
             this[name].classList.add('show');
+            if (name === 'mdActions') {
+                this.currentPost = data;
+                this.currentContent = contentElement;
+            }
         }
     }
 
@@ -697,6 +739,7 @@ export default class ScomFeed extends Module {
                     showBackdrop={false}
                     border={{radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider}}
                     padding={{top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem'}}
+                    zIndex={999}
                     mediaQueries={[
                         {
                             maxWidth: '767px',
@@ -720,8 +763,6 @@ export default class ScomFeed extends Module {
                 <i-modal id={"mdCreatePost"} visible={false}>
                     <i-scom-post-composer id={"inputCreatePost"} mobile={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)}/>
                 </i-modal>
-
-
             </i-vstack>
         );
     }

@@ -643,23 +643,48 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.renderPosts();
             this.isRendering = false;
         }
+        onCopyNoteText() {
+            const range = document.createRange();
+            range.selectNodeContents(this.currentContent);
+            const selectedText = range.toString();
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = selectedText;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+        }
         renderActions() {
             const actions = [
                 {
                     caption: 'Copy note link',
-                    icon: { name: 'copy' }
+                    icon: { name: 'copy' },
+                    tooltip: 'The link has been copied successfully',
+                    onClick: () => {
+                        components_2.application.copyToClipboard(`${window.location.origin}/#/e/${this.currentPost.id}`);
+                    }
                 },
                 {
                     caption: 'Copy note text',
-                    icon: { name: 'copy' }
+                    icon: { name: 'copy' },
+                    tooltip: 'The text has been copied successfully',
+                    onClick: () => this.onCopyNoteText()
                 },
                 {
                     caption: 'Copy note ID',
-                    icon: { name: 'copy' }
+                    icon: { name: 'copy' },
+                    tooltip: 'The ID has been copied successfully',
+                    onClick: () => {
+                        components_2.application.copyToClipboard(this.currentPost.id);
+                    }
                 },
                 {
                     caption: 'Copy raw data',
-                    icon: { name: 'copy' }
+                    tooltip: 'The raw data has been copied successfully',
+                    icon: { name: 'copy' },
+                    onClick: () => {
+                        components_2.application.copyToClipboard(JSON.stringify(this.currentPost.contentElements));
+                    }
                 },
                 {
                     caption: 'Broadcast note',
@@ -667,7 +692,11 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 },
                 {
                     caption: 'Copy user public key',
-                    icon: { name: 'copy' }
+                    icon: { name: 'copy' },
+                    tooltip: 'The public key has been copied successfully',
+                    onClick: () => {
+                        components_2.application.copyToClipboard(this.currentPost.author.pubKey || '');
+                    }
                 },
                 {
                     caption: 'Mute user',
@@ -689,6 +718,10 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     }, onClick: () => {
                         if (item.onClick)
                             item.onClick();
+                    }, tooltip: {
+                        content: item.tooltip,
+                        trigger: 'click',
+                        placement: 'bottom'
                     } },
                     this.$render("i-label", { caption: item.caption, font: { color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem' } }),
                     this.$render("i-icon", { name: item.icon.name, width: '0.75rem', height: '0.75rem', display: 'inline-flex', fill: item.icon?.fill || Theme.text.primary })));
@@ -732,7 +765,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         constructPostElement(post) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true }));
-            postEl.onProfileClicked = (target, data) => this.onShowModal(target, data, 'mdActions');
+            postEl.onProfileClicked = (target, data, event, contentElement) => this.onShowModal(target, data, 'mdActions', contentElement);
             postEl.onReplyClicked = () => this.onViewPost(postEl);
             return postEl;
         }
@@ -793,13 +826,17 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (this[name])
                 this[name].visible = false;
         }
-        onShowModal(target, data, name) {
+        onShowModal(target, data, name, contentElement) {
             if (this[name]) {
                 this[name].parent = target;
                 this[name].position = 'absolute';
                 this[name].refresh();
                 this[name].visible = true;
                 this[name].classList.add('show');
+                if (name === 'mdActions') {
+                    this.currentPost = data;
+                    this.currentContent = contentElement;
+                }
             }
         }
         removeShow(name) {
@@ -1013,7 +1050,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         this.$render("i-vstack", { horizontalAlignment: "center", verticalAlignment: "center", position: "absolute", top: "calc(50% - 0.75rem)", left: "calc(50% - 0.75rem)" },
                             this.$render("i-icon", { class: "i-loading-spinner_icon", name: "spinner", width: 24, height: 24, fill: Theme.colors.primary.main }))),
                     this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem" })),
-                this.$render("i-modal", { id: "mdActions", visible: false, maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, mediaQueries: [
+                this.$render("i-modal", { id: "mdActions", visible: false, maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, zIndex: 999, mediaQueries: [
                         {
                             maxWidth: '767px',
                             properties: {
