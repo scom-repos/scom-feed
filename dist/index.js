@@ -686,10 +686,10 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         components_2.application.copyToClipboard(JSON.stringify(this.currentPost.contentElements));
                     }
                 },
-                {
-                    caption: 'Broadcast note',
-                    icon: { name: "broadcast-tower" }
-                },
+                // {
+                //     caption: 'Broadcast note',
+                //     icon: {name: "broadcast-tower"}
+                // },
                 {
                     caption: 'Copy user public key',
                     icon: { name: 'copy' },
@@ -698,16 +698,16 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         components_2.application.copyToClipboard(this.currentPost.author.pubKey || '');
                     }
                 },
-                {
-                    caption: 'Mute user',
-                    icon: { name: "user-slash", fill: Theme.colors.error.main },
-                    hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
-                },
-                {
-                    caption: 'Report user',
-                    icon: { name: "exclamation-circle", fill: Theme.colors.error.main },
-                    hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
-                }
+                // {
+                //     caption: 'Mute user',
+                //     icon: {name: "user-slash", fill: Theme.colors.error.main},
+                //     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+                // },
+                // {
+                //     caption: 'Report user',
+                //     icon: {name: "exclamation-circle", fill: Theme.colors.error.main},
+                //     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+                // }
             ];
             this.pnlActions.clearInnerHTML();
             for (let i = 0; i < actions.length; i++) {

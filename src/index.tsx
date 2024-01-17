@@ -47,6 +47,14 @@ declare global {
     }
 }
 
+type Action = {
+    caption: string;
+    icon?: {name: string, fill?: string;};
+    tooltip?: string;
+    onClick?: () => void;
+    hoveredColor?: string;
+}
+
 const DefaultPlaceholder = "What's on your mind today?";
 
 @customElements('i-scom-feed')
@@ -185,7 +193,7 @@ export default class ScomFeed extends Module {
     }
 
     private renderActions() {
-        const actions = [
+        const actions: Action[] = [
             {
                 caption: 'Copy note link',
                 icon: {name: 'copy'},
@@ -216,10 +224,10 @@ export default class ScomFeed extends Module {
                     application.copyToClipboard(JSON.stringify(this.currentPost.contentElements))
                 }
             },
-            {
-                caption: 'Broadcast note',
-                icon: {name: "broadcast-tower"}
-            },
+            // {
+            //     caption: 'Broadcast note',
+            //     icon: {name: "broadcast-tower"}
+            // },
             {
                 caption: 'Copy user public key',
                 icon: {name: 'copy'},
@@ -228,16 +236,16 @@ export default class ScomFeed extends Module {
                     application.copyToClipboard(this.currentPost.author.pubKey || '')
                 }
             },
-            {
-                caption: 'Mute user',
-                icon: {name: "user-slash", fill: Theme.colors.error.main},
-                hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
-            },
-            {
-                caption: 'Report user',
-                icon: {name: "exclamation-circle", fill: Theme.colors.error.main},
-                hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
-            }
+            // {
+            //     caption: 'Mute user',
+            //     icon: {name: "user-slash", fill: Theme.colors.error.main},
+            //     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+            // },
+            // {
+            //     caption: 'Report user',
+            //     icon: {name: "exclamation-circle", fill: Theme.colors.error.main},
+            //     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
+            // }
         ]
         this.pnlActions.clearInnerHTML();
         for (let i = 0; i < actions.length; i++) {
