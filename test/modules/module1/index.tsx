@@ -120,7 +120,7 @@ export default class Module1 extends Module {
   render() {
     return (
       <i-vstack margin={{ left: 'auto', right: 'auto' }} maxWidth={960}>
-        <i-scom-feed id="feedEl" data={this._data} theme="dark" />
+        <i-scom-feed env={env} id="feedEl" data={this._data} theme="dark" />
       </i-vstack>
     );
   }

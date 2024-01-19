@@ -37,6 +37,7 @@ interface ScomFeedElement extends ControlElement {
     isComposerVisible?: boolean;
     onItemClicked?: callbackType;
     onPostButtonClicked?: submitCallbackType;
+    env?: string;
 }
 
 declare global {
@@ -70,6 +71,7 @@ export default class ScomFeed extends Module {
     private pnlActions: Panel;
     private pnlLoading: VStack;
     private mdCreatePost: Modal;
+    private inputCreatePost: ScomPostComposer;
 
     private currentContent: Control;
     private currentPost: IPost;
@@ -81,6 +83,7 @@ export default class ScomFeed extends Module {
     private _theme: Markdown['theme'];
     private _isComposerVisible: boolean = false;
     private _composerPlaceholder: string = DefaultPlaceholder;
+    private env: string;
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
@@ -578,6 +581,8 @@ export default class ScomFeed extends Module {
 
     init() {
         super.init();
+        this.env = this.getAttribute('env', true) || this.env;
+        console.log('this.env', this.env);
         this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         const data = this.getAttribute('data', true);
@@ -594,6 +599,11 @@ export default class ScomFeed extends Module {
             this.mdCreatePost.visible = true;
             history.pushState(null, 'Create Post', '#/home/create-post')
         });
+        if(this.env === 'prod') {
+            this.inputReply.disableMarkdownEditor();
+            this.inputReply.disableMarkdownEditor();
+            this.inputCreatePost.disableMarkdownEditor();
+        }
     }
 
     onShow(options) {
@@ -769,7 +779,7 @@ export default class ScomFeed extends Module {
                     <i-vstack id="pnlActions" minWidth={0}/>
                 </i-modal>
                 <i-modal id={"mdCreatePost"} visible={false}>
-                    <i-scom-post-composer id={"inputCreatePost"} mobile={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)}/>
+                    <i-scom-post-composer id={"inputCreatePost"} mobile={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)} />
                 </i-modal>
             </i-vstack>
         );
