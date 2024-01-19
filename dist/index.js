@@ -987,6 +987,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         init() {
             super.init();
+            this.env = this.getAttribute('env', true) || this.env;
+            console.log('this.env', this.env);
             this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
             this.onLikeButtonClicked = this.getAttribute('onLikeButtonClicked', true) || this.onLikeButtonClicked;
             this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
@@ -1007,6 +1009,11 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.mdCreatePost.visible = true;
                 history.pushState(null, 'Create Post', '#/home/create-post');
             });
+            if (this.env === 'prod') {
+                console.log(this.inputReply);
+                this.inputReply.disableMarkdownEditor();
+                this.inputCreatePost.disableMarkdownEditor();
+            }
         }
         onShow(options) {
             this.mdCreatePost.visible = options.isCreatePost;

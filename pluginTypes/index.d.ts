@@ -500,6 +500,7 @@ declare module "@scom/scom-feed" {
         isComposerVisible?: boolean;
         onItemClicked?: callbackType;
         onPostButtonClicked?: submitCallbackType;
+        env?: string;
         onLikeButtonClicked?: callbackType;
         onRepostButtonClicked?: callbackType;
     }
@@ -522,6 +523,7 @@ declare module "@scom/scom-feed" {
         private pnlActions;
         private pnlLoading;
         private mdCreatePost;
+        private inputCreatePost;
         private currentContent;
         private currentPost;
         private isRendering;
@@ -530,6 +532,7 @@ declare module "@scom/scom-feed" {
         private _theme;
         private _isComposerVisible;
         private _composerPlaceholder;
+        private env;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: callbackType;
