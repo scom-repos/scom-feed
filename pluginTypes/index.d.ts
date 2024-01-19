@@ -490,7 +490,7 @@ declare module "@scom/scom-feed" {
     import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema } from '@ijstech/components';
     import { IFeed } from "@scom/scom-feed/global/index.ts";
     import { IPost, IPostData, ScomPost } from '@scom/scom-post';
-    type callbackType = (target: ScomPost, event: MouseEvent) => void;
+    type callbackType = (target: ScomPost, event?: MouseEvent) => void;
     type submitCallbackType = (content: string, medias: IPostData[]) => void;
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
@@ -501,6 +501,8 @@ declare module "@scom/scom-feed" {
         onItemClicked?: callbackType;
         onPostButtonClicked?: submitCallbackType;
         env?: string;
+        onLikeButtonClicked?: callbackType;
+        onRepostButtonClicked?: callbackType;
     }
     global {
         namespace JSX {
@@ -533,6 +535,8 @@ declare module "@scom/scom-feed" {
         private env;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
+        onLikeButtonClicked: callbackType;
+        onRepostButtonClicked: callbackType;
         tag: {
             light: {};
             dark: {};

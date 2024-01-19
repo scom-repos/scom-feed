@@ -26,7 +26,7 @@ import {getHoverStyleClass} from './index.css';
 import {ScomPostComposer} from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
-type callbackType = (target: ScomPost, event: MouseEvent) => void
+type callbackType = (target: ScomPost, event?: MouseEvent) => void
 type submitCallbackType = (content: string, medias: IPostData[]) => void
 
 interface ScomFeedElement extends ControlElement {
@@ -38,6 +38,8 @@ interface ScomFeedElement extends ControlElement {
     onItemClicked?: callbackType;
     onPostButtonClicked?: submitCallbackType;
     env?: string;
+    onLikeButtonClicked?: callbackType;
+    onRepostButtonClicked?: callbackType;
 }
 
 declare global {
@@ -87,6 +89,8 @@ export default class ScomFeed extends Module {
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
+    onLikeButtonClicked: callbackType;
+    onRepostButtonClicked: callbackType;
 
     tag = {
         light: {},
@@ -356,6 +360,8 @@ export default class ScomFeed extends Module {
         ) as ScomPost;
         postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.onShowModal(target, data, 'mdActions', contentElement);
         postEl.onReplyClicked = () => this.onViewPost(postEl);
+        postEl.onLikeClicked = () => this.onLikeButtonClicked(postEl);
+        postEl.onRepostClicked = () => this.onRepostButtonClicked(postEl);
         return postEl;
     }
 
@@ -584,6 +590,8 @@ export default class ScomFeed extends Module {
         this.env = this.getAttribute('env', true) || this.env;
         console.log('this.env', this.env);
         this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
+        this.onLikeButtonClicked = this.getAttribute('onLikeButtonClicked', true) || this.onLikeButtonClicked;
+        this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         const data = this.getAttribute('data', true);
         if (data) this.setData(data);
