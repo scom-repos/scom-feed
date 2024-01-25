@@ -617,6 +617,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._composerPlaceholder = value ?? '';
             this.inputReply.placeholder = this._composerPlaceholder;
         }
+        get avatar() {
+            return this.inputReply.avatar;
+        }
+        set avatar(value) {
+            this.inputReply.avatar = value;
+            this.inputCreatePost.avatar = value;
+        }
         clear() {
             this.inputReply.clear();
             this.pnlPosts.clearInnerHTML();
@@ -1004,13 +1011,16 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.theme = themeVar;
             this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
             this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
+            const avatar = this.getAttribute('avatar', true);
+            if (avatar)
+                this.avatar = avatar;
             this.renderActions();
             components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
                 this.mdCreatePost.visible = true;
                 history.pushState(null, 'Create Post', '#/home/create-post');
             });
             if (this.env === 'prod') {
-                console.log(this.inputReply);
+                this.inputReply.disableMarkdownEditor();
                 this.inputReply.disableMarkdownEditor();
                 this.inputCreatePost.disableMarkdownEditor();
             }

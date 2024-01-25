@@ -503,6 +503,7 @@ declare module "@scom/scom-feed" {
         env?: string;
         onLikeButtonClicked?: callbackType;
         onRepostButtonClicked?: callbackType;
+        avatar?: string;
     }
     global {
         namespace JSX {
@@ -553,6 +554,8 @@ declare module "@scom/scom-feed" {
         set isComposerVisible(value: boolean);
         get composerPlaceholder(): string;
         set composerPlaceholder(value: string);
+        get avatar(): string;
+        set avatar(value: string);
         clear(): void;
         showLoading(): void;
         hideLoading(): void;
