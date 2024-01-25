@@ -40,6 +40,7 @@ interface ScomFeedElement extends ControlElement {
     env?: string;
     onLikeButtonClicked?: callbackType;
     onRepostButtonClicked?: callbackType;
+    avatar?: string;
 }
 
 declare global {
@@ -154,6 +155,15 @@ export default class ScomFeed extends Module {
     set composerPlaceholder(value: string) {
         this._composerPlaceholder = value ?? '';
         this.inputReply.placeholder = this._composerPlaceholder;
+    }
+
+    get avatar() {
+        return this.inputReply.avatar;
+    }
+
+    set avatar(value: string) {
+        this.inputReply.avatar = value;
+        this.inputCreatePost.avatar = value;
     }
 
     clear() {
@@ -602,6 +612,8 @@ export default class ScomFeed extends Module {
         if (themeVar) this.theme = themeVar as Markdown['theme'];
         this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
         this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
+        const avatar = this.getAttribute('avatar', true);
+        if (avatar) this.avatar = avatar;
         this.renderActions();
         application.EventBus.register(this, 'FAB_CREATE_POST', () => {
             this.mdCreatePost.visible = true;
