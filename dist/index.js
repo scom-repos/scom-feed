@@ -509,7 +509,7 @@ define("@scom/scom-feed/store/index.ts", ["require", "exports"], function (requi
             id: "",
             username: "",
             internetIdentifier: "",
-            pubKey: "",
+            npub: "",
             displayName: "",
             description: "",
             avatar: undefined
@@ -709,7 +709,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     icon: { name: 'copy' },
                     tooltip: 'The public key has been copied successfully',
                     onClick: () => {
-                        components_2.application.copyToClipboard(this.currentPost.author.pubKey || '');
+                        components_2.application.copyToClipboard(this.currentPost.author.npub || '');
                         this.mdActions.visible = false;
                     }
                 },

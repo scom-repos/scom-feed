@@ -257,7 +257,7 @@ export default class ScomFeed extends Module {
                 icon: {name: 'copy'},
                 tooltip: 'The public key has been copied successfully',
                 onClick: () => {
-                    application.copyToClipboard(this.currentPost.author.pubKey || '');
+                    application.copyToClipboard(this.currentPost.author.npub || '');
                     this.mdActions.visible = false;
                 }
             },
