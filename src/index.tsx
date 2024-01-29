@@ -377,9 +377,9 @@ export default class ScomFeed extends Module {
             ></i-scom-post>
         ) as ScomPost;
         postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.onShowModal(target, data, 'mdActions', contentElement);
-        postEl.onReplyClicked = () => this.onViewPost(postEl);
-        postEl.onLikeClicked = () => this.onLikeButtonClicked(postEl);
-        postEl.onRepostClicked = () => this.onRepostButtonClicked(postEl);
+        postEl.onReplyClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onViewPost(postEl, event);
+        postEl.onLikeClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onLikeButtonClicked(postEl, event);
+        postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
         return postEl;
     }
 
@@ -624,7 +624,6 @@ export default class ScomFeed extends Module {
         this.renderActions();
         application.EventBus.register(this, 'FAB_CREATE_POST', () => {
             this.mdCreatePost.visible = true;
-            history.pushState(null, 'Create Post', '#/home/create-post')
         });
         if(this.env === 'prod') {
             this.inputReply.disableMarkdownEditor();
@@ -639,7 +638,7 @@ export default class ScomFeed extends Module {
 
     private handleModalClose() {
         this.mdCreatePost.visible = false;
-        history.replaceState(null, 'Home', '#/home');
+        history.replaceState(null, 'Post', location.hash.replace('/create-post', ''));
     }
 
     render() {
