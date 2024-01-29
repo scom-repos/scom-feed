@@ -592,7 +592,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         set isListView(value) {
             this._isListView = value ?? false;
-            this.pnlFilter.visible = !this.isListView;
+            this.pnlFilter.visible = false && !this.isListView;
             this.btnMore.visible = false; // !this.isListView;
             this.pnlInput.visible = !this.isListView;
         }
@@ -651,15 +651,15 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.isRendering = false;
         }
         onCopyNoteText() {
-            const range = document.createRange();
-            range.selectNodeContents(this.currentContent);
-            const selectedText = range.toString();
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.value = selectedText;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
+            // const range = document.createRange();
+            // range.selectNodeContents(this.currentContent);
+            // const selectedText = range.toString();
+            // const tempTextarea = document.createElement('textarea');
+            // tempTextarea.value = selectedText;
+            // document.body.appendChild(tempTextarea);
+            // tempTextarea.select();
+            // document.execCommand('copy');
+            // document.body.removeChild(tempTextarea);
         }
         renderActions() {
             const actions = [
@@ -669,13 +669,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     tooltip: 'The link has been copied successfully',
                     onClick: () => {
                         components_2.application.copyToClipboard(`${window.location.origin}/#/e/${this.currentPost.id}`);
+                        this.mdActions.visible = false;
                     }
                 },
                 {
                     caption: 'Copy note text',
                     icon: { name: 'copy' },
                     tooltip: 'The text has been copied successfully',
-                    onClick: () => this.onCopyNoteText()
+                    onClick: () => {
+                        // this.onCopyNoteText();
+                        components_2.application.copyToClipboard(this.currentPost['eventData']?.content);
+                        this.mdActions.visible = false;
+                    }
                 },
                 {
                     caption: 'Copy note ID',
@@ -683,6 +688,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     tooltip: 'The ID has been copied successfully',
                     onClick: () => {
                         components_2.application.copyToClipboard(this.currentPost.id);
+                        this.mdActions.visible = false;
                     }
                 },
                 {
@@ -690,7 +696,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     tooltip: 'The raw data has been copied successfully',
                     icon: { name: 'copy' },
                     onClick: () => {
-                        components_2.application.copyToClipboard(JSON.stringify(this.currentPost.contentElements));
+                        components_2.application.copyToClipboard(JSON.stringify(this.currentPost['eventData']));
+                        this.mdActions.visible = false;
                     }
                 },
                 // {
@@ -703,6 +710,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     tooltip: 'The public key has been copied successfully',
                     onClick: () => {
                         components_2.application.copyToClipboard(this.currentPost.author.pubKey || '');
+                        this.mdActions.visible = false;
                     }
                 },
                 // {
@@ -995,7 +1003,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         init() {
             super.init();
             this.env = this.getAttribute('env', true) || this.env;
-            console.log('this.env', this.env);
             this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
             this.onLikeButtonClicked = this.getAttribute('onLikeButtonClicked', true) || this.onLikeButtonClicked;
             this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
@@ -1043,7 +1050,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                                 }
                             }
                         ] })),
-                this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' } },
+                this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' }, visible: false },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
                             opacity: 1
                         }, onClick: this.onShowFilter },
