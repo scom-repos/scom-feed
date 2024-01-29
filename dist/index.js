@@ -773,9 +773,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         constructPostElement(post) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "short", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.onShowModal(target, data, 'mdActions', contentElement);
-            postEl.onReplyClicked = () => this.onViewPost(postEl);
-            postEl.onLikeClicked = () => this.onLikeButtonClicked(postEl);
-            postEl.onRepostClicked = () => this.onRepostButtonClicked(postEl);
+            postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
+            postEl.onLikeClicked = (target, data, event) => this.onLikeButtonClicked(postEl, event);
+            postEl.onRepostClicked = (target, data, event) => this.onRepostButtonClicked(postEl, event);
             return postEl;
         }
         addPost(post, isPrepend) {
@@ -1017,7 +1017,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.renderActions();
             components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
                 this.mdCreatePost.visible = true;
-                history.pushState(null, 'Create Post', '#/home/create-post');
             });
             if (this.env === 'prod') {
                 this.inputReply.disableMarkdownEditor();
@@ -1030,7 +1029,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         handleModalClose() {
             this.mdCreatePost.visible = false;
-            history.replaceState(null, 'Home', '#/home');
+            history.replaceState(null, 'Post', location.hash.replace('/create-post', ''));
         }
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
