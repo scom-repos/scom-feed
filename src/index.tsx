@@ -125,7 +125,7 @@ export default class ScomFeed extends Module {
 
     set isListView(value: boolean) {
         this._isListView = value ?? false;
-        this.pnlFilter.visible = !this.isListView;
+        this.pnlFilter.visible = false && !this.isListView;
         this.btnMore.visible = false; // !this.isListView;
         this.pnlInput.visible = !this.isListView;
     }
@@ -198,15 +198,15 @@ export default class ScomFeed extends Module {
     }
 
     private onCopyNoteText() {
-        const range = document.createRange();
-        range.selectNodeContents(this.currentContent);
-        const selectedText = range.toString();
-        const tempTextarea = document.createElement('textarea');
-        tempTextarea.value = selectedText;
-        document.body.appendChild(tempTextarea);
-        tempTextarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempTextarea);
+        // const range = document.createRange();
+        // range.selectNodeContents(this.currentContent);
+        // const selectedText = range.toString();
+        // const tempTextarea = document.createElement('textarea');
+        // tempTextarea.value = selectedText;
+        // document.body.appendChild(tempTextarea);
+        // tempTextarea.select();
+        // document.execCommand('copy');
+        // document.body.removeChild(tempTextarea);
     }
 
     private renderActions() {
@@ -216,21 +216,27 @@ export default class ScomFeed extends Module {
                 icon: {name: 'copy'},
                 tooltip: 'The link has been copied successfully',
                 onClick: () => {
-                    application.copyToClipboard(`${window.location.origin}/#/e/${this.currentPost.id}`)
+                    application.copyToClipboard(`${window.location.origin}/#/e/${this.currentPost.id}`);
+                    this.mdActions.visible = false;
                 }
             },
             {
                 caption: 'Copy note text',
                 icon: {name: 'copy'},
                 tooltip: 'The text has been copied successfully',
-                onClick: () => this.onCopyNoteText()
+                onClick: () => {
+                    // this.onCopyNoteText();
+                    application.copyToClipboard(this.currentPost['eventData']?.content);
+                    this.mdActions.visible = false;
+                }
             },
             {
                 caption: 'Copy note ID',
                 icon: {name: 'copy'},
                 tooltip: 'The ID has been copied successfully',
                 onClick: () => {
-                    application.copyToClipboard(this.currentPost.id)
+                    application.copyToClipboard(this.currentPost.id);
+                    this.mdActions.visible = false;
                 }
             },
             {
@@ -238,7 +244,8 @@ export default class ScomFeed extends Module {
                 tooltip: 'The raw data has been copied successfully',
                 icon: {name: 'copy'},
                 onClick: () => {
-                    application.copyToClipboard(JSON.stringify(this.currentPost.contentElements))
+                    application.copyToClipboard(JSON.stringify(this.currentPost['eventData']));
+                    this.mdActions.visible = false;
                 }
             },
             // {
@@ -250,7 +257,8 @@ export default class ScomFeed extends Module {
                 icon: {name: 'copy'},
                 tooltip: 'The public key has been copied successfully',
                 onClick: () => {
-                    application.copyToClipboard(this.currentPost.author.pubKey || '')
+                    application.copyToClipboard(this.currentPost.author.pubKey || '');
+                    this.mdActions.visible = false;
                 }
             },
             // {
@@ -598,7 +606,6 @@ export default class ScomFeed extends Module {
     init() {
         super.init();
         this.env = this.getAttribute('env', true) || this.env;
-        console.log('this.env', this.env);
         this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
         this.onLikeButtonClicked = this.getAttribute('onLikeButtonClicked', true) || this.onLikeButtonClicked;
         this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
@@ -659,7 +666,7 @@ export default class ScomFeed extends Module {
                         ]}
                     ></i-scom-post-composer>
                 </i-panel>
-                <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}}>
+                <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}} visible={false}>
                     <i-hstack
                         width={'100%'}
                         horizontalAlignment="end"
