@@ -374,6 +374,7 @@ export default class ScomFeed extends Module {
                 onClick={this.onViewPost}
                 onQuotedPostClicked={this.onViewPost}
                 limitHeight={true}
+                overflowEllipse={true}
             ></i-scom-post>
         ) as ScomPost;
         postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.onShowModal(target, data, 'mdActions', contentElement);
