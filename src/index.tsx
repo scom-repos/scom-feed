@@ -772,7 +772,7 @@ export default class ScomFeed extends Module {
                             />
                         </i-vstack>
                     </i-vstack>
-                    <i-vstack id="pnlPosts" gap="0.5rem"/>
+                    <i-vstack id="pnlPosts" gap="0.5rem" padding={{bottom: 50}}/>
                 </i-panel>
                 <i-modal
                     id="mdActions"
