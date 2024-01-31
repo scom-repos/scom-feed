@@ -1027,8 +1027,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             });
             if (this.env === 'prod') {
                 this.inputReply.disableMarkdownEditor();
-                this.inputReply.disableMarkdownEditor();
+                this.inputReply.isAttachmentDisabled = true;
                 this.inputCreatePost.disableMarkdownEditor();
+                this.inputCreatePost.isAttachmentDisabled = true;
             }
         }
         onShow(options) {
