@@ -1076,7 +1076,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     this.$render("i-vstack", { id: "pnlLoading", padding: { top: '0.5rem', bottom: '0.5rem' }, visible: false, height: "100%", width: "100%", minHeight: 200, position: "absolute", top: 0, bottom: 0, zIndex: 999, background: { color: Theme.background.main }, class: "i-loading-overlay" },
                         this.$render("i-vstack", { horizontalAlignment: "center", verticalAlignment: "center", position: "absolute", top: "calc(50% - 0.75rem)", left: "calc(50% - 0.75rem)" },
                             this.$render("i-icon", { class: "i-loading-spinner_icon", name: "spinner", width: 24, height: 24, fill: Theme.colors.primary.main }))),
-                    this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem" })),
+                    this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem", padding: { bottom: 50 } })),
                 this.$render("i-modal", { id: "mdActions", visible: false, maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, zIndex: 999, mediaQueries: [
                         {
                             maxWidth: '767px',
