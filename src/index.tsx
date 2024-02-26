@@ -369,6 +369,7 @@ export default class ScomFeed extends Module {
     constructPostElement(post: IPost) {
         const postEl = (
             <i-scom-post
+                border={{top: {width: 1, style: 'solid', color: 'rgb(47, 51, 54)'}}}
                 data={post}
                 type="short"
                 onClick={this.onViewPost}
