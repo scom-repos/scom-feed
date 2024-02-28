@@ -339,6 +339,14 @@ export default class ScomFeed extends Module {
     }
 
     private onViewPost(target: ScomPost, event?: MouseEvent) {
+        const videos = target.querySelectorAll('video');
+        for (let video of videos) {
+            video.pause();
+        }
+        const players = target.querySelectorAll('i-scom-media-player');
+        for (let player of players) {
+            (player as any).onHide();
+        }
         if (this.onItemClicked) this.onItemClicked(target, event);
     }
 
