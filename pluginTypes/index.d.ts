@@ -556,6 +556,9 @@ declare module "@scom/scom-feed" {
         set composerPlaceholder(value: string);
         get avatar(): string;
         set avatar(value: string);
+        get isSmallScreen(): boolean;
+        controlInputDisplay(): void;
+        connectedCallback(): void;
         clear(): void;
         showLoading(): void;
         hideLoading(): void;

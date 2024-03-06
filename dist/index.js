@@ -594,7 +594,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._isListView = value ?? false;
             this.pnlFilter.visible = false && !this.isListView;
             this.btnMore.visible = false; // !this.isListView;
-            this.pnlInput.visible = !this.isListView;
+            this.controlInputDisplay();
         }
         set theme(value) {
             this._theme = value;
@@ -609,6 +609,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set isComposerVisible(value) {
             this._isComposerVisible = value ?? false;
             this.inputReply.visible = this._isComposerVisible;
+            this.controlInputDisplay();
         }
         get composerPlaceholder() {
             return this._composerPlaceholder;
@@ -623,6 +624,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set avatar(value) {
             this.inputReply.avatar = value;
             this.inputCreatePost.avatar = value;
+        }
+        get isSmallScreen() {
+            return window.innerWidth < 768;
+        }
+        controlInputDisplay() {
+            this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
+        }
+        connectedCallback() {
+            super.connectedCallback();
+            window.addEventListener('resize', (e) => {
+                this.controlInputDisplay();
+            });
         }
         clear() {
             this.inputReply.clear();
@@ -750,6 +763,14 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.$render("i-button", { caption: 'Cancel', width: "100%", minHeight: 44, padding: { left: 16, right: 16 }, font: { color: Theme.text.primary, weight: 600 }, border: { radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light }, grid: { horizontalAlignment: 'center' }, background: { color: 'transparent' }, boxShadow: "none", onClick: () => this.onCloseModal('mdActions') })));
         }
         onViewPost(target, event) {
+            const videos = target.querySelectorAll('video');
+            for (let video of videos) {
+                video.pause();
+            }
+            const players = target.querySelectorAll('i-scom-media-player');
+            for (let player of players) {
+                player.onHide();
+            }
             if (this.onItemClicked)
                 this.onItemClicked(target, event);
         }
@@ -1042,14 +1063,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', onSubmit: this.onReplySubmit, mediaQueries: [
-                            {
-                                maxWidth: '767px',
-                                properties: {
-                                    visible: false
-                                }
-                            }
-                        ] })),
+                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' }, visible: false },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
                             opacity: 1

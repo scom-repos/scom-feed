@@ -127,7 +127,7 @@ export default class ScomFeed extends Module {
         this._isListView = value ?? false;
         this.pnlFilter.visible = false && !this.isListView;
         this.btnMore.visible = false; // !this.isListView;
-        this.pnlInput.visible = !this.isListView;
+        this.controlInputDisplay();
     }
 
     set theme(value: Markdown["theme"]) {
@@ -146,6 +146,7 @@ export default class ScomFeed extends Module {
     set isComposerVisible(value: boolean) {
         this._isComposerVisible = value ?? false;
         this.inputReply.visible = this._isComposerVisible;
+        this.controlInputDisplay();
     }
 
     get composerPlaceholder() {
@@ -164,6 +165,21 @@ export default class ScomFeed extends Module {
     set avatar(value: string) {
         this.inputReply.avatar = value;
         this.inputCreatePost.avatar = value;
+    }
+
+    get isSmallScreen() {
+        return window.innerWidth < 768;
+    }
+
+    controlInputDisplay() {
+        this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        window.addEventListener('resize', (e) => {
+          this.controlInputDisplay();
+        });
     }
 
     clear() {
@@ -659,22 +675,17 @@ export default class ScomFeed extends Module {
                 margin={{left: 'auto', right: 'auto'}}
                 background={{color: Theme.background.main}}
             >
-                <i-panel id="pnlInput" padding={{top: '1.625rem', left: '1.25rem', right: '1.25rem'}}>
+                <i-panel
+                    id="pnlInput"
+                    padding={{top: '1.625rem', left: '1.25rem', right: '1.25rem'}}
+                >
                     <i-scom-post-composer
                         id="inputReply"
                         buttonCaption='Post'
                         visible={false}
                         placeholder={'Post your thoughts...'}
                         onSubmit={this.onReplySubmit}
-                        mediaQueries={[
-                            {
-                                maxWidth: '767px',
-                                properties: {
-                                    visible: false
-                                }
-                            }
-                        ]}
-                    ></i-scom-post-composer>
+                   />
                 </i-panel>
                 <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}} visible={false}>
                     <i-hstack
