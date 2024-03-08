@@ -472,7 +472,7 @@ export default class ScomFeed extends Module {
         if (this[name]) {
             this[name].parent = target;
             this[name].position = 'absolute';
-            this[name].refresh();
+            this[name].showBackdrop = false;
             this[name].visible = true;
             this[name].classList.add('show');
             if (name === 'mdActions') {
@@ -813,7 +813,7 @@ export default class ScomFeed extends Module {
                                 showBackdrop: true,
                                 popupPlacement: 'bottom',
                                 position: 'fixed',
-                                zIndex: 999,
+                                zIndex: 1001,
                                 maxWidth: '100%',
                                 width: '100%',
                                 maxHeight: '50vh',
