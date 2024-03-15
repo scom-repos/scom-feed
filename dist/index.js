@@ -1022,6 +1022,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.updateStyle('--shadows-1', this.tag[themeVar]?.boxShadow);
         }
         init() {
+            this.signer = this.getAttribute('signer', true);
+            this.transportEndpoint = this.getAttribute('transportEndpoint', true);
             super.init();
             this.env = this.getAttribute('env', true) || this.env;
             this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
@@ -1063,7 +1065,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         render() {
             return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', onSubmit: this.onReplySubmit })),
+                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', signer: this.signer, transportEndpoint: this.transportEndpoint, onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' }, visible: false },
                     this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
                             opacity: 1
@@ -1110,7 +1112,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     ], onClose: () => this.removeShow('mdActions') },
                     this.$render("i-vstack", { id: "pnlActions", minWidth: 0 })),
                 this.$render("i-modal", { id: "mdCreatePost", visible: false },
-                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) }))));
+                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, signer: this.signer, transportEndpoint: this.transportEndpoint, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) }))));
         }
     };
     ScomFeed = __decorate([

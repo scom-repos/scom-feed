@@ -15,7 +15,8 @@ import {
     Control,
     Panel,
     application,
-    IconName
+    IconName,
+    IPFS
 
 } from '@ijstech/components';
 import dataConfig from './data.json';
@@ -41,6 +42,8 @@ interface ScomFeedElement extends ControlElement {
     onLikeButtonClicked?: callbackType;
     onRepostButtonClicked?: callbackType;
     avatar?: string;
+    transportEndpoint?: string;
+    signer?: IPFS.ISigner;
 }
 
 declare global {
@@ -87,6 +90,8 @@ export default class ScomFeed extends Module {
     private _isComposerVisible: boolean = false;
     private _composerPlaceholder: string = DefaultPlaceholder;
     private env: string;
+    private signer: IPFS.ISigner;
+    private transportEndpoint: string;
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
@@ -630,6 +635,8 @@ export default class ScomFeed extends Module {
     }
 
     init() {
+        this.signer = this.getAttribute('signer', true);
+        this.transportEndpoint = this.getAttribute('transportEndpoint', true);
         super.init();
         this.env = this.getAttribute('env', true) || this.env;
         this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
@@ -684,6 +691,8 @@ export default class ScomFeed extends Module {
                         buttonCaption='Post'
                         visible={false}
                         placeholder={'Post your thoughts...'}
+                        signer={this.signer}
+                        transportEndpoint={this.transportEndpoint}
                         onSubmit={this.onReplySubmit}
                    />
                 </i-panel>
@@ -827,7 +836,15 @@ export default class ScomFeed extends Module {
                     <i-vstack id="pnlActions" minWidth={0}/>
                 </i-modal>
                 <i-modal id={"mdCreatePost"} visible={false}>
-                    <i-scom-post-composer id={"inputCreatePost"} mobile={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)} />
+                    <i-scom-post-composer
+                        id={"inputCreatePost"}
+                        mobile={true}
+                        signer={this.signer}
+                        transportEndpoint={this.transportEndpoint}
+                        onCancel={this.handleModalClose.bind(this)}
+                        placeholder={"What's happening?"}
+                        onSubmit={this.onReplySubmit.bind(this)}
+                    />
                 </i-modal>
             </i-vstack>
         );

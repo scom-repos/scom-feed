@@ -487,7 +487,7 @@ declare module "@scom/scom-feed/index.css.ts" {
 }
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
-    import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema } from '@ijstech/components';
+    import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema, IPFS } from '@ijstech/components';
     import { IFeed } from "@scom/scom-feed/global/index.ts";
     import { IPost, IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
@@ -504,6 +504,8 @@ declare module "@scom/scom-feed" {
         onLikeButtonClicked?: callbackType;
         onRepostButtonClicked?: callbackType;
         avatar?: string;
+        transportEndpoint?: string;
+        signer?: IPFS.ISigner;
     }
     global {
         namespace JSX {
@@ -534,6 +536,8 @@ declare module "@scom/scom-feed" {
         private _isComposerVisible;
         private _composerPlaceholder;
         private env;
+        private signer;
+        private transportEndpoint;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: callbackType;
