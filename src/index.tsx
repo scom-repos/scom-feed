@@ -40,6 +40,7 @@ interface ScomFeedElement extends ControlElement {
     env?: string;
     onLikeButtonClicked?: callbackType;
     onRepostButtonClicked?: callbackType;
+    onZapButtonClicked?: callbackType;
     avatar?: string;
 }
 
@@ -92,6 +93,7 @@ export default class ScomFeed extends Module {
     onPostButtonClicked: submitCallbackType;
     onLikeButtonClicked: callbackType;
     onRepostButtonClicked: callbackType;
+    onZapButtonClicked: callbackType;
 
     tag = {
         light: {},
@@ -406,6 +408,7 @@ export default class ScomFeed extends Module {
         postEl.onReplyClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onViewPost(postEl, event);
         postEl.onLikeClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onLikeButtonClicked(postEl, event);
         postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
+        postEl.onZapClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onZapButtonClicked(postEl, event);
         return postEl;
     }
 
@@ -635,6 +638,7 @@ export default class ScomFeed extends Module {
         this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
         this.onLikeButtonClicked = this.getAttribute('onLikeButtonClicked', true) || this.onLikeButtonClicked;
         this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
+        this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         const data = this.getAttribute('data', true);
         if (data) this.setData(data);

@@ -805,6 +805,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = (target, data, event) => this.onLikeButtonClicked(postEl, event);
             postEl.onRepostClicked = (target, data, event) => this.onRepostButtonClicked(postEl, event);
+            postEl.onZapClicked = (target, data, event) => this.onZapButtonClicked(postEl, event);
             return postEl;
         }
         addPost(post, isPrepend) {
@@ -1027,6 +1028,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
             this.onLikeButtonClicked = this.getAttribute('onLikeButtonClicked', true) || this.onLikeButtonClicked;
             this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
+            this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
             this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
             const data = this.getAttribute('data', true);
             if (data)
