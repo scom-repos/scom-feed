@@ -503,6 +503,7 @@ declare module "@scom/scom-feed" {
         env?: string;
         onLikeButtonClicked?: callbackType;
         onRepostButtonClicked?: callbackType;
+        onZapButtonClicked?: callbackType;
         avatar?: string;
     }
     global {
@@ -538,6 +539,7 @@ declare module "@scom/scom-feed" {
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: callbackType;
         onRepostButtonClicked: callbackType;
+        onZapButtonClicked: callbackType;
         tag: {
             light: {};
             dark: {};
