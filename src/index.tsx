@@ -27,6 +27,7 @@ import {ScomPostComposer} from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost, event?: MouseEvent) => void
+type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
 type submitCallbackType = (content: string, medias: IPostData[]) => void
 
 interface ScomFeedElement extends ControlElement {
@@ -38,7 +39,7 @@ interface ScomFeedElement extends ControlElement {
     onItemClicked?: callbackType;
     onPostButtonClicked?: submitCallbackType;
     env?: string;
-    onLikeButtonClicked?: callbackType;
+    onLikeButtonClicked?: likeCallbackType;
     onRepostButtonClicked?: callbackType;
     onZapButtonClicked?: callbackType;
     avatar?: string;
@@ -91,7 +92,7 @@ export default class ScomFeed extends Module {
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
-    onLikeButtonClicked: callbackType;
+    onLikeButtonClicked: likeCallbackType;
     onRepostButtonClicked: callbackType;
     onZapButtonClicked: callbackType;
 
@@ -406,7 +407,7 @@ export default class ScomFeed extends Module {
         ) as ScomPost;
         postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.onShowModal(target, data, 'mdActions', contentElement);
         postEl.onReplyClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onViewPost(postEl, event);
-        postEl.onLikeClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onLikeButtonClicked(postEl, event);
+        postEl.onLikeClicked = async (target: Control, data: IPost, event?: MouseEvent) => await this.onLikeButtonClicked(postEl, event);
         postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
         postEl.onZapClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onZapButtonClicked(postEl, event);
         return postEl;

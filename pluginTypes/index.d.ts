@@ -491,6 +491,7 @@ declare module "@scom/scom-feed" {
     import { IFeed } from "@scom/scom-feed/global/index.ts";
     import { IPost, IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
+    type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
     type submitCallbackType = (content: string, medias: IPostData[]) => void;
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
@@ -501,7 +502,7 @@ declare module "@scom/scom-feed" {
         onItemClicked?: callbackType;
         onPostButtonClicked?: submitCallbackType;
         env?: string;
-        onLikeButtonClicked?: callbackType;
+        onLikeButtonClicked?: likeCallbackType;
         onRepostButtonClicked?: callbackType;
         onZapButtonClicked?: callbackType;
         avatar?: string;
@@ -537,7 +538,7 @@ declare module "@scom/scom-feed" {
         private env;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
-        onLikeButtonClicked: callbackType;
+        onLikeButtonClicked: likeCallbackType;
         onRepostButtonClicked: callbackType;
         onZapButtonClicked: callbackType;
         tag: {
