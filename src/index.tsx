@@ -398,7 +398,7 @@ export default class ScomFeed extends Module {
             <i-scom-post
                 border={{top: {width: 1, style: 'solid', color: 'rgb(47, 51, 54)'}}}
                 data={post}
-                type="short"
+                type="card"
                 onClick={this.onViewPost}
                 onQuotedPostClicked={this.onViewPost}
                 limitHeight={true}
