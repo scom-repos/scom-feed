@@ -235,7 +235,7 @@ export default class ScomFeed extends Module {
                 icon: {name: 'copy'},
                 tooltip: 'The link has been copied successfully',
                 onClick: () => {
-                    application.copyToClipboard(`${window.location.origin}/#/e/${this.currentPost.id}`);
+                    application.copyToClipboard(`${window.location.origin}/#!/e/${this.currentPost.id}`);
                     this.mdActions.visible = false;
                 }
             },

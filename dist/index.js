@@ -681,7 +681,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     icon: { name: 'copy' },
                     tooltip: 'The link has been copied successfully',
                     onClick: () => {
-                        components_2.application.copyToClipboard(`${window.location.origin}/#/e/${this.currentPost.id}`);
+                        components_2.application.copyToClipboard(`${window.location.origin}/#!/e/${this.currentPost.id}`);
                         this.mdActions.visible = false;
                     }
                 },
