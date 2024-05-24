@@ -493,6 +493,7 @@ declare module "@scom/scom-feed" {
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
     type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
     type submitCallbackType = (content: string, medias: IPostData[]) => void;
+    type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
         isListView?: boolean;
@@ -506,6 +507,9 @@ declare module "@scom/scom-feed" {
         onRepostButtonClicked?: callbackType;
         onZapButtonClicked?: callbackType;
         avatar?: string;
+        isPinListView?: boolean;
+        allowPin?: boolean;
+        onPinButtonClicked?: pinCallbackType;
     }
     global {
         namespace JSX {
@@ -536,11 +540,16 @@ declare module "@scom/scom-feed" {
         private _isComposerVisible;
         private _composerPlaceholder;
         private env;
+        private _allowPin;
+        private isPinListView;
+        private _pinnedNoteIds;
+        private pnlPinAction;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: likeCallbackType;
         onRepostButtonClicked: callbackType;
         onZapButtonClicked: callbackType;
+        onPinButtonClicked: pinCallbackType;
         tag: {
             light: {};
             dark: {};
@@ -559,7 +568,11 @@ declare module "@scom/scom-feed" {
         set composerPlaceholder(value: string);
         get avatar(): string;
         set avatar(value: string);
+        get allowPin(): boolean;
+        set allowPin(value: boolean);
         get isSmallScreen(): boolean;
+        get pinnedNoteIds(): string[];
+        set pinnedNoteIds(noteIds: string[]);
         controlInputDisplay(): void;
         connectedCallback(): void;
         clear(): void;

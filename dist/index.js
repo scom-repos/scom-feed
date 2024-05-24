@@ -567,6 +567,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._isListView = false;
             this._isComposerVisible = false;
             this._composerPlaceholder = DefaultPlaceholder;
+            this._allowPin = false;
+            this.isPinListView = false;
+            this._pinnedNoteIds = [];
             this.tag = {
                 light: {},
                 dark: {}
@@ -625,8 +628,23 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.inputReply.avatar = value;
             this.inputCreatePost.avatar = value;
         }
+        get allowPin() {
+            return this._allowPin;
+        }
+        set allowPin(value) {
+            let isChanged = this._allowPin != value ?? false;
+            this._allowPin = value ?? false;
+            if (isChanged)
+                this.renderActions();
+        }
         get isSmallScreen() {
             return window.innerWidth < 768;
+        }
+        get pinnedNoteIds() {
+            return this._pinnedNoteIds;
+        }
+        set pinnedNoteIds(noteIds) {
+            this._pinnedNoteIds = noteIds || [];
         }
         controlInputDisplay() {
             this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
@@ -737,15 +755,31 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 //     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
                 // }
             ];
+            if (this.allowPin) {
+                actions.push({
+                    id: 'pnlPinAction',
+                    caption: 'Pin note',
+                    icon: { name: 'thumbtack' },
+                    onClick: async (target, event) => {
+                        const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
+                        if (this.onPinButtonClicked) {
+                            let action = isPinned ? 'unpin' : 'pin';
+                            await this.onPinButtonClicked(this.currentPost, action, event);
+                        }
+                        this.mdActions.visible = false;
+                    }
+                });
+            }
+            this.pnlPinAction = null;
             this.pnlActions.clearInnerHTML();
             for (let i = 0; i < actions.length; i++) {
                 const item = actions[i];
-                this.pnlActions.appendChild(this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%", padding: { top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem' }, background: { color: 'transparent' }, border: { radius: '0.5rem' }, opacity: item.hoveredColor ? 1 : 0.667, hover: {
+                const elm = (this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%", padding: { top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem' }, background: { color: 'transparent' }, border: { radius: '0.5rem' }, opacity: item.hoveredColor ? 1 : 0.667, hover: {
                         backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
                         opacity: 1
-                    }, onClick: () => {
+                    }, onClick: (target, event) => {
                         if (item.onClick)
-                            item.onClick();
+                            item.onClick(target, event);
                     }, tooltip: {
                         content: item.tooltip,
                         trigger: 'click',
@@ -753,6 +787,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     } },
                     this.$render("i-label", { caption: item.caption, font: { color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem' } }),
                     this.$render("i-icon", { name: item.icon.name, width: '0.75rem', height: '0.75rem', display: 'inline-flex', fill: item.icon?.fill || Theme.text.primary })));
+                if (item.id === 'pnlPinAction')
+                    this.pnlPinAction = elm;
+                this.pnlActions.appendChild(elm);
             }
             this.pnlActions.appendChild(this.$render("i-hstack", { width: "100%", horizontalAlignment: "center", padding: { top: 12, bottom: 12, left: 16, right: 16 }, visible: false, mediaQueries: [
                     {
@@ -800,7 +837,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {
-            const postEl = (this.$render("i-scom-post", { border: { top: { width: 1, style: 'solid', color: 'rgb(47, 51, 54)' } }, data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true }));
+            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: this.isPinListView }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.onShowModal(target, data, 'mdActions', contentElement);
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
@@ -875,6 +912,11 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 if (name === 'mdActions') {
                     this.currentPost = data;
                     this.currentContent = contentElement;
+                    if (this.pnlPinAction) {
+                        const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
+                        const label = this.pnlPinAction.querySelector('i-label');
+                        label.caption = isPinned ? 'Unpin note' : 'Pin note';
+                    }
                 }
             }
         }
@@ -1044,6 +1086,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const avatar = this.getAttribute('avatar', true);
             if (avatar)
                 this.avatar = avatar;
+            this._allowPin = this.getAttribute('allowPin', true, false);
+            this.isPinListView = this.getAttribute('isPinListView', true, false);
+            if (this.isPinListView) {
+                this.pnlPosts.padding = {};
+                this.pnlPosts.border = { bottom: { width: 1, style: 'solid', color: Theme.divider } };
+            }
             this.renderActions();
             components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
                 this.mdCreatePost.visible = true;

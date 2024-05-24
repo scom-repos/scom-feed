@@ -15,7 +15,8 @@ import {
     Control,
     Panel,
     application,
-    IconName
+    IconName,
+    StackLayout
 
 } from '@ijstech/components';
 import dataConfig from './data.json';
@@ -29,6 +30,7 @@ const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost, event?: MouseEvent) => void
 type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
 type submitCallbackType = (content: string, medias: IPostData[]) => void
+type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>
 
 interface ScomFeedElement extends ControlElement {
     data?: IFeed;
@@ -43,6 +45,9 @@ interface ScomFeedElement extends ControlElement {
     onRepostButtonClicked?: callbackType;
     onZapButtonClicked?: callbackType;
     avatar?: string;
+    isPinListView?: boolean;
+    allowPin?: boolean;
+    onPinButtonClicked?: pinCallbackType;
 }
 
 declare global {
@@ -54,10 +59,11 @@ declare global {
 }
 
 type Action = {
+    id?: string;
     caption: string;
     icon?: {name: string, fill?: string;};
     tooltip?: string;
-    onClick?: () => void;
+    onClick?: (target: Control, event: MouseEvent) => void;
     hoveredColor?: string;
 }
 
@@ -89,12 +95,17 @@ export default class ScomFeed extends Module {
     private _isComposerVisible: boolean = false;
     private _composerPlaceholder: string = DefaultPlaceholder;
     private env: string;
+    private _allowPin: boolean = false;
+    private isPinListView: boolean = false;
+    private _pinnedNoteIds: string[] = [];
+    private pnlPinAction: StackLayout;
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
     onLikeButtonClicked: likeCallbackType;
     onRepostButtonClicked: callbackType;
     onZapButtonClicked: callbackType;
+    onPinButtonClicked: pinCallbackType;
 
     tag = {
         light: {},
@@ -170,8 +181,26 @@ export default class ScomFeed extends Module {
         this.inputCreatePost.avatar = value;
     }
 
+    get allowPin() {
+        return this._allowPin;
+    }
+
+    set allowPin(value: boolean) {
+        let isChanged = this._allowPin != value ?? false;
+        this._allowPin = value ?? false;
+        if (isChanged) this.renderActions();
+    }
+
     get isSmallScreen() {
         return window.innerWidth < 768;
+    }
+
+    get pinnedNoteIds() {
+        return this._pinnedNoteIds;
+    }
+    
+    set pinnedNoteIds(noteIds: string[]) {
+        this._pinnedNoteIds = noteIds || [];
     }
 
     controlInputDisplay() {
@@ -291,10 +320,28 @@ export default class ScomFeed extends Module {
             //     hoveredColor: 'color-mix(in srgb, var(--colors-error-main) 25%, var(--background-paper))'
             // }
         ]
+        if (this.allowPin) {
+            actions.push(
+                {
+                    id: 'pnlPinAction',
+                    caption: 'Pin note',
+                    icon: { name: 'thumbtack' },
+                    onClick: async (target: Control, event: MouseEvent) => {
+                        const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
+                        if (this.onPinButtonClicked) {
+                            let action: 'pin' | 'unpin' = isPinned ? 'unpin' : 'pin';
+                            await this.onPinButtonClicked(this.currentPost, action, event);
+                        }
+                        this.mdActions.visible = false;
+                    }
+                }
+            );
+        }
+        this.pnlPinAction = null;
         this.pnlActions.clearInnerHTML();
         for (let i = 0; i < actions.length; i++) {
             const item = actions[i];
-            this.pnlActions.appendChild(
+            const elm = (
                 <i-hstack
                     horizontalAlignment="space-between"
                     verticalAlignment="center"
@@ -307,8 +354,8 @@ export default class ScomFeed extends Module {
                         backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
                         opacity: 1
                     }}
-                    onClick={() => {
-                        if (item.onClick) item.onClick();
+                    onClick={(target: Control, event: MouseEvent) => {
+                        if (item.onClick) item.onClick(target, event);
                     }}
                     tooltip={{
                         content: item.tooltip,
@@ -327,7 +374,9 @@ export default class ScomFeed extends Module {
                         fill={item.icon?.fill || Theme.text.primary}
                     ></i-icon>
                 </i-hstack>
-            )
+            );
+            if (item.id === 'pnlPinAction') this.pnlPinAction = elm;
+            this.pnlActions.appendChild(elm);
         }
         this.pnlActions.appendChild(
             <i-hstack
@@ -396,13 +445,13 @@ export default class ScomFeed extends Module {
     constructPostElement(post: IPost) {
         const postEl = (
             <i-scom-post
-                border={{top: {width: 1, style: 'solid', color: 'rgb(47, 51, 54)'}}}
                 data={post}
                 type="card"
                 onClick={this.onViewPost}
                 onQuotedPostClicked={this.onViewPost}
                 limitHeight={true}
                 overflowEllipse={true}
+                isPinned={this.isPinListView}
             ></i-scom-post>
         ) as ScomPost;
         postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.onShowModal(target, data, 'mdActions', contentElement);
@@ -482,6 +531,11 @@ export default class ScomFeed extends Module {
             if (name === 'mdActions') {
                 this.currentPost = data;
                 this.currentContent = contentElement;
+                if (this.pnlPinAction) {
+                    const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
+                    const label = this.pnlPinAction.querySelector('i-label') as Label;
+                    label.caption = isPinned ? 'Unpin note' : 'Pin note';
+                }
             }
         }
     }
@@ -652,6 +706,12 @@ export default class ScomFeed extends Module {
         this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
         const avatar = this.getAttribute('avatar', true);
         if (avatar) this.avatar = avatar;
+        this._allowPin = this.getAttribute('allowPin', true, false);
+        this.isPinListView = this.getAttribute('isPinListView', true, false);
+        if (this.isPinListView) {
+            this.pnlPosts.padding = {};
+            this.pnlPosts.border = { bottom: { width: 1, style: 'solid', color: Theme.divider } };
+        }
         this.renderActions();
         application.EventBus.register(this, 'FAB_CREATE_POST', () => {
             this.mdCreatePost.visible = true;
