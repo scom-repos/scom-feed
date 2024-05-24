@@ -765,6 +765,27 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         if (this.onPinButtonClicked) {
                             let action = isPinned ? 'unpin' : 'pin';
                             await this.onPinButtonClicked(this.currentPost, action, event);
+                            if (action === 'pin') {
+                                this.pnlPosts.prepend(this.selectedPost);
+                                this.selectedPost.isPinned = true;
+                            }
+                            else {
+                                const sortedPost = this._data.posts.filter(post => !this.pinnedNoteIds.includes(post.id)).sort((a, b) => b['eventData'].created_at - a['eventData'].created_at);
+                                let index = sortedPost.findIndex(post => post.id === this.currentPost.id);
+                                if (index !== -1) {
+                                    index += this.pinnedNoteIds.length;
+                                    if (index === 0) {
+                                        this.pnlPosts.prepend(this.selectedPost);
+                                    }
+                                    else {
+                                        this.pnlPosts.children[index].after(this.selectedPost);
+                                    }
+                                }
+                                else {
+                                    this.pnlPosts.appendChild(this.selectedPost);
+                                }
+                                this.selectedPost.isPinned = false;
+                            }
                         }
                         this.mdActions.visible = false;
                     }
@@ -837,8 +858,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: this.isPinListView }));
-            postEl.onProfileClicked = (target, data, event, contentElement) => this.onShowModal(target, data, 'mdActions', contentElement);
+            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, pinView: this.isPinListView, isPinned: post.isPinned || false }));
+            postEl.onProfileClicked = (target, data, event, contentElement) => this.showActionModal(postEl, target, data, contentElement);
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
             postEl.onRepostClicked = (target, data, event) => this.onRepostButtonClicked(postEl, event);
@@ -902,23 +923,25 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (this[name])
                 this[name].visible = false;
         }
-        onShowModal(target, data, name, contentElement) {
+        onShowModal(target, name, contentElement) {
             if (this[name]) {
                 this[name].parent = target;
                 this[name].position = 'absolute';
                 this[name].showBackdrop = false;
                 this[name].visible = true;
                 this[name].classList.add('show');
-                if (name === 'mdActions') {
-                    this.currentPost = data;
-                    this.currentContent = contentElement;
-                    if (this.pnlPinAction) {
-                        const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-                        const label = this.pnlPinAction.querySelector('i-label');
-                        label.caption = isPinned ? 'Unpin note' : 'Pin note';
-                    }
-                }
             }
+        }
+        showActionModal(target, parent, data, contentElement) {
+            this.selectedPost = target;
+            this.currentPost = data;
+            this.currentContent = contentElement;
+            if (this.pnlPinAction) {
+                const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
+                const label = this.pnlPinAction.querySelector('i-label');
+                label.caption = isPinned ? 'Unpin note' : 'Pin note';
+            }
+            this.onShowModal(parent, 'mdActions', contentElement);
         }
         removeShow(name) {
             if (this[name])
