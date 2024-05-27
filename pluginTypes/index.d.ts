@@ -411,6 +411,9 @@ declare module "@scom/scom-feed/global/interface.ts" {
     export interface IFeed {
         posts: IPost[];
     }
+    export interface IPostExtended extends IPost {
+        isPinned?: boolean;
+    }
 }
 /// <amd-module name="@scom/scom-feed/global/API.ts" />
 declare module "@scom/scom-feed/global/API.ts" {
@@ -488,8 +491,8 @@ declare module "@scom/scom-feed/index.css.ts" {
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
     import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema } from '@ijstech/components';
-    import { IFeed } from "@scom/scom-feed/global/index.ts";
-    import { IPost, IPostData, ScomPost } from '@scom/scom-post';
+    import { IFeed, IPostExtended } from "@scom/scom-feed/global/index.ts";
+    import { IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
     type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
     type submitCallbackType = (content: string, medias: IPostData[]) => void;
@@ -544,6 +547,7 @@ declare module "@scom/scom-feed" {
         private isPinListView;
         private _pinnedNoteIds;
         private pnlPinAction;
+        private selectedPost;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: likeCallbackType;
@@ -556,8 +560,8 @@ declare module "@scom/scom-feed" {
         };
         constructor(parent?: Container, options?: any);
         static create(options?: ScomFeedElement, parent?: Container): Promise<ScomFeed>;
-        get posts(): IPost[];
-        set posts(value: IPost[]);
+        get posts(): IPostExtended[];
+        set posts(value: IPostExtended[]);
         get isListView(): boolean;
         set isListView(value: boolean);
         set theme(value: Markdown["theme"]);
@@ -585,16 +589,17 @@ declare module "@scom/scom-feed" {
         private renderActions;
         private onViewPost;
         private onReplySubmit;
-        constructPostElement(post: IPost): ScomPost;
-        addPost(post: IPost, isPrepend?: boolean): void;
-        addPosts(posts: IPost[], isPrepend?: boolean): void;
-        setPosts(posts: IPost[]): void;
+        constructPostElement(post: IPostExtended): ScomPost;
+        addPost(post: IPostExtended, isPrepend?: boolean): void;
+        addPosts(posts: IPostExtended[], isPrepend?: boolean): void;
+        setPosts(posts: IPostExtended[]): void;
         private addPostToPanel;
         private renderPosts;
         private onShowFilter;
         private onFilter;
         private onCloseModal;
         private onShowModal;
+        private showActionModal;
         private removeShow;
         getConfigurators(): ({
             name: string;

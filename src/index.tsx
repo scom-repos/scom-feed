@@ -20,7 +20,7 @@ import {
 
 } from '@ijstech/components';
 import dataConfig from './data.json';
-import {IFeed, getBuilderSchema, getEmbedderSchema} from './global/index';
+import {IFeed, getBuilderSchema, getEmbedderSchema, IPostExtended} from './global/index';
 import {setDataFromJson} from './store/index';
 import {IPost, IPostData, ScomPost} from '@scom/scom-post';
 import {getHoverStyleClass} from './index.css';
@@ -85,7 +85,7 @@ export default class ScomFeed extends Module {
     private inputCreatePost: ScomPostComposer;
 
     private currentContent: Control;
-    private currentPost: IPost;
+    private currentPost: IPostExtended;
     private isRendering: boolean = false;
     private _data: IFeed = {
         posts: []
@@ -99,6 +99,7 @@ export default class ScomFeed extends Module {
     private isPinListView: boolean = false;
     private _pinnedNoteIds: string[] = [];
     private pnlPinAction: StackLayout;
+    private selectedPost: ScomPost;
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
@@ -129,7 +130,7 @@ export default class ScomFeed extends Module {
         return this._data.posts || [];
     }
 
-    set posts(value: IPost[]) {
+    set posts(value: IPostExtended[]) {
         this._data.posts = value || [];
     }
 
@@ -331,6 +332,26 @@ export default class ScomFeed extends Module {
                         if (this.onPinButtonClicked) {
                             let action: 'pin' | 'unpin' = isPinned ? 'unpin' : 'pin';
                             await this.onPinButtonClicked(this.currentPost, action, event);
+                            if (action === 'pin') {
+                                this.pnlPosts.prepend(this.selectedPost);
+                                this.selectedPost.isPinned = true;
+                            } else {
+                                const sortedPost = this._data.posts.filter(
+                                    post => !this.pinnedNoteIds.includes(post.id)
+                                ).sort((a, b) => b['eventData'].created_at - a['eventData'].created_at);
+                                let index = sortedPost.findIndex(post => post.id === this.currentPost.id);
+                                if (index !== -1) {
+                                    index += this.pinnedNoteIds.length;
+                                    if (index === 0) {
+                                        this.pnlPosts.prepend(this.selectedPost);
+                                    } else {
+                                        this.pnlPosts.children[index].after(this.selectedPost);
+                                    }
+                                } else {
+                                    this.pnlPosts.appendChild(this.selectedPost);
+                                }
+                                this.selectedPost.isPinned = false;
+                            }
                         }
                         this.mdActions.visible = false;
                     }
@@ -442,7 +463,7 @@ export default class ScomFeed extends Module {
         this.mdCreatePost.visible = false;
     }
 
-    constructPostElement(post: IPost) {
+    constructPostElement(post: IPostExtended) {
         const postEl = (
             <i-scom-post
                 data={post}
@@ -451,10 +472,11 @@ export default class ScomFeed extends Module {
                 onQuotedPostClicked={this.onViewPost}
                 limitHeight={true}
                 overflowEllipse={true}
-                isPinned={this.isPinListView}
+                pinView={this.isPinListView}
+                isPinned={post.isPinned || false}
             ></i-scom-post>
         ) as ScomPost;
-        postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.onShowModal(target, data, 'mdActions', contentElement);
+        postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.showActionModal(postEl, target, data, contentElement);
         postEl.onReplyClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onViewPost(postEl, event);
         postEl.onLikeClicked = async (target: Control, data: IPost, event?: MouseEvent) => await this.onLikeButtonClicked(postEl, event);
         postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
@@ -462,13 +484,13 @@ export default class ScomFeed extends Module {
         return postEl;
     }
 
-    addPost(post: IPost, isPrepend?: boolean) {
+    addPost(post: IPostExtended, isPrepend?: boolean) {
         if (post.id && this._data.posts.find(p => p.id === post.id)) return;
         this._data.posts.push(post);
         this.addPostToPanel(post, isPrepend);
     }
 
-    addPosts(posts: IPost[], isPrepend?: boolean) {
+    addPosts(posts: IPostExtended[], isPrepend?: boolean) {
         let postEls = [];
         for (let post of posts) {
             if (this._data.posts.find(p => p.id === post.id)) continue;
@@ -481,13 +503,13 @@ export default class ScomFeed extends Module {
         else this.pnlPosts.append(...postEls);
     }
 
-    setPosts(posts: IPost[]) {
+    setPosts(posts: IPostExtended[]) {
         if (!this._data) this._data = {posts: []};
         this._data.posts = [...posts];
         this.renderPosts();
     }
 
-    private addPostToPanel(post: IPost, isPrepend?: boolean) {
+    private addPostToPanel(post: IPostExtended, isPrepend?: boolean) {
         const postEl = this.constructPostElement(post);
         if (isPrepend)
             this.pnlPosts.prepend(postEl);
@@ -521,23 +543,26 @@ export default class ScomFeed extends Module {
         if (this[name]) this[name].visible = false;
     }
 
-    private onShowModal(target: Control, data: IPost, name: string, contentElement?: Control) {
+    private onShowModal(target: Control, name: string, contentElement?: Control) {
         if (this[name]) {
             this[name].parent = target;
             this[name].position = 'absolute';
             this[name].showBackdrop = false;
             this[name].visible = true;
             this[name].classList.add('show');
-            if (name === 'mdActions') {
-                this.currentPost = data;
-                this.currentContent = contentElement;
-                if (this.pnlPinAction) {
-                    const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-                    const label = this.pnlPinAction.querySelector('i-label') as Label;
-                    label.caption = isPinned ? 'Unpin note' : 'Pin note';
-                }
-            }
         }
+    }
+
+    private showActionModal(target: ScomPost, parent: Control, data: IPost, contentElement?: Control) {
+        this.selectedPost = target;
+        this.currentPost = data;
+        this.currentContent = contentElement;
+        if (this.pnlPinAction) {
+            const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
+            const label = this.pnlPinAction.querySelector('i-label') as Label;
+            label.caption = isPinned ? 'Unpin note' : 'Pin note';
+        }
+        this.onShowModal(parent, 'mdActions', contentElement);
     }
 
     private removeShow(name: string) {
