@@ -18,6 +18,16 @@ export const getHoverStyleClass = (color?: string) => {
   return Styles.style(styleObj);
 }
 
+export const getActionButtonStyle = (hoveredColor: string) => Styles.style({
+  justifyContent: 'space-between',
+  $nest: {
+    '&:hover': {
+      backgroundColor: hoveredColor || Theme.action.hoverBackground,
+      opacity: 1
+    }
+  }
+})
+
 Styles.cssRule('#mdCreatePost', {
   $nest: {
     '.modal': {

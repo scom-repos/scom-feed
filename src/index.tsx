@@ -5,7 +5,6 @@ import {
     Container,
     Markdown,
     Styles,
-    VStack,
     IDataSchema,
     IUISchema,
     MarkdownEditor,
@@ -23,7 +22,7 @@ import dataConfig from './data.json';
 import {IFeed, getBuilderSchema, getEmbedderSchema, IPostExtended} from './global/index';
 import {setDataFromJson} from './store/index';
 import {IPost, IPostData, ScomPost} from '@scom/scom-post';
-import {getHoverStyleClass} from './index.css';
+import {getActionButtonStyle, getHoverStyleClass} from './index.css';
 import {ScomPostComposer} from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
@@ -73,14 +72,14 @@ const DefaultPlaceholder = "What's on your mind today?";
 export default class ScomFeed extends Module {
     private pnlInput: Panel;
     private inputReply: ScomPostComposer;
-    private pnlPosts: VStack;
+    private pnlPosts: StackLayout;
     private mdFilter: Modal;
     private lbFilter: Label;
     private pnlFilter: Panel;
     private btnMore: Button;
     private mdActions: Modal;
     private pnlActions: Panel;
-    private pnlLoading: VStack;
+    private pnlLoading: StackLayout;
     private mdCreatePost: Modal;
     private inputCreatePost: ScomPostComposer;
 
@@ -98,7 +97,7 @@ export default class ScomFeed extends Module {
     private _allowPin: boolean = false;
     private isPinListView: boolean = false;
     private _pinnedNoteIds: string[] = [];
-    private pnlPinAction: StackLayout;
+    private btnPinAction: Button;
     private selectedPost: ScomPost;
 
     onItemClicked: callbackType;
@@ -324,12 +323,14 @@ export default class ScomFeed extends Module {
         if (this.allowPin) {
             actions.push(
                 {
-                    id: 'pnlPinAction',
+                    id: 'btnPinAction',
                     caption: 'Pin note',
                     icon: { name: 'thumbtack' },
-                    onClick: async (target: Control, event: MouseEvent) => {
+                    onClick: async (target: Button, event: MouseEvent) => {
                         const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
                         if (this.onPinButtonClicked) {
+                            target.rightIcon.spin = true;
+                            target.rightIcon.name = "spinner";
                             let action: 'pin' | 'unpin' = isPinned ? 'unpin' : 'pin';
                             await this.onPinButtonClicked(this.currentPost, action, event);
                             if (action === 'pin') {
@@ -352,28 +353,34 @@ export default class ScomFeed extends Module {
                                 }
                                 this.selectedPost.isPinned = false;
                             }
+                            target.rightIcon.spin = false;
+                            target.rightIcon.name = "thumbtack";
                         }
                         this.mdActions.visible = false;
                     }
                 }
             );
         }
-        this.pnlPinAction = null;
+        this.btnPinAction = null;
         this.pnlActions.clearInnerHTML();
         for (let i = 0; i < actions.length; i++) {
             const item = actions[i];
             const elm = (
-                <i-hstack
-                    horizontalAlignment="space-between"
-                    verticalAlignment="center"
+                <i-button
+                    class={getActionButtonStyle(item.hoveredColor)}
                     width="100%"
                     padding={{top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem'}}
                     background={{color: 'transparent'}}
                     border={{radius: '0.5rem'}}
                     opacity={item.hoveredColor ? 1 : 0.667}
-                    hover={{
-                        backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
-                        opacity: 1
+                    caption={item.caption}
+                    font={{color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem'}}
+                    rightIcon={{
+                        width: "0.75rem",
+                        height: "0.75rem",
+                        display: "inline-flex",
+                        name: item.icon.name as IconName,
+                        fill: item.icon?.fill || Theme.text.primary
                     }}
                     onClick={(target: Control, event: MouseEvent) => {
                         if (item.onClick) item.onClick(target, event);
@@ -383,26 +390,16 @@ export default class ScomFeed extends Module {
                         trigger: 'click',
                         placement: 'bottom'
                     }}
-                >
-                    <i-label
-                        caption={item.caption}
-                        font={{color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem'}}
-                    ></i-label>
-                    <i-icon
-                        name={item.icon.name as IconName}
-                        width='0.75rem' height='0.75rem'
-                        display='inline-flex'
-                        fill={item.icon?.fill || Theme.text.primary}
-                    ></i-icon>
-                </i-hstack>
+                ></i-button>
             );
-            if (item.id === 'pnlPinAction') this.pnlPinAction = elm;
+            if (item.id === 'btnPinAction') this.btnPinAction = elm;
             this.pnlActions.appendChild(elm);
         }
         this.pnlActions.appendChild(
-            <i-hstack
+            <i-stack
                 width="100%"
-                horizontalAlignment="center"
+                direction="horizontal"
+                justifyContent="center"
                 padding={{top: 12, bottom: 12, left: 16, right: 16}}
                 visible={false}
                 mediaQueries={[
@@ -423,7 +420,7 @@ export default class ScomFeed extends Module {
                     boxShadow="none"
                     onClick={() => this.onCloseModal('mdActions')}
                 ></i-button>
-            </i-hstack>
+            </i-stack>
         )
     }
 
@@ -557,10 +554,9 @@ export default class ScomFeed extends Module {
         this.selectedPost = target;
         this.currentPost = data;
         this.currentContent = contentElement;
-        if (this.pnlPinAction) {
+        if (this.btnPinAction) {
             const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-            const label = this.pnlPinAction.querySelector('i-label') as Label;
-            label.caption = isPinned ? 'Unpin note' : 'Pin note';
+            this.btnPinAction.caption = isPinned ? 'Unpin note' : 'Pin note';
         }
         this.onShowModal(parent, 'mdActions', contentElement);
     }
@@ -760,7 +756,8 @@ export default class ScomFeed extends Module {
 
     render() {
         return (
-            <i-vstack
+            <i-stack
+                direction="vertical"
                 width="100%" maxWidth={'100%'}
                 margin={{left: 'auto', right: 'auto'}}
                 background={{color: Theme.background.main}}
@@ -778,9 +775,10 @@ export default class ScomFeed extends Module {
                    />
                 </i-panel>
                 <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}} visible={false}>
-                    <i-hstack
+                    <i-stack
                         width={'100%'}
-                        horizontalAlignment="end"
+                        direction="horizontal"
+                        justifyContent="end"
                         gap={'0.5rem'}
                         cursor="pointer"
                         opacity={0.5}
@@ -796,7 +794,7 @@ export default class ScomFeed extends Module {
                             fill={Theme.text.primary}
                             name="stream"
                         ></i-icon>
-                    </i-hstack>
+                    </i-stack>
                     <i-modal
                         id="mdFilter"
                         popupPlacement='bottomRight'
@@ -807,7 +805,7 @@ export default class ScomFeed extends Module {
                         border={{radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider}}
                         padding={{top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem'}}
                     >
-                        <i-vstack>
+                        <i-stack direction="vertical">
                             <i-button
                                 caption='Latest'
                                 padding={{top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem'}}
@@ -842,7 +840,7 @@ export default class ScomFeed extends Module {
                                 class={getHoverStyleClass()}
                                 onClick={this.onFilter}
                             ></i-button>
-                        </i-vstack>
+                        </i-stack>
                     </i-modal>
                 </i-panel>
                 <i-button
@@ -859,8 +857,9 @@ export default class ScomFeed extends Module {
                     class={getHoverStyleClass()}
                 ></i-button>
                 <i-panel>
-                    <i-vstack
+                    <i-stack
                         id="pnlLoading"
+                        direction="vertical"
                         padding={{top: '0.5rem', bottom: '0.5rem'}}
                         visible={false}
                         height="100%" width="100%" minHeight={200}
@@ -870,8 +869,9 @@ export default class ScomFeed extends Module {
                         background={{color: Theme.background.main}}
                         class="i-loading-overlay"
                     >
-                        <i-vstack
-                            horizontalAlignment="center" verticalAlignment="center"
+                        <i-stack
+                            direction="vertical"
+                            alignItems="center" justifyContent="center"
                             position="absolute" top="calc(50% - 0.75rem)" left="calc(50% - 0.75rem)"
                         >
                             <i-icon
@@ -881,9 +881,9 @@ export default class ScomFeed extends Module {
                                 height={24}
                                 fill={Theme.colors.primary.main}
                             />
-                        </i-vstack>
-                    </i-vstack>
-                    <i-vstack id="pnlPosts" gap="0.5rem" padding={{bottom: 50}}/>
+                        </i-stack>
+                    </i-stack>
+                    <i-stack id="pnlPosts" direction="vertical" gap="0.5rem" padding={{bottom: 50}}/>
                 </i-panel>
                 <i-modal
                     id="mdActions"
@@ -914,12 +914,12 @@ export default class ScomFeed extends Module {
                     ]}
                     onClose={() => this.removeShow('mdActions')}
                 >
-                    <i-vstack id="pnlActions" minWidth={0}/>
+                    <i-stack id="pnlActions" direction="vertical" minWidth={0}/>
                 </i-modal>
                 <i-modal id={"mdCreatePost"} visible={false}>
                     <i-scom-post-composer id={"inputCreatePost"} mobile={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)} />
                 </i-modal>
-            </i-vstack>
+            </i-stack>
         );
     }
 }

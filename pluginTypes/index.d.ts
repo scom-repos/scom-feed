@@ -487,6 +487,7 @@ declare module "@scom/scom-feed/store/index.ts" {
 /// <amd-module name="@scom/scom-feed/index.css.ts" />
 declare module "@scom/scom-feed/index.css.ts" {
     export const getHoverStyleClass: (color?: string) => string;
+    export const getActionButtonStyle: (hoveredColor: string) => string;
 }
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
@@ -546,7 +547,7 @@ declare module "@scom/scom-feed" {
         private _allowPin;
         private isPinListView;
         private _pinnedNoteIds;
-        private pnlPinAction;
+        private btnPinAction;
         private selectedPost;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;

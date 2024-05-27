@@ -521,7 +521,7 @@ define("@scom/scom-feed/store/index.ts", ["require", "exports"], function (requi
 define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getHoverStyleClass = void 0;
+    exports.getActionButtonStyle = exports.getHoverStyleClass = void 0;
     const Theme = components_1.Styles.Theme.ThemeVars;
     const getHoverStyleClass = (color) => {
         const styleObj = {
@@ -540,6 +540,16 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
         return components_1.Styles.style(styleObj);
     };
     exports.getHoverStyleClass = getHoverStyleClass;
+    const getActionButtonStyle = (hoveredColor) => components_1.Styles.style({
+        justifyContent: 'space-between',
+        $nest: {
+            '&:hover': {
+                backgroundColor: hoveredColor || Theme.action.hoverBackground,
+                opacity: 1
+            }
+        }
+    });
+    exports.getActionButtonStyle = getActionButtonStyle;
     components_1.Styles.cssRule('#mdCreatePost', {
         $nest: {
             '.modal': {
@@ -757,12 +767,14 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             ];
             if (this.allowPin) {
                 actions.push({
-                    id: 'pnlPinAction',
+                    id: 'btnPinAction',
                     caption: 'Pin note',
                     icon: { name: 'thumbtack' },
                     onClick: async (target, event) => {
                         const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
                         if (this.onPinButtonClicked) {
+                            target.rightIcon.spin = true;
+                            target.rightIcon.name = "spinner";
                             let action = isPinned ? 'unpin' : 'pin';
                             await this.onPinButtonClicked(this.currentPost, action, event);
                             if (action === 'pin') {
@@ -786,18 +798,23 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                                 }
                                 this.selectedPost.isPinned = false;
                             }
+                            target.rightIcon.spin = false;
+                            target.rightIcon.name = "thumbtack";
                         }
                         this.mdActions.visible = false;
                     }
                 });
             }
-            this.pnlPinAction = null;
+            this.btnPinAction = null;
             this.pnlActions.clearInnerHTML();
             for (let i = 0; i < actions.length; i++) {
                 const item = actions[i];
-                const elm = (this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%", padding: { top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem' }, background: { color: 'transparent' }, border: { radius: '0.5rem' }, opacity: item.hoveredColor ? 1 : 0.667, hover: {
-                        backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
-                        opacity: 1
+                const elm = (this.$render("i-button", { class: (0, index_css_1.getActionButtonStyle)(item.hoveredColor), width: "100%", padding: { top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem' }, background: { color: 'transparent' }, border: { radius: '0.5rem' }, opacity: item.hoveredColor ? 1 : 0.667, caption: item.caption, font: { color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem' }, rightIcon: {
+                        width: "0.75rem",
+                        height: "0.75rem",
+                        display: "inline-flex",
+                        name: item.icon.name,
+                        fill: item.icon?.fill || Theme.text.primary
                     }, onClick: (target, event) => {
                         if (item.onClick)
                             item.onClick(target, event);
@@ -805,14 +822,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         content: item.tooltip,
                         trigger: 'click',
                         placement: 'bottom'
-                    } },
-                    this.$render("i-label", { caption: item.caption, font: { color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem' } }),
-                    this.$render("i-icon", { name: item.icon.name, width: '0.75rem', height: '0.75rem', display: 'inline-flex', fill: item.icon?.fill || Theme.text.primary })));
-                if (item.id === 'pnlPinAction')
-                    this.pnlPinAction = elm;
+                    } }));
+                if (item.id === 'btnPinAction')
+                    this.btnPinAction = elm;
                 this.pnlActions.appendChild(elm);
             }
-            this.pnlActions.appendChild(this.$render("i-hstack", { width: "100%", horizontalAlignment: "center", padding: { top: 12, bottom: 12, left: 16, right: 16 }, visible: false, mediaQueries: [
+            this.pnlActions.appendChild(this.$render("i-stack", { width: "100%", direction: "horizontal", justifyContent: "center", padding: { top: 12, bottom: 12, left: 16, right: 16 }, visible: false, mediaQueries: [
                     {
                         maxWidth: '767px',
                         properties: { visible: true }
@@ -936,10 +951,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.selectedPost = target;
             this.currentPost = data;
             this.currentContent = contentElement;
-            if (this.pnlPinAction) {
+            if (this.btnPinAction) {
                 const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-                const label = this.pnlPinAction.querySelector('i-label');
-                label.caption = isPinned ? 'Unpin note' : 'Pin note';
+                this.btnPinAction.caption = isPinned ? 'Unpin note' : 'Pin note';
             }
             this.onShowModal(parent, 'mdActions', contentElement);
         }
@@ -1134,17 +1148,17 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             history.replaceState(null, 'Post', location.hash.replace('/create-post', ''));
         }
         render() {
-            return (this.$render("i-vstack", { width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
+            return (this.$render("i-stack", { direction: "vertical", width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
                     this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', onSubmit: this.onReplySubmit })),
                 this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' }, visible: false },
-                    this.$render("i-hstack", { width: '100%', horizontalAlignment: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
+                    this.$render("i-stack", { width: '100%', direction: "horizontal", justifyContent: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
                             opacity: 1
                         }, onClick: this.onShowFilter },
                         this.$render("i-label", { id: "lbFilter", caption: 'Latest', font: { color: Theme.text.primary } }),
                         this.$render("i-icon", { width: '1rem', height: '1rem', display: "inline-flex", fill: Theme.text.primary, name: "stream" })),
                     this.$render("i-modal", { id: "mdFilter", popupPlacement: 'bottomRight', showBackdrop: false, visible: false, minWidth: 200, maxWidth: 200, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' } },
-                        this.$render("i-vstack", null,
+                        this.$render("i-stack", { direction: "vertical" },
                             this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: {
                                     name: 'check',
                                     fill: Theme.text.primary,
@@ -1161,10 +1175,10 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                                 }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
                 this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem', bottom: '0.5rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
                 this.$render("i-panel", null,
-                    this.$render("i-vstack", { id: "pnlLoading", padding: { top: '0.5rem', bottom: '0.5rem' }, visible: false, height: "100%", width: "100%", minHeight: 200, position: "absolute", top: 0, bottom: 0, zIndex: 999, background: { color: Theme.background.main }, class: "i-loading-overlay" },
-                        this.$render("i-vstack", { horizontalAlignment: "center", verticalAlignment: "center", position: "absolute", top: "calc(50% - 0.75rem)", left: "calc(50% - 0.75rem)" },
+                    this.$render("i-stack", { id: "pnlLoading", direction: "vertical", padding: { top: '0.5rem', bottom: '0.5rem' }, visible: false, height: "100%", width: "100%", minHeight: 200, position: "absolute", top: 0, bottom: 0, zIndex: 999, background: { color: Theme.background.main }, class: "i-loading-overlay" },
+                        this.$render("i-stack", { direction: "vertical", alignItems: "center", justifyContent: "center", position: "absolute", top: "calc(50% - 0.75rem)", left: "calc(50% - 0.75rem)" },
                             this.$render("i-icon", { class: "i-loading-spinner_icon", name: "spinner", width: 24, height: 24, fill: Theme.colors.primary.main }))),
-                    this.$render("i-vstack", { id: "pnlPosts", gap: "0.5rem", padding: { bottom: 50 } })),
+                    this.$render("i-stack", { id: "pnlPosts", direction: "vertical", gap: "0.5rem", padding: { bottom: 50 } })),
                 this.$render("i-modal", { id: "mdActions", visible: false, maxWidth: '15rem', minWidth: '12.25rem', maxHeight: '27.5rem', popupPlacement: 'bottomRight', showBackdrop: false, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' }, zIndex: 999, mediaQueries: [
                         {
                             maxWidth: '767px',
@@ -1181,7 +1195,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                             }
                         }
                     ], onClose: () => this.removeShow('mdActions') },
-                    this.$render("i-vstack", { id: "pnlActions", minWidth: 0 })),
+                    this.$render("i-stack", { id: "pnlActions", direction: "vertical", minWidth: 0 })),
                 this.$render("i-modal", { id: "mdCreatePost", visible: false },
                     this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) }))));
         }
