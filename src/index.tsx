@@ -23,7 +23,7 @@ import dataConfig from './data.json';
 import {IFeed, getBuilderSchema, getEmbedderSchema, IPostExtended} from './global/index';
 import {setDataFromJson} from './store/index';
 import {IPost, IPostData, ScomPost} from '@scom/scom-post';
-import {getHoverStyleClass} from './index.css';
+import {getActionButtonStyle, getHoverStyleClass} from './index.css';
 import {ScomPostComposer} from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
@@ -98,7 +98,7 @@ export default class ScomFeed extends Module {
     private _allowPin: boolean = false;
     private isPinListView: boolean = false;
     private _pinnedNoteIds: string[] = [];
-    private pnlPinAction: StackLayout;
+    private btnPinAction: Button;
     private selectedPost: ScomPost;
 
     onItemClicked: callbackType;
@@ -324,12 +324,14 @@ export default class ScomFeed extends Module {
         if (this.allowPin) {
             actions.push(
                 {
-                    id: 'pnlPinAction',
+                    id: 'btnPinAction',
                     caption: 'Pin note',
                     icon: { name: 'thumbtack' },
-                    onClick: async (target: Control, event: MouseEvent) => {
+                    onClick: async (target: Button, event: MouseEvent) => {
                         const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
                         if (this.onPinButtonClicked) {
+                            target.rightIcon.spin = true;
+                            target.rightIcon.name = "spinner";
                             let action: 'pin' | 'unpin' = isPinned ? 'unpin' : 'pin';
                             await this.onPinButtonClicked(this.currentPost, action, event);
                             if (action === 'pin') {
@@ -352,28 +354,34 @@ export default class ScomFeed extends Module {
                                 }
                                 this.selectedPost.isPinned = false;
                             }
+                            target.rightIcon.spin = false;
+                            target.rightIcon.name = "thumbtack";
                         }
                         this.mdActions.visible = false;
                     }
                 }
             );
         }
-        this.pnlPinAction = null;
+        this.btnPinAction = null;
         this.pnlActions.clearInnerHTML();
         for (let i = 0; i < actions.length; i++) {
             const item = actions[i];
             const elm = (
-                <i-hstack
-                    horizontalAlignment="space-between"
-                    verticalAlignment="center"
+                <i-button
+                    class={getActionButtonStyle(item.hoveredColor)}
                     width="100%"
                     padding={{top: '0.625rem', bottom: '0.625rem', left: '0.75rem', right: '0.75rem'}}
                     background={{color: 'transparent'}}
                     border={{radius: '0.5rem'}}
                     opacity={item.hoveredColor ? 1 : 0.667}
-                    hover={{
-                        backgroundColor: item.hoveredColor || Theme.action.hoverBackground,
-                        opacity: 1
+                    caption={item.caption}
+                    font={{color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem'}}
+                    rightIcon={{
+                        width: "0.75rem",
+                        height: "0.75rem",
+                        display: "inline-flex",
+                        name: item.icon.name as IconName,
+                        fill: item.icon?.fill || Theme.text.primary
                     }}
                     onClick={(target: Control, event: MouseEvent) => {
                         if (item.onClick) item.onClick(target, event);
@@ -383,20 +391,9 @@ export default class ScomFeed extends Module {
                         trigger: 'click',
                         placement: 'bottom'
                     }}
-                >
-                    <i-label
-                        caption={item.caption}
-                        font={{color: item.icon?.fill || Theme.text.primary, weight: 400, size: '0.875rem'}}
-                    ></i-label>
-                    <i-icon
-                        name={item.icon.name as IconName}
-                        width='0.75rem' height='0.75rem'
-                        display='inline-flex'
-                        fill={item.icon?.fill || Theme.text.primary}
-                    ></i-icon>
-                </i-hstack>
+                ></i-button>
             );
-            if (item.id === 'pnlPinAction') this.pnlPinAction = elm;
+            if (item.id === 'btnPinAction') this.btnPinAction = elm;
             this.pnlActions.appendChild(elm);
         }
         this.pnlActions.appendChild(
@@ -557,10 +554,9 @@ export default class ScomFeed extends Module {
         this.selectedPost = target;
         this.currentPost = data;
         this.currentContent = contentElement;
-        if (this.pnlPinAction) {
+        if (this.btnPinAction) {
             const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-            const label = this.pnlPinAction.querySelector('i-label') as Label;
-            label.caption = isPinned ? 'Unpin note' : 'Pin note';
+            this.btnPinAction.caption = isPinned ? 'Unpin note' : 'Pin note';
         }
         this.onShowModal(parent, 'mdActions', contentElement);
     }
