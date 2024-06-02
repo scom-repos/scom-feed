@@ -1132,6 +1132,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.renderActions();
             components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
                 this.mdCreatePost.visible = true;
+                this.inputCreatePost.setFocus();
             });
             if (this.env === 'prod') {
                 this.inputReply.disableMarkdownEditor();
@@ -1197,7 +1198,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     ], onClose: () => this.removeShow('mdActions') },
                     this.$render("i-stack", { id: "pnlActions", direction: "vertical", minWidth: 0 })),
                 this.$render("i-modal", { id: "mdCreatePost", visible: false },
-                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) }))));
+                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, autoFocus: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) }))));
         }
     };
     ScomFeed = __decorate([
