@@ -46,6 +46,7 @@ interface ScomFeedElement extends ControlElement {
     avatar?: string;
     isPinListView?: boolean;
     allowPin?: boolean;
+    apiBaseUrl?: string;
     onPinButtonClicked?: pinCallbackType;
 }
 
@@ -99,6 +100,7 @@ export default class ScomFeed extends Module {
     private _pinnedNoteIds: string[] = [];
     private btnPinAction: Button;
     private selectedPost: ScomPost;
+    private _apiBaseUrl: string;
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
@@ -201,6 +203,14 @@ export default class ScomFeed extends Module {
     
     set pinnedNoteIds(noteIds: string[]) {
         this._pinnedNoteIds = noteIds || [];
+    }
+
+    get apiBaseUrl() {
+        return this._apiBaseUrl;
+    }
+
+    set apiBaseUrl(value: string) {
+        this._apiBaseUrl = value;
     }
 
     controlInputDisplay() {
@@ -471,6 +481,7 @@ export default class ScomFeed extends Module {
                 overflowEllipse={true}
                 pinView={this.isPinListView}
                 isPinned={post.isPinned || false}
+                apiBaseUrl={this.apiBaseUrl}
             ></i-scom-post>
         ) as ScomPost;
         postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.showActionModal(postEl, target, data, contentElement);
@@ -716,6 +727,8 @@ export default class ScomFeed extends Module {
         this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
         this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
+        const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
+        if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;
         const data = this.getAttribute('data', true);
         if (data) this.setData(data);
         const isListView = this.getAttribute('isListView', true, false);

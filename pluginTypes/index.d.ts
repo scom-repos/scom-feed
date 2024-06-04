@@ -513,6 +513,7 @@ declare module "@scom/scom-feed" {
         avatar?: string;
         isPinListView?: boolean;
         allowPin?: boolean;
+        apiBaseUrl?: string;
         onPinButtonClicked?: pinCallbackType;
     }
     global {
@@ -549,6 +550,7 @@ declare module "@scom/scom-feed" {
         private _pinnedNoteIds;
         private btnPinAction;
         private selectedPost;
+        private _apiBaseUrl;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: likeCallbackType;
@@ -578,6 +580,8 @@ declare module "@scom/scom-feed" {
         get isSmallScreen(): boolean;
         get pinnedNoteIds(): string[];
         set pinnedNoteIds(noteIds: string[]);
+        get apiBaseUrl(): string;
+        set apiBaseUrl(value: string);
         controlInputDisplay(): void;
         connectedCallback(): void;
         clear(): void;

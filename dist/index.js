@@ -656,6 +656,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set pinnedNoteIds(noteIds) {
             this._pinnedNoteIds = noteIds || [];
         }
+        get apiBaseUrl() {
+            return this._apiBaseUrl;
+        }
+        set apiBaseUrl(value) {
+            this._apiBaseUrl = value;
+        }
         controlInputDisplay() {
             this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
         }
@@ -873,7 +879,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, pinView: this.isPinListView, isPinned: post.isPinned || false }));
+            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, pinView: this.isPinListView, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.showActionModal(postEl, target, data, contentElement);
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
@@ -1109,6 +1115,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
             this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
             this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
+            const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
+            if (apiBaseUrl)
+                this.apiBaseUrl = apiBaseUrl;
             const data = this.getAttribute('data', true);
             if (data)
                 this.setData(data);
