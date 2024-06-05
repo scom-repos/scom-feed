@@ -410,6 +410,7 @@ declare module "@scom/scom-feed/global/interface.ts" {
     import { IPost } from "@scom/scom-post";
     export interface IFeed {
         posts: IPost[];
+        pinnedPosts?: IPost[];
     }
     export interface IPostExtended extends IPost {
         isPinned?: boolean;
@@ -511,9 +512,9 @@ declare module "@scom/scom-feed" {
         onRepostButtonClicked?: callbackType;
         onZapButtonClicked?: callbackType;
         avatar?: string;
-        isPinListView?: boolean;
         allowPin?: boolean;
         apiBaseUrl?: string;
+        pinNoteToTop?: boolean;
         onPinButtonClicked?: pinCallbackType;
     }
     global {
@@ -546,8 +547,9 @@ declare module "@scom/scom-feed" {
         private _composerPlaceholder;
         private env;
         private _allowPin;
-        private isPinListView;
-        private _pinnedNoteIds;
+        private _pinNoteToTop;
+        private _pinnedNotes;
+        private pinnedNoteIds;
         private btnPinAction;
         private selectedPost;
         private _apiBaseUrl;
@@ -578,8 +580,10 @@ declare module "@scom/scom-feed" {
         get allowPin(): boolean;
         set allowPin(value: boolean);
         get isSmallScreen(): boolean;
-        get pinnedNoteIds(): string[];
-        set pinnedNoteIds(noteIds: string[]);
+        get pinNoteToTop(): boolean;
+        set pinNoteToTop(value: boolean);
+        get pinnedNotes(): IPostExtended[];
+        set pinnedNotes(posts: IPostExtended[]);
         get apiBaseUrl(): string;
         set apiBaseUrl(value: string);
         controlInputDisplay(): void;
@@ -595,6 +599,7 @@ declare module "@scom/scom-feed" {
         private onViewPost;
         private onReplySubmit;
         constructPostElement(post: IPostExtended): ScomPost;
+        private sortPosts;
         addPost(post: IPostExtended, isPrepend?: boolean): void;
         addPosts(posts: IPostExtended[], isPrepend?: boolean): void;
         setPosts(posts: IPostExtended[]): void;

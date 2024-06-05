@@ -578,8 +578,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._isComposerVisible = false;
             this._composerPlaceholder = DefaultPlaceholder;
             this._allowPin = false;
-            this.isPinListView = false;
-            this._pinnedNoteIds = [];
+            this._pinNoteToTop = false;
+            this.pinnedNoteIds = [];
             this.tag = {
                 light: {},
                 dark: {}
@@ -650,11 +650,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         get isSmallScreen() {
             return window.innerWidth < 768;
         }
-        get pinnedNoteIds() {
-            return this._pinnedNoteIds;
+        get pinNoteToTop() {
+            return this._pinNoteToTop;
         }
-        set pinnedNoteIds(noteIds) {
-            this._pinnedNoteIds = noteIds || [];
+        set pinNoteToTop(value) {
+            this._pinNoteToTop = value;
+        }
+        get pinnedNotes() {
+            return this._pinnedNotes;
+        }
+        set pinnedNotes(posts) {
+            this._pinnedNotes = posts || [];
+            this.pinnedNoteIds = this._pinnedNotes.map(post => post.id);
         }
         get apiBaseUrl() {
             return this._apiBaseUrl;
@@ -694,7 +701,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (!this.posts?.length || this.isRendering)
                 return;
             this.isRendering = true;
-            this.renderPosts();
+            this.renderPosts(this.posts);
             this.isRendering = false;
         }
         onCopyNoteText() {
@@ -783,26 +790,28 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                             target.rightIcon.name = "spinner";
                             let action = isPinned ? 'unpin' : 'pin';
                             await this.onPinButtonClicked(this.currentPost, action, event);
-                            if (action === 'pin') {
-                                this.pnlPosts.prepend(this.selectedPost);
-                                this.selectedPost.isPinned = true;
-                            }
-                            else {
-                                const sortedPost = this._data.posts.filter(post => !this.pinnedNoteIds.includes(post.id)).sort((a, b) => b['eventData'].created_at - a['eventData'].created_at);
-                                let index = sortedPost.findIndex(post => post.id === this.currentPost.id);
-                                if (index !== -1) {
-                                    index += this.pinnedNoteIds.length;
-                                    if (index === 0) {
-                                        this.pnlPosts.prepend(this.selectedPost);
-                                    }
-                                    else {
-                                        this.pnlPosts.children[index].after(this.selectedPost);
-                                    }
+                            if (this.pinNoteToTop) {
+                                if (action === 'pin') {
+                                    this.pnlPosts.prepend(this.selectedPost);
+                                    this.selectedPost.isPinned = true;
                                 }
                                 else {
-                                    this.pnlPosts.appendChild(this.selectedPost);
+                                    const sortedPost = this._data.posts.filter(post => !this.pinnedNoteIds.includes(post.id)).sort((a, b) => b['eventData'].created_at - a['eventData'].created_at);
+                                    let index = sortedPost.findIndex(post => post.id === this.currentPost.id);
+                                    if (index !== -1) {
+                                        index += this.pinnedNoteIds.length;
+                                        if (index === 0) {
+                                            this.pnlPosts.prepend(this.selectedPost);
+                                        }
+                                        else {
+                                            this.pnlPosts.children[index].after(this.selectedPost);
+                                        }
+                                    }
+                                    else {
+                                        this.pnlPosts.appendChild(this.selectedPost);
+                                    }
+                                    this.selectedPost.isPinned = false;
                                 }
-                                this.selectedPost.isPinned = false;
                             }
                             target.rightIcon.spin = false;
                             target.rightIcon.name = "thumbtack";
@@ -879,13 +888,40 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, pinView: this.isPinListView, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl }));
+            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.showActionModal(postEl, target, data, contentElement);
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
             postEl.onRepostClicked = (target, data, event) => this.onRepostButtonClicked(postEl, event);
             postEl.onZapClicked = (target, data, event) => this.onZapButtonClicked(postEl, event);
             return postEl;
+        }
+        sortPosts(posts) {
+            if (this.pinNoteToTop) {
+                let pinnedPosts = [];
+                if (this.pinnedNotes.length > 0) {
+                    for (let i = posts.length - 1; i >= 0; i--) {
+                        if (this.pinnedNoteIds.includes(posts[i].id)) {
+                            const post = posts.splice(i, 1)[0];
+                            post.isPinned = true;
+                            pinnedPosts.unshift(post);
+                        }
+                    }
+                }
+                if (pinnedPosts.length !== this.pinnedNotes.length) {
+                    for (let i = this.pinnedNotes.length - 1; i >= 0; i--) {
+                        const post = this.pinnedNotes[i];
+                        if (pinnedPosts.findIndex(p => p.id === post.id) === -1) {
+                            post.isPinned = true;
+                            pinnedPosts.unshift(post);
+                        }
+                    }
+                }
+                return [...pinnedPosts, ...posts];
+            }
+            else {
+                return posts;
+            }
         }
         addPost(post, isPrepend) {
             if (post.id && this._data.posts.find(p => p.id === post.id))
@@ -902,8 +938,14 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 const postEl = this.constructPostElement(post);
                 postEls.push(postEl);
             }
-            if (isPrepend)
-                this.pnlPosts.prepend(...postEls);
+            if (isPrepend) {
+                if (this.pinNoteToTop && this.pinnedNoteIds.length) {
+                    this.pnlPosts[this.pinnedNoteIds.length - 1].after(...postEls);
+                }
+                else {
+                    this.pnlPosts.prepend(...postEls);
+                }
+            }
             else
                 this.pnlPosts.append(...postEls);
         }
@@ -911,18 +953,27 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (!this._data)
                 this._data = { posts: [] };
             this._data.posts = [...posts];
-            this.renderPosts();
+            const sortedPosts = this.sortPosts([...posts]);
+            this.renderPosts(sortedPosts);
         }
         addPostToPanel(post, isPrepend) {
             const postEl = this.constructPostElement(post);
-            if (isPrepend)
-                this.pnlPosts.prepend(postEl);
+            if (isPrepend) {
+                if (this.pinNoteToTop && this.pinnedNoteIds.length) {
+                    this.pnlPosts[this.pinnedNoteIds.length - 1].after(postEl);
+                }
+                else {
+                    this.pnlPosts.prepend(postEl);
+                }
+            }
             else
                 this.pnlPosts.append(postEl);
         }
-        renderPosts() {
+        renderPosts(posts) {
             this.pnlPosts.clearInnerHTML();
-            for (let post of this.posts) {
+            for (let post of posts) {
+                if (!this.pinNoteToTop)
+                    post.isPinned = false;
                 this.addPostToPanel(post);
             }
         }
@@ -1118,6 +1169,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
                 this.apiBaseUrl = apiBaseUrl;
+            const pinNoteToTop = this.getAttribute('pinNoteToTop', true);
+            if (pinNoteToTop != null)
+                this.pinNoteToTop = pinNoteToTop;
             const data = this.getAttribute('data', true);
             if (data)
                 this.setData(data);
@@ -1133,11 +1187,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (avatar)
                 this.avatar = avatar;
             this._allowPin = this.getAttribute('allowPin', true, false);
-            this.isPinListView = this.getAttribute('isPinListView', true, false);
-            if (this.isPinListView) {
-                this.pnlPosts.padding = {};
-                this.pnlPosts.border = { bottom: { width: 1, style: 'solid', color: Theme.divider } };
-            }
             this.renderActions();
             components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
                 this.mdCreatePost.visible = true;
