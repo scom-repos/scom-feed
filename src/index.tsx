@@ -44,9 +44,9 @@ interface ScomFeedElement extends ControlElement {
     onRepostButtonClicked?: callbackType;
     onZapButtonClicked?: callbackType;
     avatar?: string;
-    isPinListView?: boolean;
     allowPin?: boolean;
     apiBaseUrl?: string;
+    pinNoteToTop?: boolean;
     onPinButtonClicked?: pinCallbackType;
 }
 
@@ -96,8 +96,9 @@ export default class ScomFeed extends Module {
     private _composerPlaceholder: string = DefaultPlaceholder;
     private env: string;
     private _allowPin: boolean = false;
-    private isPinListView: boolean = false;
-    private _pinnedNoteIds: string[] = [];
+    private _pinNoteToTop: boolean = false;
+    private _pinnedNotes: IPostExtended[];
+    private pinnedNoteIds: string[] = [];
     private btnPinAction: Button;
     private selectedPost: ScomPost;
     private _apiBaseUrl: string;
@@ -196,13 +197,22 @@ export default class ScomFeed extends Module {
     get isSmallScreen() {
         return window.innerWidth < 768;
     }
+    
+    get pinNoteToTop() {
+        return this._pinNoteToTop;
+    }
 
-    get pinnedNoteIds() {
-        return this._pinnedNoteIds;
+    set pinNoteToTop(value: boolean) {
+        this._pinNoteToTop = value;
+    }
+
+    get pinnedNotes() {
+        return this._pinnedNotes;
     }
     
-    set pinnedNoteIds(noteIds: string[]) {
-        this._pinnedNoteIds = noteIds || [];
+    set pinnedNotes(posts: IPostExtended[]) {
+        this._pinnedNotes = posts || [];
+        this.pinnedNoteIds = this._pinnedNotes.map(post => post.id);
     }
 
     get apiBaseUrl() {
@@ -251,7 +261,7 @@ export default class ScomFeed extends Module {
         this.clear();
         if (!this.posts?.length || this.isRendering) return;
         this.isRendering = true;
-        this.renderPosts();
+        this.renderPosts(this.posts);
         this.isRendering = false;
     }
 
@@ -343,25 +353,27 @@ export default class ScomFeed extends Module {
                             target.rightIcon.name = "spinner";
                             let action: 'pin' | 'unpin' = isPinned ? 'unpin' : 'pin';
                             await this.onPinButtonClicked(this.currentPost, action, event);
-                            if (action === 'pin') {
-                                this.pnlPosts.prepend(this.selectedPost);
-                                this.selectedPost.isPinned = true;
-                            } else {
-                                const sortedPost = this._data.posts.filter(
-                                    post => !this.pinnedNoteIds.includes(post.id)
-                                ).sort((a, b) => b['eventData'].created_at - a['eventData'].created_at);
-                                let index = sortedPost.findIndex(post => post.id === this.currentPost.id);
-                                if (index !== -1) {
-                                    index += this.pinnedNoteIds.length;
-                                    if (index === 0) {
-                                        this.pnlPosts.prepend(this.selectedPost);
-                                    } else {
-                                        this.pnlPosts.children[index].after(this.selectedPost);
-                                    }
+                            if (this.pinNoteToTop) {
+                                if (action === 'pin') {
+                                    this.pnlPosts.prepend(this.selectedPost);
+                                    this.selectedPost.isPinned = true;
                                 } else {
-                                    this.pnlPosts.appendChild(this.selectedPost);
+                                    const sortedPost = this._data.posts.filter(
+                                        post => !this.pinnedNoteIds.includes(post.id)
+                                    ).sort((a, b) => b['eventData'].created_at - a['eventData'].created_at);
+                                    let index = sortedPost.findIndex(post => post.id === this.currentPost.id);
+                                    if (index !== -1) {
+                                        index += this.pinnedNoteIds.length;
+                                        if (index === 0) {
+                                            this.pnlPosts.prepend(this.selectedPost);
+                                        } else {
+                                            this.pnlPosts.children[index].after(this.selectedPost);
+                                        }
+                                    } else {
+                                        this.pnlPosts.appendChild(this.selectedPost);
+                                    }
+                                    this.selectedPost.isPinned = false;
                                 }
-                                this.selectedPost.isPinned = false;
                             }
                             target.rightIcon.spin = false;
                             target.rightIcon.name = "thumbtack";
@@ -479,7 +491,6 @@ export default class ScomFeed extends Module {
                 onQuotedPostClicked={this.onViewPost}
                 limitHeight={true}
                 overflowEllipse={true}
-                pinView={this.isPinListView}
                 isPinned={post.isPinned || false}
                 apiBaseUrl={this.apiBaseUrl}
             ></i-scom-post>
@@ -490,6 +501,33 @@ export default class ScomFeed extends Module {
         postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
         postEl.onZapClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onZapButtonClicked(postEl, event);
         return postEl;
+    }
+
+    private sortPosts(posts: IPostExtended[]) {
+        if (this.pinNoteToTop) {
+            let pinnedPosts: IPostExtended[] = [];
+            if (this.pinnedNotes.length > 0) {
+                for (let i = posts.length - 1; i >= 0; i--) {
+                    if (this.pinnedNoteIds.includes(posts[i].id)) {
+                        const post = posts.splice(i, 1)[0];
+                        post.isPinned = true;
+                        pinnedPosts.unshift(post);
+                    }
+                }
+            }
+            if (pinnedPosts.length !== this.pinnedNotes.length) {
+                for (let i = this.pinnedNotes.length - 1; i >= 0; i--) {
+                    const post = this.pinnedNotes[i];
+                    if (pinnedPosts.findIndex(p => p.id === post.id) === -1) {
+                        post.isPinned = true;
+                        pinnedPosts.unshift(post);
+                    }
+                }
+            }
+            return [...pinnedPosts, ...posts];
+        } else {
+            return posts;
+        }
     }
 
     addPost(post: IPostExtended, isPrepend?: boolean) {
@@ -506,27 +544,39 @@ export default class ScomFeed extends Module {
             const postEl = this.constructPostElement(post);
             postEls.push(postEl);
         }
-        if (isPrepend)
-            this.pnlPosts.prepend(...postEls);
+        if (isPrepend) {
+            if (this.pinNoteToTop && this.pinnedNoteIds.length) {
+                this.pnlPosts[this.pinnedNoteIds.length - 1].after(...postEls);
+            } else {
+                this.pnlPosts.prepend(...postEls);
+            }
+        }
         else this.pnlPosts.append(...postEls);
     }
 
     setPosts(posts: IPostExtended[]) {
         if (!this._data) this._data = {posts: []};
         this._data.posts = [...posts];
-        this.renderPosts();
+        const sortedPosts = this.sortPosts([...posts]);
+        this.renderPosts(sortedPosts);
     }
 
     private addPostToPanel(post: IPostExtended, isPrepend?: boolean) {
         const postEl = this.constructPostElement(post);
-        if (isPrepend)
-            this.pnlPosts.prepend(postEl);
+        if (isPrepend) {
+            if (this.pinNoteToTop && this.pinnedNoteIds.length) {
+                this.pnlPosts[this.pinnedNoteIds.length - 1].after(postEl);
+            } else {
+                this.pnlPosts.prepend(postEl);
+            }
+        }
         else this.pnlPosts.append(postEl);
     }
 
-    private renderPosts() {
+    private renderPosts(posts: IPostExtended[]) {
         this.pnlPosts.clearInnerHTML();
-        for (let post of this.posts) {
+        for (let post of posts) {
+            if (!this.pinNoteToTop) post.isPinned = false;
             this.addPostToPanel(post);
         }
     }
@@ -729,6 +779,8 @@ export default class ScomFeed extends Module {
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
         if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;
+        const pinNoteToTop = this.getAttribute('pinNoteToTop', true);
+        if (pinNoteToTop != null) this.pinNoteToTop = pinNoteToTop;
         const data = this.getAttribute('data', true);
         if (data) this.setData(data);
         const isListView = this.getAttribute('isListView', true, false);
@@ -741,11 +793,6 @@ export default class ScomFeed extends Module {
         const avatar = this.getAttribute('avatar', true);
         if (avatar) this.avatar = avatar;
         this._allowPin = this.getAttribute('allowPin', true, false);
-        this.isPinListView = this.getAttribute('isPinListView', true, false);
-        if (this.isPinListView) {
-            this.pnlPosts.padding = {};
-            this.pnlPosts.border = { bottom: { width: 1, style: 'solid', color: Theme.divider } };
-        }
         this.renderActions();
         application.EventBus.register(this, 'FAB_CREATE_POST', () => {
             this.mdCreatePost.visible = true;
