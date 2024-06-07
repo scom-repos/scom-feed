@@ -579,6 +579,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._composerPlaceholder = DefaultPlaceholder;
             this._allowPin = false;
             this._pinNoteToTop = false;
+            this._pinnedNotes = [];
             this.pinnedNoteIds = [];
             this.tag = {
                 light: {},
@@ -899,7 +900,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         sortPosts(posts) {
             if (this.pinNoteToTop) {
                 let pinnedPosts = [];
-                if (this.pinnedNotes.length > 0) {
+                if (this.pinnedNotes?.length > 0) {
                     for (let i = posts.length - 1; i >= 0; i--) {
                         if (this.pinnedNoteIds.includes(posts[i].id)) {
                             const post = posts.splice(i, 1)[0];
@@ -908,7 +909,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         }
                     }
                 }
-                if (pinnedPosts.length !== this.pinnedNotes.length) {
+                if (pinnedPosts.length !== this.pinnedNotes?.length) {
                     for (let i = this.pinnedNotes.length - 1; i >= 0; i--) {
                         const post = this.pinnedNotes[i];
                         if (pinnedPosts.findIndex(p => p.id === post.id) === -1) {
