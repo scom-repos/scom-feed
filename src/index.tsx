@@ -30,6 +30,7 @@ type callbackType = (target: ScomPost, event?: MouseEvent) => void
 type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
 type submitCallbackType = (content: string, medias: IPostData[]) => void
 type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>
+type deleteCallbackType = (post: any, event?: MouseEvent) => Promise<void>
 
 interface ScomFeedElement extends ControlElement {
     data?: IFeed;
@@ -44,9 +45,11 @@ interface ScomFeedElement extends ControlElement {
     onRepostButtonClicked?: callbackType;
     onZapButtonClicked?: callbackType;
     avatar?: string;
+    allowDelete?: boolean;
     allowPin?: boolean;
     apiBaseUrl?: string;
     pinNoteToTop?: boolean;
+    onDeleteButtonClicked?: deleteCallbackType;
     onPinButtonClicked?: pinCallbackType;
 }
 
@@ -95,6 +98,7 @@ export default class ScomFeed extends Module {
     private _isComposerVisible: boolean = false;
     private _composerPlaceholder: string = DefaultPlaceholder;
     private env: string;
+    private _allowDelete: boolean = false;
     private _allowPin: boolean = false;
     private _pinNoteToTop: boolean = false;
     private _pinnedNotes: IPostExtended[] = [];
@@ -108,6 +112,7 @@ export default class ScomFeed extends Module {
     onLikeButtonClicked: likeCallbackType;
     onRepostButtonClicked: callbackType;
     onZapButtonClicked: callbackType;
+    onDeleteButtonClicked: deleteCallbackType
     onPinButtonClicked: pinCallbackType;
 
     tag = {
@@ -182,6 +187,16 @@ export default class ScomFeed extends Module {
     set avatar(value: string) {
         this.inputReply.avatar = value;
         this.inputCreatePost.avatar = value;
+    }
+
+    get allowDelete() {
+        return this._allowDelete;
+    }
+
+    set allowDelete(value: boolean) {
+        let isChanged = this._allowDelete != value ?? false;
+        this._allowDelete = value ?? false;
+        if (isChanged) this.renderActions();
     }
 
     get allowPin() {
@@ -382,6 +397,29 @@ export default class ScomFeed extends Module {
                     }
                 }
             );
+        }
+        if (this.allowDelete) {
+            actions.push(
+                {
+                    caption: 'Delete note',
+                    icon: { name: 'trash-alt' },
+                    onClick: async (target: Button, event: MouseEvent) => {
+                        if (this.onDeleteButtonClicked) {
+                            target.rightIcon.spin = true;
+                            target.rightIcon.name = "spinner";
+                            await this.onDeleteButtonClicked(this.currentPost, event);
+                            const index = this._data.posts.findIndex(post => post.id === this.currentPost.id);
+                            if (index !== -1) this._data.posts.splice(index, 1);
+                            this.currentPost = null;
+                            this.selectedPost.remove();
+                            this.selectedPost = null;
+                            target.rightIcon.spin = false;
+                            target.rightIcon.name = "trash-alt";
+                        }
+                        this.mdActions.visible = false;
+                    }
+                }
+            )
         }
         this.btnPinAction = null;
         this.pnlActions.clearInnerHTML();
@@ -792,6 +830,7 @@ export default class ScomFeed extends Module {
         this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
         const avatar = this.getAttribute('avatar', true);
         if (avatar) this.avatar = avatar;
+        this._allowDelete = this.getAttribute('allowDelete', true, false);
         this._allowPin = this.getAttribute('allowPin', true, false);
         this.renderActions();
         application.EventBus.register(this, 'FAB_CREATE_POST', () => {

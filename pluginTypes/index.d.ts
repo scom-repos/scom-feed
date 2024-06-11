@@ -499,6 +499,7 @@ declare module "@scom/scom-feed" {
     type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
     type submitCallbackType = (content: string, medias: IPostData[]) => void;
     type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
+    type deleteCallbackType = (post: any, event?: MouseEvent) => Promise<void>;
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
         isListView?: boolean;
@@ -512,9 +513,11 @@ declare module "@scom/scom-feed" {
         onRepostButtonClicked?: callbackType;
         onZapButtonClicked?: callbackType;
         avatar?: string;
+        allowDelete?: boolean;
         allowPin?: boolean;
         apiBaseUrl?: string;
         pinNoteToTop?: boolean;
+        onDeleteButtonClicked?: deleteCallbackType;
         onPinButtonClicked?: pinCallbackType;
     }
     global {
@@ -546,6 +549,7 @@ declare module "@scom/scom-feed" {
         private _isComposerVisible;
         private _composerPlaceholder;
         private env;
+        private _allowDelete;
         private _allowPin;
         private _pinNoteToTop;
         private _pinnedNotes;
@@ -558,6 +562,7 @@ declare module "@scom/scom-feed" {
         onLikeButtonClicked: likeCallbackType;
         onRepostButtonClicked: callbackType;
         onZapButtonClicked: callbackType;
+        onDeleteButtonClicked: deleteCallbackType;
         onPinButtonClicked: pinCallbackType;
         tag: {
             light: {};
@@ -577,6 +582,8 @@ declare module "@scom/scom-feed" {
         set composerPlaceholder(value: string);
         get avatar(): string;
         set avatar(value: string);
+        get allowDelete(): boolean;
+        set allowDelete(value: boolean);
         get allowPin(): boolean;
         set allowPin(value: boolean);
         get isSmallScreen(): boolean;
