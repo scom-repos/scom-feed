@@ -577,6 +577,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._isListView = false;
             this._isComposerVisible = false;
             this._composerPlaceholder = DefaultPlaceholder;
+            this._allowDelete = false;
             this._allowPin = false;
             this._pinNoteToTop = false;
             this._pinnedNotes = [];
@@ -638,6 +639,15 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set avatar(value) {
             this.inputReply.avatar = value;
             this.inputCreatePost.avatar = value;
+        }
+        get allowDelete() {
+            return this._allowDelete;
+        }
+        set allowDelete(value) {
+            let isChanged = this._allowDelete != value ?? false;
+            this._allowDelete = value ?? false;
+            if (isChanged)
+                this.renderActions();
         }
         get allowPin() {
             return this._allowPin;
@@ -816,6 +826,28 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                             }
                             target.rightIcon.spin = false;
                             target.rightIcon.name = "thumbtack";
+                        }
+                        this.mdActions.visible = false;
+                    }
+                });
+            }
+            if (this.allowDelete) {
+                actions.push({
+                    caption: 'Delete note',
+                    icon: { name: 'trash-alt' },
+                    onClick: async (target, event) => {
+                        if (this.onDeleteButtonClicked) {
+                            target.rightIcon.spin = true;
+                            target.rightIcon.name = "spinner";
+                            await this.onDeleteButtonClicked(this.currentPost, event);
+                            const index = this._data.posts.findIndex(post => post.id === this.currentPost.id);
+                            if (index !== -1)
+                                this._data.posts.splice(index, 1);
+                            this.currentPost = null;
+                            this.selectedPost.remove();
+                            this.selectedPost = null;
+                            target.rightIcon.spin = false;
+                            target.rightIcon.name = "trash-alt";
                         }
                         this.mdActions.visible = false;
                     }
@@ -1187,6 +1219,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const avatar = this.getAttribute('avatar', true);
             if (avatar)
                 this.avatar = avatar;
+            this._allowDelete = this.getAttribute('allowDelete', true, false);
             this._allowPin = this.getAttribute('allowPin', true, false);
             this.renderActions();
             components_2.application.EventBus.register(this, 'FAB_CREATE_POST', () => {
