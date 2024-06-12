@@ -499,7 +499,7 @@ declare module "@scom/scom-feed" {
     type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
     type submitCallbackType = (content: string, medias: IPostData[]) => void;
     type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
-    type deleteCallbackType = (post: any, event?: MouseEvent) => Promise<void>;
+    type deleteCallbackType = (post: any) => Promise<void>;
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
         isListView?: boolean;
@@ -540,6 +540,7 @@ declare module "@scom/scom-feed" {
         private pnlLoading;
         private mdCreatePost;
         private inputCreatePost;
+        private mdDeleteConfirm;
         private currentContent;
         private currentPost;
         private isRendering;
@@ -670,6 +671,7 @@ declare module "@scom/scom-feed" {
         init(): void;
         onShow(options: any): void;
         private handleModalClose;
+        private deleteNote;
         render(): any;
     }
 }

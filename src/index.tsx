@@ -15,7 +15,8 @@ import {
     Panel,
     application,
     IconName,
-    StackLayout
+    StackLayout,
+    Alert
 
 } from '@ijstech/components';
 import dataConfig from './data.json';
@@ -30,7 +31,7 @@ type callbackType = (target: ScomPost, event?: MouseEvent) => void
 type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
 type submitCallbackType = (content: string, medias: IPostData[]) => void
 type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>
-type deleteCallbackType = (post: any, event?: MouseEvent) => Promise<void>
+type deleteCallbackType = (post: any) => Promise<void>
 
 interface ScomFeedElement extends ControlElement {
     data?: IFeed;
@@ -86,6 +87,7 @@ export default class ScomFeed extends Module {
     private pnlLoading: StackLayout;
     private mdCreatePost: Modal;
     private inputCreatePost: ScomPostComposer;
+    private mdDeleteConfirm: Alert;
 
     private currentContent: Control;
     private currentPost: IPostExtended;
@@ -404,19 +406,8 @@ export default class ScomFeed extends Module {
                     caption: 'Delete note',
                     icon: { name: 'trash-alt' },
                     onClick: async (target: Button, event: MouseEvent) => {
-                        if (this.onDeleteButtonClicked) {
-                            target.rightIcon.spin = true;
-                            target.rightIcon.name = "spinner";
-                            await this.onDeleteButtonClicked(this.currentPost, event);
-                            const index = this._data.posts.findIndex(post => post.id === this.currentPost.id);
-                            if (index !== -1) this._data.posts.splice(index, 1);
-                            this.currentPost = null;
-                            this.selectedPost.remove();
-                            this.selectedPost = null;
-                            target.rightIcon.spin = false;
-                            target.rightIcon.name = "trash-alt";
-                        }
                         this.mdActions.visible = false;
+                        this.mdDeleteConfirm.showModal();
                     }
                 }
             )
@@ -854,6 +845,17 @@ export default class ScomFeed extends Module {
         history.replaceState(null, 'Post', location.hash.replace('/create-post', ''));
     }
 
+    private async deleteNote() {
+        if (this.onDeleteButtonClicked) {
+            await this.onDeleteButtonClicked(this.currentPost);
+            const index = this._data.posts.findIndex(post => post.id === this.currentPost.id);
+            if (index !== -1) this._data.posts.splice(index, 1);
+            this.currentPost = null;
+            this.selectedPost.remove();
+            this.selectedPost = null;
+        }
+    }
+
     render() {
         return (
             <i-stack
@@ -1019,6 +1021,13 @@ export default class ScomFeed extends Module {
                 <i-modal id={"mdCreatePost"} visible={false}>
                     <i-scom-post-composer id={"inputCreatePost"} mobile={true} autoFocus={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)} />
                 </i-modal>
+                <i-alert
+                    id="mdDeleteConfirm"
+                    status="confirm"
+                    title="Are you sure?"
+                    content="Do you really want to delete this note?"
+                    onConfirm={this.deleteNote}
+                ></i-alert>
             </i-stack>
         );
     }

@@ -836,20 +836,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     caption: 'Delete note',
                     icon: { name: 'trash-alt' },
                     onClick: async (target, event) => {
-                        if (this.onDeleteButtonClicked) {
-                            target.rightIcon.spin = true;
-                            target.rightIcon.name = "spinner";
-                            await this.onDeleteButtonClicked(this.currentPost, event);
-                            const index = this._data.posts.findIndex(post => post.id === this.currentPost.id);
-                            if (index !== -1)
-                                this._data.posts.splice(index, 1);
-                            this.currentPost = null;
-                            this.selectedPost.remove();
-                            this.selectedPost = null;
-                            target.rightIcon.spin = false;
-                            target.rightIcon.name = "trash-alt";
-                        }
                         this.mdActions.visible = false;
+                        this.mdDeleteConfirm.showModal();
                     }
                 });
             }
@@ -1240,6 +1228,17 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.mdCreatePost.visible = false;
             history.replaceState(null, 'Post', location.hash.replace('/create-post', ''));
         }
+        async deleteNote() {
+            if (this.onDeleteButtonClicked) {
+                await this.onDeleteButtonClicked(this.currentPost);
+                const index = this._data.posts.findIndex(post => post.id === this.currentPost.id);
+                if (index !== -1)
+                    this._data.posts.splice(index, 1);
+                this.currentPost = null;
+                this.selectedPost.remove();
+                this.selectedPost = null;
+            }
+        }
         render() {
             return (this.$render("i-stack", { direction: "vertical", width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
@@ -1290,7 +1289,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     ], onClose: () => this.removeShow('mdActions') },
                     this.$render("i-stack", { id: "pnlActions", direction: "vertical", minWidth: 0 })),
                 this.$render("i-modal", { id: "mdCreatePost", visible: false },
-                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, autoFocus: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) }))));
+                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, autoFocus: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) })),
+                this.$render("i-alert", { id: "mdDeleteConfirm", status: "confirm", title: "Are you sure?", content: "Do you really want to delete this note?", onConfirm: this.deleteNote })));
         }
     };
     ScomFeed = __decorate([
