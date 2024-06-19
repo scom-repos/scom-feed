@@ -28,7 +28,7 @@ import {ScomPostComposer} from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost, event?: MouseEvent) => void
-type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
+type asyncCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
 type submitCallbackType = (content: string, medias: IPostData[]) => void
 type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>
 type deleteCallbackType = (post: any) => Promise<void>
@@ -42,7 +42,7 @@ interface ScomFeedElement extends ControlElement {
     onItemClicked?: callbackType;
     onPostButtonClicked?: submitCallbackType;
     env?: string;
-    onLikeButtonClicked?: likeCallbackType;
+    onLikeButtonClicked?: asyncCallbackType;
     onRepostButtonClicked?: callbackType;
     onZapButtonClicked?: callbackType;
     avatar?: string;
@@ -52,6 +52,7 @@ interface ScomFeedElement extends ControlElement {
     pinNoteToTop?: boolean;
     onDeleteButtonClicked?: deleteCallbackType;
     onPinButtonClicked?: pinCallbackType;
+    onBookmarkButtonClicked?: asyncCallbackType;
 }
 
 declare global {
@@ -111,11 +112,12 @@ export default class ScomFeed extends Module {
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
-    onLikeButtonClicked: likeCallbackType;
+    onLikeButtonClicked: asyncCallbackType;
     onRepostButtonClicked: callbackType;
     onZapButtonClicked: callbackType;
     onDeleteButtonClicked: deleteCallbackType
     onPinButtonClicked: pinCallbackType;
+    onBookmarkButtonClicked: asyncCallbackType;
 
     tag = {
         light: {},
@@ -529,6 +531,7 @@ export default class ScomFeed extends Module {
         postEl.onLikeClicked = async (target: Control, data: IPost, event?: MouseEvent) => await this.onLikeButtonClicked(postEl, event);
         postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
         postEl.onZapClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onZapButtonClicked(postEl, event);
+        postEl.onBookmarkClicked = async (target: Control, data: IPost, event?: MouseEvent) => await this.onBookmarkButtonClicked(postEl, event);
         return postEl;
     }
 
@@ -806,6 +809,7 @@ export default class ScomFeed extends Module {
         this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
         this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
+        this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
         const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
         if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;
         const pinNoteToTop = this.getAttribute('pinNoteToTop', true);

@@ -915,6 +915,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
             postEl.onRepostClicked = (target, data, event) => this.onRepostButtonClicked(postEl, event);
             postEl.onZapClicked = (target, data, event) => this.onZapButtonClicked(postEl, event);
+            postEl.onBookmarkClicked = async (target, data, event) => await this.onBookmarkButtonClicked(postEl, event);
             return postEl;
         }
         sortPosts(posts) {
@@ -1187,6 +1188,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
             this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
             this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
+            this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
                 this.apiBaseUrl = apiBaseUrl;
