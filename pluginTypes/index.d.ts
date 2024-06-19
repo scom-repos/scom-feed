@@ -496,7 +496,7 @@ declare module "@scom/scom-feed" {
     import { IFeed, IPostExtended } from "@scom/scom-feed/global/index.ts";
     import { IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
-    type likeCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
+    type asyncCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
     type submitCallbackType = (content: string, medias: IPostData[]) => void;
     type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
     type deleteCallbackType = (post: any) => Promise<void>;
@@ -509,7 +509,7 @@ declare module "@scom/scom-feed" {
         onItemClicked?: callbackType;
         onPostButtonClicked?: submitCallbackType;
         env?: string;
-        onLikeButtonClicked?: likeCallbackType;
+        onLikeButtonClicked?: asyncCallbackType;
         onRepostButtonClicked?: callbackType;
         onZapButtonClicked?: callbackType;
         avatar?: string;
@@ -519,6 +519,7 @@ declare module "@scom/scom-feed" {
         pinNoteToTop?: boolean;
         onDeleteButtonClicked?: deleteCallbackType;
         onPinButtonClicked?: pinCallbackType;
+        onBookmarkButtonClicked?: asyncCallbackType;
     }
     global {
         namespace JSX {
@@ -560,11 +561,12 @@ declare module "@scom/scom-feed" {
         private _apiBaseUrl;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
-        onLikeButtonClicked: likeCallbackType;
+        onLikeButtonClicked: asyncCallbackType;
         onRepostButtonClicked: callbackType;
         onZapButtonClicked: callbackType;
         onDeleteButtonClicked: deleteCallbackType;
         onPinButtonClicked: pinCallbackType;
+        onBookmarkButtonClicked: asyncCallbackType;
         tag: {
             light: {};
             dark: {};
