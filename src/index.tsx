@@ -52,7 +52,7 @@ interface ScomFeedElement extends ControlElement {
     pinNoteToTop?: boolean;
     onDeleteButtonClicked?: deleteCallbackType;
     onPinButtonClicked?: pinCallbackType;
-    onBookmarkButtonClicked?: asyncCallbackType;
+    onBookmarkButtonClicked?: callbackType;
 }
 
 declare global {
@@ -117,7 +117,7 @@ export default class ScomFeed extends Module {
     onZapButtonClicked: callbackType;
     onDeleteButtonClicked: deleteCallbackType
     onPinButtonClicked: pinCallbackType;
-    onBookmarkButtonClicked: asyncCallbackType;
+    onBookmarkButtonClicked: callbackType;
 
     tag = {
         light: {},
@@ -531,7 +531,7 @@ export default class ScomFeed extends Module {
         postEl.onLikeClicked = async (target: Control, data: IPost, event?: MouseEvent) => await this.onLikeButtonClicked(postEl, event);
         postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
         postEl.onZapClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onZapButtonClicked(postEl, event);
-        postEl.onBookmarkClicked = async (target: Control, data: IPost, event?: MouseEvent) => await this.onBookmarkButtonClicked(postEl, event);
+        postEl.onBookmarkClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onBookmarkButtonClicked(postEl, event);
         return postEl;
     }
 

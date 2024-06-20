@@ -519,7 +519,7 @@ declare module "@scom/scom-feed" {
         pinNoteToTop?: boolean;
         onDeleteButtonClicked?: deleteCallbackType;
         onPinButtonClicked?: pinCallbackType;
-        onBookmarkButtonClicked?: asyncCallbackType;
+        onBookmarkButtonClicked?: callbackType;
     }
     global {
         namespace JSX {
@@ -566,7 +566,7 @@ declare module "@scom/scom-feed" {
         onZapButtonClicked: callbackType;
         onDeleteButtonClicked: deleteCallbackType;
         onPinButtonClicked: pinCallbackType;
-        onBookmarkButtonClicked: asyncCallbackType;
+        onBookmarkButtonClicked: callbackType;
         tag: {
             light: {};
             dark: {};
