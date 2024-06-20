@@ -610,6 +610,7 @@ declare module "@scom/scom-feed" {
         private onReplySubmit;
         constructPostElement(post: IPostExtended): ScomPost;
         private sortPosts;
+        removePost(post: IPostExtended): void;
         addPost(post: IPostExtended, isPrepend?: boolean): void;
         addPosts(posts: IPostExtended[], isPrepend?: boolean): void;
         setPosts(posts: IPostExtended[]): void;

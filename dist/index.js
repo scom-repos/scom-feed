@@ -945,6 +945,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 return posts;
             }
         }
+        removePost(post) {
+            const index = this._data.posts.findIndex(p => p.id === post.id);
+            if (index === -1)
+                return;
+            try {
+                const elm = this.pnlPosts.children[index];
+                if (elm)
+                    this.pnlPosts.removeChild(elm);
+                this._data.posts.splice(index, 1);
+            }
+            catch (err) { }
+        }
         addPost(post, isPrepend) {
             if (post.id && this._data.posts.find(p => p.id === post.id))
                 return;
