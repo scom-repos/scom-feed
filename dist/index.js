@@ -915,7 +915,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
             postEl.onRepostClicked = (target, data, event) => this.onRepostButtonClicked(postEl, event);
             postEl.onZapClicked = (target, data, event) => this.onZapButtonClicked(postEl, event);
-            postEl.onBookmarkClicked = async (target, data, event) => await this.onBookmarkButtonClicked(postEl, event);
+            postEl.onBookmarkClicked = (target, data, event) => this.onBookmarkButtonClicked(postEl, event);
             return postEl;
         }
         sortPosts(posts) {
@@ -944,6 +944,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             else {
                 return posts;
             }
+        }
+        removePost(post) {
+            const index = this._data.posts.findIndex(p => p.id === post.id);
+            if (index === -1)
+                return;
+            try {
+                const elm = this.pnlPosts.children[index];
+                if (elm)
+                    this.pnlPosts.removeChild(elm);
+                this._data.posts.splice(index, 1);
+            }
+            catch (err) { }
         }
         addPost(post, isPrepend) {
             if (post.id && this._data.posts.find(p => p.id === post.id))
