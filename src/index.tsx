@@ -588,7 +588,7 @@ export default class ScomFeed extends Module {
         }
         if (isPrepend) {
             if (this.pinNoteToTop && this.pinnedNoteIds.length) {
-                this.pnlPosts[this.pinnedNoteIds.length - 1].after(...postEls);
+                this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(...postEls);
             } else {
                 this.pnlPosts.prepend(...postEls);
             }
@@ -607,7 +607,7 @@ export default class ScomFeed extends Module {
         const postEl = this.constructPostElement(post);
         if (isPrepend) {
             if (this.pinNoteToTop && this.pinnedNoteIds.length) {
-                this.pnlPosts[this.pinnedNoteIds.length - 1].after(postEl);
+                this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(postEl);
             } else {
                 this.pnlPosts.prepend(postEl);
             }
