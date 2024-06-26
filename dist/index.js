@@ -974,7 +974,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             }
             if (isPrepend) {
                 if (this.pinNoteToTop && this.pinnedNoteIds.length) {
-                    this.pnlPosts[this.pinnedNoteIds.length - 1].after(...postEls);
+                    this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(...postEls);
                 }
                 else {
                     this.pnlPosts.prepend(...postEls);
@@ -994,7 +994,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const postEl = this.constructPostElement(post);
             if (isPrepend) {
                 if (this.pinNoteToTop && this.pinnedNoteIds.length) {
-                    this.pnlPosts[this.pinnedNoteIds.length - 1].after(postEl);
+                    this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(postEl);
                 }
                 else {
                     this.pnlPosts.prepend(postEl);
