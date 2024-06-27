@@ -520,6 +520,7 @@ declare module "@scom/scom-feed" {
         onDeleteButtonClicked?: deleteCallbackType;
         onPinButtonClicked?: pinCallbackType;
         onBookmarkButtonClicked?: callbackType;
+        isPostAudienceShown?: boolean;
     }
     global {
         namespace JSX {
@@ -596,6 +597,8 @@ declare module "@scom/scom-feed" {
         set pinnedNotes(posts: IPostExtended[]);
         get apiBaseUrl(): string;
         set apiBaseUrl(value: string);
+        get isPostAudienceShown(): boolean;
+        set isPostAudienceShown(value: boolean);
         controlInputDisplay(): void;
         connectedCallback(): void;
         clear(): void;

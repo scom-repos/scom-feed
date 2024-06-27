@@ -680,6 +680,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set apiBaseUrl(value) {
             this._apiBaseUrl = value;
         }
+        get isPostAudienceShown() {
+            return this.inputReply.isPostAudienceShown;
+        }
+        set isPostAudienceShown(value) {
+            this.inputReply.isPostAudienceShown = value;
+            this.inputCreatePost.isPostAudienceShown = value;
+        }
         controlInputDisplay() {
             this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
         }
@@ -1218,6 +1225,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.theme = themeVar;
             this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
             this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
+            const isPostAudienceShown = this.getAttribute('isPostAudienceShown', false);
+            if (isPostAudienceShown != null)
+                this.isPostAudienceShown = isPostAudienceShown;
             const avatar = this.getAttribute('avatar', true);
             if (avatar)
                 this.avatar = avatar;

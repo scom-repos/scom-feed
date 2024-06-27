@@ -53,6 +53,7 @@ interface ScomFeedElement extends ControlElement {
     onDeleteButtonClicked?: deleteCallbackType;
     onPinButtonClicked?: pinCallbackType;
     onBookmarkButtonClicked?: callbackType;
+    isPostAudienceShown?: boolean;
 }
 
 declare global {
@@ -240,6 +241,15 @@ export default class ScomFeed extends Module {
 
     set apiBaseUrl(value: string) {
         this._apiBaseUrl = value;
+    }
+
+    get isPostAudienceShown() {
+        return this.inputReply.isPostAudienceShown;
+    }
+
+    set isPostAudienceShown(value: boolean) {
+        this.inputReply.isPostAudienceShown = value;
+        this.inputCreatePost.isPostAudienceShown = value;
     }
 
     controlInputDisplay() {
@@ -833,6 +843,8 @@ export default class ScomFeed extends Module {
         if (themeVar) this.theme = themeVar as Markdown['theme'];
         this.isComposerVisible = this.getAttribute('isComposerVisible', true, false);
         this.composerPlaceholder = this.getAttribute('composerPlaceholder', true, DefaultPlaceholder);
+        const isPostAudienceShown = this.getAttribute('isPostAudienceShown', false);
+        if (isPostAudienceShown != null) this.isPostAudienceShown = isPostAudienceShown;
         const avatar = this.getAttribute('avatar', true);
         if (avatar) this.avatar = avatar;
         this._allowDelete = this.getAttribute('allowDelete', true, false);
