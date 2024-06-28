@@ -497,7 +497,7 @@ declare module "@scom/scom-feed" {
     import { IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
     type asyncCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
-    type submitCallbackType = (content: string, medias: IPostData[]) => void;
+    type submitCallbackType = (content: string, medias: IPostData[], audience?: string) => void;
     type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
     type deleteCallbackType = (post: any) => Promise<void>;
     interface ScomFeedElement extends ControlElement {

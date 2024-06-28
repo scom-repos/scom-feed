@@ -911,8 +911,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             else {
                 postDataArr = [...medias];
             }
+            let audience;
+            if (this.isPostAudienceShown) {
+                audience = this.mdCreatePost.visible ? this.inputCreatePost.postAudience : this.inputReply.postAudience;
+            }
             if (this.onPostButtonClicked)
-                this.onPostButtonClicked(content, postDataArr);
+                this.onPostButtonClicked(content, postDataArr, audience);
             this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {

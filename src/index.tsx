@@ -29,7 +29,7 @@ import {ScomPostComposer} from '@scom/scom-post-composer';
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost, event?: MouseEvent) => void
 type asyncCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
-type submitCallbackType = (content: string, medias: IPostData[]) => void
+type submitCallbackType = (content: string, medias: IPostData[], audience?: string) => void
 type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>
 type deleteCallbackType = (post: any) => Promise<void>
 
@@ -519,7 +519,11 @@ export default class ScomFeed extends Module {
         } else {
             postDataArr = [...medias];
         }
-        if (this.onPostButtonClicked) this.onPostButtonClicked(content, postDataArr);
+        let audience: string;
+        if (this.isPostAudienceShown) {
+            audience = this.mdCreatePost.visible ? this.inputCreatePost.postAudience : this.inputReply.postAudience;
+        }
+        if (this.onPostButtonClicked) this.onPostButtonClicked(content, postDataArr, audience);
         this.mdCreatePost.visible = false;
     }
 
