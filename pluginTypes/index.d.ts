@@ -497,7 +497,7 @@ declare module "@scom/scom-feed" {
     import { IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
     type asyncCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>;
-    type submitCallbackType = (content: string, medias: IPostData[]) => void;
+    type submitCallbackType = (content: string, medias: IPostData[], audience?: string) => void;
     type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
     type deleteCallbackType = (post: any) => Promise<void>;
     interface ScomFeedElement extends ControlElement {
@@ -521,6 +521,7 @@ declare module "@scom/scom-feed" {
         onPinButtonClicked?: pinCallbackType;
         onBookmarkButtonClicked?: callbackType;
         isPostAudienceShown?: boolean;
+        isPublicPostLabelShown?: boolean;
     }
     global {
         namespace JSX {
@@ -560,6 +561,7 @@ declare module "@scom/scom-feed" {
         private btnPinAction;
         private selectedPost;
         private _apiBaseUrl;
+        private _isPublicPostLabelShown;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: asyncCallbackType;
@@ -599,6 +601,8 @@ declare module "@scom/scom-feed" {
         set apiBaseUrl(value: string);
         get isPostAudienceShown(): boolean;
         set isPostAudienceShown(value: boolean);
+        get isPublicPostLabelShown(): boolean;
+        set isPublicPostLabelShown(value: boolean);
         controlInputDisplay(): void;
         connectedCallback(): void;
         clear(): void;

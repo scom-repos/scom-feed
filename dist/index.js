@@ -582,6 +582,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._pinNoteToTop = false;
             this._pinnedNotes = [];
             this.pinnedNoteIds = [];
+            this._isPublicPostLabelShown = false;
             this.tag = {
                 light: {},
                 dark: {}
@@ -686,6 +687,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set isPostAudienceShown(value) {
             this.inputReply.isPostAudienceShown = value;
             this.inputCreatePost.isPostAudienceShown = value;
+        }
+        get isPublicPostLabelShown() {
+            return this._isPublicPostLabelShown;
+        }
+        set isPublicPostLabelShown(value) {
+            this._isPublicPostLabelShown = value;
         }
         controlInputDisplay() {
             this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
@@ -911,12 +918,16 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             else {
                 postDataArr = [...medias];
             }
+            let audience;
+            if (this.isPostAudienceShown) {
+                audience = this.mdCreatePost.visible ? this.inputCreatePost.postAudience : this.inputReply.postAudience;
+            }
             if (this.onPostButtonClicked)
-                this.onPostButtonClicked(content, postDataArr);
+                this.onPostButtonClicked(content, postDataArr, audience);
             this.mdCreatePost.visible = false;
         }
         constructPostElement(post) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl }));
+            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl, isPublicPostLabelShown: this.isPublicPostLabelShown && post.isPublicPost }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.showActionModal(postEl, target, data, contentElement);
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
@@ -1211,6 +1222,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
                 this.apiBaseUrl = apiBaseUrl;
+            const isPublicPostLabelShown = this.getAttribute('isPublicPostLabelShown', true);
+            if (isPublicPostLabelShown != null)
+                this.isPublicPostLabelShown = isPublicPostLabelShown;
             const pinNoteToTop = this.getAttribute('pinNoteToTop', true);
             if (pinNoteToTop != null)
                 this.pinNoteToTop = pinNoteToTop;

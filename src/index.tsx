@@ -29,7 +29,7 @@ import {ScomPostComposer} from '@scom/scom-post-composer';
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost, event?: MouseEvent) => void
 type asyncCallbackType = (target: ScomPost, event?: MouseEvent) => Promise<boolean>
-type submitCallbackType = (content: string, medias: IPostData[]) => void
+type submitCallbackType = (content: string, medias: IPostData[], audience?: string) => void
 type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>
 type deleteCallbackType = (post: any) => Promise<void>
 
@@ -54,6 +54,7 @@ interface ScomFeedElement extends ControlElement {
     onPinButtonClicked?: pinCallbackType;
     onBookmarkButtonClicked?: callbackType;
     isPostAudienceShown?: boolean;
+    isPublicPostLabelShown?: boolean;
 }
 
 declare global {
@@ -110,6 +111,7 @@ export default class ScomFeed extends Module {
     private btnPinAction: Button;
     private selectedPost: ScomPost;
     private _apiBaseUrl: string;
+    private _isPublicPostLabelShown: boolean = false;
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
@@ -250,6 +252,14 @@ export default class ScomFeed extends Module {
     set isPostAudienceShown(value: boolean) {
         this.inputReply.isPostAudienceShown = value;
         this.inputCreatePost.isPostAudienceShown = value;
+    }
+
+    get isPublicPostLabelShown() {
+        return this._isPublicPostLabelShown;
+    }
+
+    set isPublicPostLabelShown(value: boolean) {
+        this._isPublicPostLabelShown = value;
     }
 
     controlInputDisplay() {
@@ -519,7 +529,11 @@ export default class ScomFeed extends Module {
         } else {
             postDataArr = [...medias];
         }
-        if (this.onPostButtonClicked) this.onPostButtonClicked(content, postDataArr);
+        let audience: string;
+        if (this.isPostAudienceShown) {
+            audience = this.mdCreatePost.visible ? this.inputCreatePost.postAudience : this.inputReply.postAudience;
+        }
+        if (this.onPostButtonClicked) this.onPostButtonClicked(content, postDataArr, audience);
         this.mdCreatePost.visible = false;
     }
 
@@ -534,6 +548,7 @@ export default class ScomFeed extends Module {
                 overflowEllipse={true}
                 isPinned={post.isPinned || false}
                 apiBaseUrl={this.apiBaseUrl}
+                isPublicPostLabelShown={this.isPublicPostLabelShown && post.isPublicPost}
             ></i-scom-post>
         ) as ScomPost;
         postEl.onProfileClicked = (target: Control, data: IPost, event: Event, contentElement?: Control) => this.showActionModal(postEl, target, data, contentElement);
@@ -832,6 +847,8 @@ export default class ScomFeed extends Module {
         this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
         const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
         if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;
+        const isPublicPostLabelShown = this.getAttribute('isPublicPostLabelShown', true);
+        if (isPublicPostLabelShown != null) this.isPublicPostLabelShown = isPublicPostLabelShown;
         const pinNoteToTop = this.getAttribute('pinNoteToTop', true);
         if (pinNoteToTop != null) this.pinNoteToTop = pinNoteToTop;
         const data = this.getAttribute('data', true);
