@@ -872,9 +872,7 @@ export default class ScomFeed extends Module {
             this.inputCreatePost.setFocus();
         });
         if(this.env === 'prod') {
-            this.inputReply.disableMarkdownEditor();
             this.inputReply.isAttachmentDisabled = true;
-            this.inputCreatePost.disableMarkdownEditor();
             this.inputCreatePost.isAttachmentDisabled = true;
         }
     }
