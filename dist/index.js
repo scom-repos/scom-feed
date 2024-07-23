@@ -583,6 +583,22 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._pinnedNotes = [];
             this.pinnedNoteIds = [];
             this._isPublicPostLabelShown = false;
+            this.postElementMap = new WeakMap();
+            this.observerOptions = {
+                root: null,
+                rootMargin: "0px"
+            };
+            this.observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const postElement = entry.target;
+                        const post = this.postElementMap.get(postElement);
+                        postElement.setData({ data: post, type: 'card' });
+                        this.postElementMap.delete(postElement);
+                        observer.unobserve(postElement);
+                    }
+                });
+            }, this.observerOptions);
             this.tag = {
                 light: {},
                 dark: {}
@@ -926,8 +942,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.onPostButtonClicked(content, postDataArr, audience);
             this.mdCreatePost.visible = false;
         }
-        constructPostElement(post) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "card", onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl, isPublicPostLabelShown: this.isPublicPostLabelShown && post.isPublicPost }));
+        constructPostElement(post, lazyLoad = true) {
+            const postEl = (this.$render("i-scom-post", { data: post, type: "card", lazyLoad: lazyLoad, onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl, isPublicPostLabelShown: this.isPublicPostLabelShown && post.isPublicPost }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.showActionModal(postEl, target, data, contentElement);
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
@@ -989,6 +1005,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     continue;
                 this._data.posts.push(post);
                 const postEl = this.constructPostElement(post);
+                this.postElementMap.set(postEl, post);
+                this.observer.observe(postEl);
                 postEls.push(postEl);
             }
             if (isPrepend) {
@@ -1011,6 +1029,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         addPostToPanel(post, isPrepend) {
             const postEl = this.constructPostElement(post);
+            this.postElementMap.set(postEl, post);
+            this.observer.observe(postEl);
             if (isPrepend) {
                 if (this.pinNoteToTop && this.pinnedNoteIds.length) {
                     this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(postEl);

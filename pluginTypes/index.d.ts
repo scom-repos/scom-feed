@@ -563,6 +563,9 @@ declare module "@scom/scom-feed" {
         private selectedPost;
         private _apiBaseUrl;
         private _isPublicPostLabelShown;
+        private postElementMap;
+        private observerOptions;
+        private observer;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: asyncCallbackType;
@@ -617,7 +620,7 @@ declare module "@scom/scom-feed" {
         private renderActions;
         private onViewPost;
         private onReplySubmit;
-        constructPostElement(post: IPostExtended): ScomPost;
+        constructPostElement(post: IPostExtended, lazyLoad?: boolean): ScomPost;
         private sortPosts;
         removePost(post: IPostExtended): void;
         addPost(post: IPostExtended, isPrepend?: boolean): void;
