@@ -520,6 +520,7 @@ declare module "@scom/scom-feed" {
         onDeleteButtonClicked?: deleteCallbackType;
         onPinButtonClicked?: pinCallbackType;
         onBookmarkButtonClicked?: callbackType;
+        onCommunityButtonClicked?: callbackType;
         isPostAudienceShown?: boolean;
         isPublicPostLabelShown?: boolean;
     }
@@ -570,6 +571,7 @@ declare module "@scom/scom-feed" {
         onDeleteButtonClicked: deleteCallbackType;
         onPinButtonClicked: pinCallbackType;
         onBookmarkButtonClicked: callbackType;
+        onCommunityButtonClicked: callbackType;
         tag: {
             light: {};
             dark: {};
