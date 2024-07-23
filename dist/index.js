@@ -934,6 +934,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             postEl.onRepostClicked = (target, data, event) => this.onRepostButtonClicked(postEl, event);
             postEl.onZapClicked = (target, data, event) => this.onZapButtonClicked(postEl, event);
             postEl.onBookmarkClicked = (target, data, event) => this.onBookmarkButtonClicked(postEl, event);
+            postEl.onCommunityClicked = (target, data, event) => this.onCommunityButtonClicked(postEl, event);
             return postEl;
         }
         sortPosts(posts) {
@@ -1219,6 +1220,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
             this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
             this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
+            this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
                 this.apiBaseUrl = apiBaseUrl;

@@ -53,6 +53,7 @@ interface ScomFeedElement extends ControlElement {
     onDeleteButtonClicked?: deleteCallbackType;
     onPinButtonClicked?: pinCallbackType;
     onBookmarkButtonClicked?: callbackType;
+    onCommunityButtonClicked?: callbackType;
     isPostAudienceShown?: boolean;
     isPublicPostLabelShown?: boolean;
 }
@@ -121,6 +122,7 @@ export default class ScomFeed extends Module {
     onDeleteButtonClicked: deleteCallbackType
     onPinButtonClicked: pinCallbackType;
     onBookmarkButtonClicked: callbackType;
+    onCommunityButtonClicked: callbackType;
 
     tag = {
         light: {},
@@ -557,6 +559,7 @@ export default class ScomFeed extends Module {
         postEl.onRepostClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onRepostButtonClicked(postEl, event);
         postEl.onZapClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onZapButtonClicked(postEl, event);
         postEl.onBookmarkClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onBookmarkButtonClicked(postEl, event);
+        postEl.onCommunityClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onCommunityButtonClicked(postEl, event);
         return postEl;
     }
 
@@ -845,6 +848,7 @@ export default class ScomFeed extends Module {
         this.onZapButtonClicked = this.getAttribute('onZapButtonClicked', true) || this.onZapButtonClicked;
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
+        this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
         const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
         if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;
         const isPublicPostLabelShown = this.getAttribute('isPublicPostLabelShown', true);
