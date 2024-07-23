@@ -113,6 +113,22 @@ export default class ScomFeed extends Module {
     private selectedPost: ScomPost;
     private _apiBaseUrl: string;
     private _isPublicPostLabelShown: boolean = false;
+    private postElementMap: WeakMap<ScomPost, IPostExtended> = new WeakMap();
+    private observerOptions = {
+        root: null,
+        rootMargin: "0px"
+    };
+    private observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const postElement = entry.target as ScomPost;
+                const post = this.postElementMap.get(postElement);
+                postElement.setData({data: post, type: 'card'});
+                this.postElementMap.delete(postElement);
+                observer.unobserve(postElement);
+            }
+        });
+    }, this.observerOptions);
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
@@ -539,11 +555,12 @@ export default class ScomFeed extends Module {
         this.mdCreatePost.visible = false;
     }
 
-    constructPostElement(post: IPostExtended) {
+    constructPostElement(post: IPostExtended, lazyLoad: boolean = true) {
         const postEl = (
             <i-scom-post
                 data={post}
                 type="card"
+                lazyLoad={lazyLoad}
                 onClick={this.onViewPost}
                 onQuotedPostClicked={this.onViewPost}
                 limitHeight={true}
@@ -612,6 +629,8 @@ export default class ScomFeed extends Module {
             if (this._data.posts.find(p => p.id === post.id)) continue;
             this._data.posts.push(post);
             const postEl = this.constructPostElement(post);
+            this.postElementMap.set(postEl, post);
+            this.observer.observe(postEl);
             postEls.push(postEl);
         }
         if (isPrepend) {
@@ -633,6 +652,8 @@ export default class ScomFeed extends Module {
 
     private addPostToPanel(post: IPostExtended, isPrepend?: boolean) {
         const postEl = this.constructPostElement(post);
+        this.postElementMap.set(postEl, post);
+        this.observer.observe(postEl);
         if (isPrepend) {
             if (this.pinNoteToTop && this.pinnedNoteIds.length) {
                 this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(postEl);
