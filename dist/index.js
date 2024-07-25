@@ -710,6 +710,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set isPublicPostLabelShown(value) {
             this._isPublicPostLabelShown = value;
         }
+        get hasQuota() {
+            return this.inputReply.hasQuota;
+        }
+        set hasQuota(value) {
+            this.inputReply.hasQuota = value;
+            this.inputCreatePost.hasQuota = value;
+        }
         controlInputDisplay() {
             this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
         }
