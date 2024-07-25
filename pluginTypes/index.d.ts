@@ -608,6 +608,8 @@ declare module "@scom/scom-feed" {
         set isPostAudienceShown(value: boolean);
         get isPublicPostLabelShown(): boolean;
         set isPublicPostLabelShown(value: boolean);
+        get hasQuota(): boolean;
+        set hasQuota(value: boolean);
         controlInputDisplay(): void;
         connectedCallback(): void;
         clear(): void;
