@@ -599,6 +599,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     }
                 });
             }, this.observerOptions);
+            this.postContextMenuActions = [];
             this.tag = {
                 light: {},
                 dark: {}
@@ -876,6 +877,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         this.mdActions.visible = false;
                         this.mdDeleteConfirm.showModal();
                     }
+                });
+            }
+            for (let action of this.postContextMenuActions) {
+                actions.push({
+                    caption: action.caption,
+                    icon: action.icon,
+                    onClick: async (target, event) => {
+                        this.mdActions.visible = false;
+                        if (action.onClick)
+                            action.onClick(this.currentPost, event);
+                    },
+                    tooltip: action.tooltip,
                 });
             }
             this.btnPinAction = null;
@@ -1248,6 +1261,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
             this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
             this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
+            this.postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this.postContextMenuActions;
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
                 this.apiBaseUrl = apiBaseUrl;
