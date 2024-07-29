@@ -508,7 +508,7 @@ declare module "@scom/scom-feed" {
             fill?: string;
         };
         tooltip?: string;
-        onClick?: (post: IPostExtended, event?: MouseEvent) => Promise<void>;
+        onClick?: (target: ScomPost, post: IPostExtended, event?: MouseEvent) => Promise<void>;
     }
     interface IPostFilter {
         property: string;

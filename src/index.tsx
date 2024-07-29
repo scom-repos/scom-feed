@@ -38,7 +38,7 @@ interface IPostContextMenuAction {
     caption: string;
     icon?: {name: string, fill?: string;};
     tooltip?: string;
-    onClick?: (post: IPostExtended, event?: MouseEvent) => Promise<void>;
+    onClick?: (target: ScomPost, post: IPostExtended, event?: MouseEvent) => Promise<void>;
 }
 
 interface IPostFilter {
@@ -535,7 +535,7 @@ export default class ScomFeed extends Module {
                     icon: action.icon,
                     onClick: async (target: Button, event: MouseEvent) => {
                         this.mdActions.visible = false;
-                        if (action.onClick) action.onClick(this.currentPost, event);
+                        if (action.onClick) action.onClick(this.selectedPost, this.currentPost, event);
                     },
                     tooltip: action.tooltip,
                 }
