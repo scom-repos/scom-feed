@@ -16,14 +16,15 @@ import {
     application,
     IconName,
     StackLayout,
-    Alert
-
+    Alert,
+    IComboItem,
+    ComboBox
 } from '@ijstech/components';
 import dataConfig from './data.json';
 import {IFeed, getBuilderSchema, getEmbedderSchema, IPostExtended} from './global/index';
 import {setDataFromJson} from './store/index';
 import {IPost, IPostData, ScomPost} from '@scom/scom-post';
-import {getActionButtonStyle, getHoverStyleClass} from './index.css';
+import {comboboxStyle, getActionButtonStyle, getHoverStyleClass} from './index.css';
 import {ScomPostComposer} from '@scom/scom-post-composer';
 
 const Theme = Styles.Theme.ThemeVars;
@@ -38,6 +39,14 @@ interface IPostContextMenuAction {
     icon?: {name: string, fill?: string;};
     tooltip?: string;
     onClick?: (post: IPostExtended, event?: MouseEvent) => Promise<void>;
+}
+
+interface IPostFilter {
+    property: string;
+    caption?: string;
+    placeholder?: string;
+    items: IComboItem[];
+    isMulti?: boolean;
 }
 
 interface ScomFeedElement extends ControlElement {
@@ -64,6 +73,7 @@ interface ScomFeedElement extends ControlElement {
     isPostAudienceShown?: boolean;
     isPublicPostLabelShown?: boolean;
     postContextMenuActions?: IPostContextMenuAction[];
+    filters?: IPostFilter[];
 }
 
 declare global {
@@ -90,9 +100,8 @@ export default class ScomFeed extends Module {
     private pnlInput: Panel;
     private inputReply: ScomPostComposer;
     private pnlPosts: StackLayout;
-    private mdFilter: Modal;
-    private lbFilter: Label;
-    private pnlFilter: Panel;
+    private pnlFilter: StackLayout;
+    private pnlCustomFilters: StackLayout;
     private btnMore: Button;
     private mdActions: Modal;
     private pnlActions: Panel;
@@ -121,6 +130,7 @@ export default class ScomFeed extends Module {
     private selectedPost: ScomPost;
     private _apiBaseUrl: string;
     private _isPublicPostLabelShown: boolean = false;
+    private _filters: IPostFilter[];
     private postElementMap: WeakMap<ScomPost, IPostExtended> = new WeakMap();
     private observerOptions = {
         root: null,
@@ -181,7 +191,6 @@ export default class ScomFeed extends Module {
 
     set isListView(value: boolean) {
         this._isListView = value ?? false;
-        this.pnlFilter.visible = false && !this.isListView;
         this.btnMore.visible = false; // !this.isListView;
         this.controlInputDisplay();
     }
@@ -298,6 +307,15 @@ export default class ScomFeed extends Module {
         this.inputCreatePost.hasQuota = value;
     }
 
+    get filters() {
+        return this._filters;
+    }
+
+    set filters(value: IPostFilter[]) {
+        this._filters = value;
+        this.renderFilters(value || []);
+    }
+
     controlInputDisplay() {
         this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
     }
@@ -350,6 +368,46 @@ export default class ScomFeed extends Module {
         // tempTextarea.select();
         // document.execCommand('copy');
         // document.body.removeChild(tempTextarea);
+    }
+    
+    private getFieldValue(post: IPostExtended, paths: string[]) {
+        if (paths.length > 1) {
+            return this.getFieldValue(post[paths[0]], paths.slice(1));
+        } else {
+            return post[paths[0]];
+        }
+    }
+    
+    private onFilterChanged(target: ComboBox, property: string) {
+        const selectedItems: IComboItem[] = target.isMulti ? target.selectedItem as IComboItem[] : [target.selectedItem as IComboItem];
+        const paths = property.split('/');
+        const values = selectedItems.map(item => item.value);
+        const filteredPosts = values.length > 0 ? this._data.posts.filter(post => values.includes(this.getFieldValue(post, paths))) : this._data.posts;
+        this.renderPosts(filteredPosts);
+    }
+
+    private renderFilters(filters: IPostFilter[]) {
+        this.pnlFilter.visible = filters?.length > 0;
+        this.pnlCustomFilters.clearInnerHTML();
+        for (let filter of filters) {
+            this.pnlCustomFilters.appendChild(
+                <i-stack direction="horizontal" alignItems="center" gap="0.5rem">
+                    <i-label caption={filter.caption || ""} font={{ color: Theme.text.secondary }} visible={!!filter.caption}></i-label>
+                    <i-combo-box
+                        height={36}
+                        minWidth={190}
+                        class={comboboxStyle}
+                        placeholder={filter.placeholder || ""}
+                        mode={filter.isMulti ? "tags" : "single"}
+                        border={{ width: 1, style: 'solid', color: Theme.divider, radius: "0.375rem" }}
+                        background={{ color: 'transparent' }}
+                        font={{ color: Theme.text.primary }}
+                        items={filter.items}
+                        onChanged={(target: ComboBox) => this.onFilterChanged(target, filter.property)}
+                    ></i-combo-box>
+                </i-stack>
+            );
+        }
     }
 
     private renderActions() {
@@ -703,20 +761,7 @@ export default class ScomFeed extends Module {
         }
     }
 
-    private onShowFilter() {
-        this.mdFilter.visible = true;
-    }
-
     private onFilter(target: Button) {
-        this.mdFilter.visible = false;
-        this.lbFilter.caption = target.caption || 'Latest';
-        const buttons = this.mdFilter.querySelectorAll('i-button');
-        for (let btn of buttons) {
-            (btn as Button).font = {color: Theme.text.secondary};
-            (btn as Button).rightIcon.visible = false;
-        }
-        target.rightIcon.visible = true;
-        target.font = {color: Theme.text.primary};
     }
 
     private onCloseModal(name: string) {
@@ -908,6 +953,8 @@ export default class ScomFeed extends Module {
         if (isPublicPostLabelShown != null) this.isPublicPostLabelShown = isPublicPostLabelShown;
         const pinNoteToTop = this.getAttribute('pinNoteToTop', true);
         if (pinNoteToTop != null) this.pinNoteToTop = pinNoteToTop;
+        const filters = this.getAttribute('filters', true);
+        if (filters) this.filters = filters;
         const data = this.getAttribute('data', true);
         if (data) this.setData(data);
         const isListView = this.getAttribute('isListView', true, false);
@@ -974,75 +1021,10 @@ export default class ScomFeed extends Module {
                         onSubmit={this.onReplySubmit}
                    />
                 </i-panel>
-                <i-panel id="pnlFilter" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem'}} visible={false}>
-                    <i-stack
-                        width={'100%'}
-                        direction="horizontal"
-                        justifyContent="end"
-                        gap={'0.5rem'}
-                        cursor="pointer"
-                        opacity={0.5}
-                        hover={{
-                            opacity: 1
-                        }}
-                        onClick={this.onShowFilter}
-                    >
-                        <i-label id="lbFilter" caption='Latest' font={{color: Theme.text.primary}}></i-label>
-                        <i-icon
-                            width={'1rem'} height={'1rem'}
-                            display="inline-flex"
-                            fill={Theme.text.primary}
-                            name="stream"
-                        ></i-icon>
-                    </i-stack>
-                    <i-modal
-                        id="mdFilter"
-                        popupPlacement='bottomRight'
-                        showBackdrop={false}
-                        visible={false}
-                        minWidth={200}
-                        maxWidth={200}
-                        border={{radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider}}
-                        padding={{top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem'}}
-                    >
-                        <i-stack direction="vertical">
-                            <i-button
-                                caption='Latest'
-                                padding={{top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem'}}
-                                grid={{horizontalAlignment: 'end'}}
-                                background={{color: 'transparent'}}
-                                font={{color: Theme.text.secondary}}
-                                boxShadow='none'
-                                rightIcon={{
-                                    name: 'check',
-                                    fill: Theme.text.primary,
-                                    width: '0.875rem',
-                                    height: '0.875rem',
-                                    visible: false
-                                }}
-                                class={getHoverStyleClass()}
-                                onClick={this.onFilter}
-                            ></i-button>
-                            <i-button
-                                caption='Latest with Replies'
-                                padding={{top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem'}}
-                                grid={{horizontalAlignment: 'end'}}
-                                background={{color: 'transparent'}}
-                                rightIcon={{
-                                    name: 'check',
-                                    fill: Theme.text.primary,
-                                    width: '0.875rem',
-                                    height: '0.875rem',
-                                    visible: false
-                                }}
-                                font={{color: Theme.text.secondary}}
-                                boxShadow='none'
-                                class={getHoverStyleClass()}
-                                onClick={this.onFilter}
-                            ></i-button>
-                        </i-stack>
-                    </i-modal>
-                </i-panel>
+                <i-stack id="pnlFilter" direction="horizontal" alignItems="center" minHeight={'2rem'} padding={{left: '1.25rem', right: '1.25rem', top: '0.5rem', bottom: '0.5rem'}} visible={false}>
+                    <i-icon width="1rem" height="1rem" name="filter" fill={Theme.text.secondary} margin={{ right: '0.75rem' }}></i-icon>
+                    <i-stack id="pnlCustomFilters" direction="horizontal" gap="0.75rem"></i-stack>
+                </i-stack>
                 <i-button
                     id="btnMore"
                     width={'100%'}
