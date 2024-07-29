@@ -489,10 +489,11 @@ declare module "@scom/scom-feed/store/index.ts" {
 declare module "@scom/scom-feed/index.css.ts" {
     export const getHoverStyleClass: (color?: string) => string;
     export const getActionButtonStyle: (hoveredColor: string) => string;
+    export const comboboxStyle: string;
 }
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
-    import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema } from '@ijstech/components';
+    import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema, IComboItem } from '@ijstech/components';
     import { IFeed, IPostExtended } from "@scom/scom-feed/global/index.ts";
     import { IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
@@ -508,6 +509,13 @@ declare module "@scom/scom-feed" {
         };
         tooltip?: string;
         onClick?: (post: IPostExtended, event?: MouseEvent) => Promise<void>;
+    }
+    interface IPostFilter {
+        property: string;
+        caption?: string;
+        placeholder?: string;
+        items: IComboItem[];
+        isMulti?: boolean;
     }
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
@@ -533,6 +541,7 @@ declare module "@scom/scom-feed" {
         isPostAudienceShown?: boolean;
         isPublicPostLabelShown?: boolean;
         postContextMenuActions?: IPostContextMenuAction[];
+        filters?: IPostFilter[];
     }
     global {
         namespace JSX {
@@ -545,9 +554,8 @@ declare module "@scom/scom-feed" {
         private pnlInput;
         private inputReply;
         private pnlPosts;
-        private mdFilter;
-        private lbFilter;
         private pnlFilter;
+        private pnlCustomFilters;
         private btnMore;
         private mdActions;
         private pnlActions;
@@ -573,6 +581,7 @@ declare module "@scom/scom-feed" {
         private selectedPost;
         private _apiBaseUrl;
         private _isPublicPostLabelShown;
+        private _filters;
         private postElementMap;
         private observerOptions;
         private observer;
@@ -621,6 +630,8 @@ declare module "@scom/scom-feed" {
         set isPublicPostLabelShown(value: boolean);
         get hasQuota(): boolean;
         set hasQuota(value: boolean);
+        get filters(): IPostFilter[];
+        set filters(value: IPostFilter[]);
         controlInputDisplay(): void;
         connectedCallback(): void;
         clear(): void;
@@ -630,6 +641,9 @@ declare module "@scom/scom-feed" {
         private getData;
         private renderUI;
         private onCopyNoteText;
+        private getFieldValue;
+        private onFilterChanged;
+        private renderFilters;
         private renderActions;
         private onViewPost;
         private onReplySubmit;
@@ -641,7 +655,6 @@ declare module "@scom/scom-feed" {
         setPosts(posts: IPostExtended[]): void;
         private addPostToPanel;
         private renderPosts;
-        private onShowFilter;
         private onFilter;
         private onCloseModal;
         private onShowModal;

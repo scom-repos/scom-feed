@@ -521,7 +521,7 @@ define("@scom/scom-feed/store/index.ts", ["require", "exports"], function (requi
 define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getActionButtonStyle = exports.getHoverStyleClass = void 0;
+    exports.comboboxStyle = exports.getActionButtonStyle = exports.getHoverStyleClass = void 0;
     const Theme = components_1.Styles.Theme.ThemeVars;
     const getHoverStyleClass = (color) => {
         const styleObj = {
@@ -550,6 +550,13 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
         }
     });
     exports.getActionButtonStyle = getActionButtonStyle;
+    exports.comboboxStyle = components_1.Styles.style({
+        $nest: {
+            '.selection .selection-item': {
+                color: Theme.combobox.fontColor
+            },
+        }
+    });
     components_1.Styles.cssRule('#mdCreatePost', {
         $nest: {
             '.modal': {
@@ -625,7 +632,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         set isListView(value) {
             this._isListView = value ?? false;
-            this.pnlFilter.visible = false && !this.isListView;
             this.btnMore.visible = false; // !this.isListView;
             this.controlInputDisplay();
         }
@@ -718,6 +724,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.inputReply.hasQuota = value;
             this.inputCreatePost.hasQuota = value;
         }
+        get filters() {
+            return this._filters;
+        }
+        set filters(value) {
+            this._filters = value;
+            this.renderFilters(value || []);
+        }
         controlInputDisplay() {
             this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
         }
@@ -763,6 +776,30 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             // tempTextarea.select();
             // document.execCommand('copy');
             // document.body.removeChild(tempTextarea);
+        }
+        getFieldValue(post, paths) {
+            if (paths.length > 1) {
+                return this.getFieldValue(post[paths[0]], paths.slice(1));
+            }
+            else {
+                return post[paths[0]];
+            }
+        }
+        onFilterChanged(target, property) {
+            const selectedItems = target.isMulti ? target.selectedItem : [target.selectedItem];
+            const paths = property.split('/');
+            const values = selectedItems.map(item => item.value);
+            const filteredPosts = values.length > 0 ? this._data.posts.filter(post => values.includes(this.getFieldValue(post, paths))) : this._data.posts;
+            this.renderPosts(filteredPosts);
+        }
+        renderFilters(filters) {
+            this.pnlFilter.visible = filters?.length > 0;
+            this.pnlCustomFilters.clearInnerHTML();
+            for (let filter of filters) {
+                this.pnlCustomFilters.appendChild(this.$render("i-stack", { direction: "horizontal", alignItems: "center", gap: "0.5rem" },
+                    this.$render("i-label", { caption: filter.caption || "", font: { color: Theme.text.secondary }, visible: !!filter.caption }),
+                    this.$render("i-combo-box", { height: 36, minWidth: 190, class: index_css_1.comboboxStyle, placeholder: filter.placeholder || "", mode: filter.isMulti ? "tags" : "single", border: { width: 1, style: 'solid', color: Theme.divider, radius: "0.375rem" }, background: { color: 'transparent' }, font: { color: Theme.text.primary }, items: filter.items, onChanged: (target) => this.onFilterChanged(target, filter.property) })));
+            }
         }
         renderActions() {
             const actions = [
@@ -1070,19 +1107,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.addPostToPanel(post);
             }
         }
-        onShowFilter() {
-            this.mdFilter.visible = true;
-        }
         onFilter(target) {
-            this.mdFilter.visible = false;
-            this.lbFilter.caption = target.caption || 'Latest';
-            const buttons = this.mdFilter.querySelectorAll('i-button');
-            for (let btn of buttons) {
-                btn.font = { color: Theme.text.secondary };
-                btn.rightIcon.visible = false;
-            }
-            target.rightIcon.visible = true;
-            target.font = { color: Theme.text.primary };
         }
         onCloseModal(name) {
             if (this[name])
@@ -1271,6 +1296,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const pinNoteToTop = this.getAttribute('pinNoteToTop', true);
             if (pinNoteToTop != null)
                 this.pinNoteToTop = pinNoteToTop;
+            const filters = this.getAttribute('filters', true);
+            if (filters)
+                this.filters = filters;
             const data = this.getAttribute('data', true);
             if (data)
                 this.setData(data);
@@ -1322,28 +1350,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             return (this.$render("i-stack", { direction: "vertical", width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
                     this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', onSubmit: this.onReplySubmit })),
-                this.$render("i-panel", { id: "pnlFilter", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem' }, visible: false },
-                    this.$render("i-stack", { width: '100%', direction: "horizontal", justifyContent: "end", gap: '0.5rem', cursor: "pointer", opacity: 0.5, hover: {
-                            opacity: 1
-                        }, onClick: this.onShowFilter },
-                        this.$render("i-label", { id: "lbFilter", caption: 'Latest', font: { color: Theme.text.primary } }),
-                        this.$render("i-icon", { width: '1rem', height: '1rem', display: "inline-flex", fill: Theme.text.primary, name: "stream" })),
-                    this.$render("i-modal", { id: "mdFilter", popupPlacement: 'bottomRight', showBackdrop: false, visible: false, minWidth: 200, maxWidth: 200, border: { radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider }, padding: { top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem' } },
-                        this.$render("i-stack", { direction: "vertical" },
-                            this.$render("i-button", { caption: 'Latest', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, font: { color: Theme.text.secondary }, boxShadow: 'none', rightIcon: {
-                                    name: 'check',
-                                    fill: Theme.text.primary,
-                                    width: '0.875rem',
-                                    height: '0.875rem',
-                                    visible: false
-                                }, class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter }),
-                            this.$render("i-button", { caption: 'Latest with Replies', padding: { top: '0.75rem', bottom: '0.75rem', left: '1rem', right: '1rem' }, grid: { horizontalAlignment: 'end' }, background: { color: 'transparent' }, rightIcon: {
-                                    name: 'check',
-                                    fill: Theme.text.primary,
-                                    width: '0.875rem',
-                                    height: '0.875rem',
-                                    visible: false
-                                }, font: { color: Theme.text.secondary }, boxShadow: 'none', class: (0, index_css_1.getHoverStyleClass)(), onClick: this.onFilter })))),
+                this.$render("i-stack", { id: "pnlFilter", direction: "horizontal", alignItems: "center", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem', bottom: '0.5rem' }, visible: false },
+                    this.$render("i-icon", { width: "1rem", height: "1rem", name: "filter", fill: Theme.text.secondary, margin: { right: '0.75rem' } }),
+                    this.$render("i-stack", { id: "pnlCustomFilters", direction: "horizontal", gap: "0.75rem" })),
                 this.$render("i-button", { id: "btnMore", width: '100%', font: { size: '0.875rem', color: Theme.text.secondary }, background: { color: Theme.background.paper }, border: { radius: '0.5rem' }, height: '2.5rem', margin: { top: '0.25rem', bottom: '0.5rem' }, caption: '0 new note', boxShadow: Theme.shadows[1], visible: false, class: (0, index_css_1.getHoverStyleClass)() }),
                 this.$render("i-panel", null,
                     this.$render("i-stack", { id: "pnlLoading", direction: "vertical", padding: { top: '0.5rem', bottom: '0.5rem' }, visible: false, height: "100%", width: "100%", minHeight: 200, position: "absolute", top: 0, bottom: 0, zIndex: 999, background: { color: Theme.background.main }, class: "i-loading-overlay" },

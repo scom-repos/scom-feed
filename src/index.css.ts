@@ -28,6 +28,14 @@ export const getActionButtonStyle = (hoveredColor: string) => Styles.style({
   }
 })
 
+export const comboboxStyle = Styles.style({
+  $nest: {
+    '.selection .selection-item': {
+      color: Theme.combobox.fontColor
+    },
+  }
+});
+
 Styles.cssRule('#mdCreatePost', {
   $nest: {
     '.modal': {
