@@ -500,6 +500,15 @@ declare module "@scom/scom-feed" {
     type submitCallbackType = (content: string, medias: IPostData[], audience?: string) => void;
     type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
     type deleteCallbackType = (post: any) => Promise<void>;
+    interface IPostContextMenuAction {
+        caption: string;
+        icon?: {
+            name: string;
+            fill?: string;
+        };
+        tooltip?: string;
+        onClick?: (post: IPostExtended, event?: MouseEvent) => Promise<void>;
+    }
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
         isListView?: boolean;
@@ -523,6 +532,7 @@ declare module "@scom/scom-feed" {
         onCommunityButtonClicked?: callbackType;
         isPostAudienceShown?: boolean;
         isPublicPostLabelShown?: boolean;
+        postContextMenuActions?: IPostContextMenuAction[];
     }
     global {
         namespace JSX {
@@ -575,6 +585,7 @@ declare module "@scom/scom-feed" {
         onPinButtonClicked: pinCallbackType;
         onBookmarkButtonClicked: callbackType;
         onCommunityButtonClicked: callbackType;
+        postContextMenuActions: IPostContextMenuAction[];
         tag: {
             light: {};
             dark: {};

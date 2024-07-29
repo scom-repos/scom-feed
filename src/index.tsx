@@ -33,6 +33,13 @@ type submitCallbackType = (content: string, medias: IPostData[], audience?: stri
 type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>
 type deleteCallbackType = (post: any) => Promise<void>
 
+interface IPostContextMenuAction {
+    caption: string;
+    icon?: {name: string, fill?: string;};
+    tooltip?: string;
+    onClick?: (post: IPostExtended, event?: MouseEvent) => Promise<void>;
+}
+
 interface ScomFeedElement extends ControlElement {
     data?: IFeed;
     isListView?: boolean;
@@ -56,6 +63,7 @@ interface ScomFeedElement extends ControlElement {
     onCommunityButtonClicked?: callbackType;
     isPostAudienceShown?: boolean;
     isPublicPostLabelShown?: boolean;
+    postContextMenuActions?: IPostContextMenuAction[];
 }
 
 declare global {
@@ -139,6 +147,7 @@ export default class ScomFeed extends Module {
     onPinButtonClicked: pinCallbackType;
     onBookmarkButtonClicked: callbackType;
     onCommunityButtonClicked: callbackType;
+    postContextMenuActions: IPostContextMenuAction[] = [];
 
     tag = {
         light: {},
@@ -458,6 +467,19 @@ export default class ScomFeed extends Module {
                         this.mdActions.visible = false;
                         this.mdDeleteConfirm.showModal();
                     }
+                }
+            )
+        }
+        for (let action of this.postContextMenuActions) {
+            actions.push(
+                {
+                    caption: action.caption,
+                    icon: action.icon,
+                    onClick: async (target: Button, event: MouseEvent) => {
+                        this.mdActions.visible = false;
+                        if (action.onClick) action.onClick(this.currentPost, event);
+                    },
+                    tooltip: action.tooltip,
                 }
             )
         }
@@ -879,6 +901,7 @@ export default class ScomFeed extends Module {
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
         this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
+        this.postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this.postContextMenuActions;
         const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
         if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;
         const isPublicPostLabelShown = this.getAttribute('isPublicPostLabelShown', true);
