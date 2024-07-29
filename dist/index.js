@@ -923,7 +923,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     onClick: async (target, event) => {
                         this.mdActions.visible = false;
                         if (action.onClick)
-                            action.onClick(this.currentPost, event);
+                            action.onClick(this.selectedPost, this.currentPost, event);
                     },
                     tooltip: action.tooltip,
                 });
