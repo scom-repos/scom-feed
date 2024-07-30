@@ -47,6 +47,7 @@ interface IPostFilter {
     placeholder?: string;
     items: IComboItem[];
     isMulti?: boolean;
+    defaultItem?: IComboItem | IComboItem[];
 }
 
 interface ScomFeedElement extends ControlElement {
@@ -382,31 +383,42 @@ export default class ScomFeed extends Module {
         const selectedItems: IComboItem[] = target.isMulti ? target.selectedItem as IComboItem[] : [target.selectedItem as IComboItem];
         const paths = property.split('/');
         const values = selectedItems.map(item => item.value);
-        const filteredPosts = values.length > 0 ? this._data.posts.filter(post => values.includes(this.getFieldValue(post, paths))) : this._data.posts;
+        const filteredPosts = values.length > 0 ? this._data.posts.filter(post => {
+            const fieldValue = this.getFieldValue(post, paths);
+            return fieldValue == null || values.includes(fieldValue);
+        }) : this._data.posts;
         this.renderPosts(filteredPosts);
     }
 
     private renderFilters(filters: IPostFilter[]) {
         this.pnlFilter.visible = filters?.length > 0;
         this.pnlCustomFilters.clearInnerHTML();
+
         for (let filter of filters) {
+            const combobox = (
+                <i-combo-box
+                    minHeight={36}
+                    minWidth={190}
+                    class={comboboxStyle}
+                    placeholder={filter.placeholder || ""}
+                    mode={filter.isMulti ? "tags" : "single"}
+                    border={{ width: 1, style: 'solid', color: Theme.divider, radius: "0.375rem" }}
+                    background={{ color: 'transparent' }}
+                    font={{ color: Theme.text.primary }}
+                    items={filter.items}
+                    onChanged={(target: ComboBox) => this.onFilterChanged(target, filter.property)}
+                ></i-combo-box>
+            );
             this.pnlCustomFilters.appendChild(
                 <i-stack direction="horizontal" alignItems="center" gap="0.5rem">
                     <i-label caption={filter.caption || ""} font={{ color: Theme.text.secondary }} visible={!!filter.caption}></i-label>
-                    <i-combo-box
-                        height={36}
-                        minWidth={190}
-                        class={comboboxStyle}
-                        placeholder={filter.placeholder || ""}
-                        mode={filter.isMulti ? "tags" : "single"}
-                        border={{ width: 1, style: 'solid', color: Theme.divider, radius: "0.375rem" }}
-                        background={{ color: 'transparent' }}
-                        font={{ color: Theme.text.primary }}
-                        items={filter.items}
-                        onChanged={(target: ComboBox) => this.onFilterChanged(target, filter.property)}
-                    ></i-combo-box>
+                    {combobox}
                 </i-stack>
             );
+            if (filter.defaultItem) {
+                combobox.selectedItem = filter.defaultItem;
+                this.onFilterChanged(combobox, filter.property);
+            }
         }
     }
 

@@ -789,16 +789,24 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             const selectedItems = target.isMulti ? target.selectedItem : [target.selectedItem];
             const paths = property.split('/');
             const values = selectedItems.map(item => item.value);
-            const filteredPosts = values.length > 0 ? this._data.posts.filter(post => values.includes(this.getFieldValue(post, paths))) : this._data.posts;
+            const filteredPosts = values.length > 0 ? this._data.posts.filter(post => {
+                const fieldValue = this.getFieldValue(post, paths);
+                return fieldValue == null || values.includes(fieldValue);
+            }) : this._data.posts;
             this.renderPosts(filteredPosts);
         }
         renderFilters(filters) {
             this.pnlFilter.visible = filters?.length > 0;
             this.pnlCustomFilters.clearInnerHTML();
             for (let filter of filters) {
+                const combobox = (this.$render("i-combo-box", { minHeight: 36, minWidth: 190, class: index_css_1.comboboxStyle, placeholder: filter.placeholder || "", mode: filter.isMulti ? "tags" : "single", border: { width: 1, style: 'solid', color: Theme.divider, radius: "0.375rem" }, background: { color: 'transparent' }, font: { color: Theme.text.primary }, items: filter.items, onChanged: (target) => this.onFilterChanged(target, filter.property) }));
                 this.pnlCustomFilters.appendChild(this.$render("i-stack", { direction: "horizontal", alignItems: "center", gap: "0.5rem" },
                     this.$render("i-label", { caption: filter.caption || "", font: { color: Theme.text.secondary }, visible: !!filter.caption }),
-                    this.$render("i-combo-box", { height: 36, minWidth: 190, class: index_css_1.comboboxStyle, placeholder: filter.placeholder || "", mode: filter.isMulti ? "tags" : "single", border: { width: 1, style: 'solid', color: Theme.divider, radius: "0.375rem" }, background: { color: 'transparent' }, font: { color: Theme.text.primary }, items: filter.items, onChanged: (target) => this.onFilterChanged(target, filter.property) })));
+                    combobox));
+                if (filter.defaultItem) {
+                    combobox.selectedItem = filter.defaultItem;
+                    this.onFilterChanged(combobox, filter.property);
+                }
             }
         }
         renderActions() {
