@@ -516,6 +516,7 @@ declare module "@scom/scom-feed" {
         placeholder?: string;
         items: IComboItem[];
         isMulti?: boolean;
+        defaultItem?: IComboItem | IComboItem[];
     }
     interface ScomFeedElement extends ControlElement {
         data?: IFeed;
