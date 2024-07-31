@@ -606,6 +606,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     }
                 });
             }, this.observerOptions);
+            this.filterMap = {};
             this.postContextMenuActions = [];
             this.tag = {
                 light: {},
@@ -613,6 +614,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             };
             if (data_json_1.default)
                 (0, index_2.setDataFromJson)(data_json_1.default);
+            this._filterPost = this._filterPost.bind(this);
             this.onReplySubmit = this.onReplySubmit.bind(this);
             this.onViewPost = this.onViewPost.bind(this);
         }
@@ -731,6 +733,20 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this._filters = value;
             this.renderFilters(value || []);
         }
+        get filteredPosts() {
+            if (Object.keys(this.filterMap).length === 0)
+                return this.posts;
+            return this._data.posts.filter(this._filterPost);
+        }
+        _filterPost(post) {
+            for (const property in this.filterMap) {
+                const paths = property.split('/');
+                const values = this.filterMap[property];
+                const fieldValue = this.getFieldValue(post, paths);
+                return fieldValue == null || values.includes(fieldValue);
+            }
+            return true;
+        }
         controlInputDisplay() {
             this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
         }
@@ -744,6 +760,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.inputReply.clear();
             this.pnlPosts.clearInnerHTML();
             this.isRendering = false;
+            this.filterMap = {};
         }
         showLoading() {
             this.pnlLoading.visible = true;
@@ -785,10 +802,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 return post[paths[0]];
             }
         }
-        onFilterChanged(target, property) {
+        onFilterChanged(target, property, isUpdatePosts = true) {
             const selectedItems = target.isMulti ? target.selectedItem : [target.selectedItem];
             const paths = property.split('/');
             const values = selectedItems.map(item => item.value);
+            if (values.length > 0) {
+                this.filterMap[property] = values;
+            }
+            else {
+                delete this.filterMap[property];
+            }
+            if (!isUpdatePosts)
+                return;
             const filteredPosts = values.length > 0 ? this._data.posts.filter(post => {
                 const fieldValue = this.getFieldValue(post, paths);
                 return fieldValue == null || values.includes(fieldValue);
@@ -805,7 +830,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     combobox));
                 if (filter.defaultItem) {
                     combobox.selectedItem = filter.defaultItem;
-                    this.onFilterChanged(combobox, filter.property);
+                    this.onFilterChanged(combobox, filter.property, false);
                 }
             }
         }
@@ -1061,7 +1086,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (post.id && this._data.posts.find(p => p.id === post.id))
                 return;
             this._data.posts.push(post);
-            this.addPostToPanel(post, isPrepend);
+            const isVisible = this._filterPost(post);
+            if (isVisible)
+                this.addPostToPanel(post, isPrepend);
         }
         addPosts(posts, isPrepend) {
             let postEls = [];
@@ -1069,11 +1096,16 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 if (this._data.posts.find(p => p.id === post.id))
                     continue;
                 this._data.posts.push(post);
+                const isVisible = this._filterPost(post);
+                if (!isVisible)
+                    continue;
                 const postEl = this.constructPostElement(post);
                 this.postElementMap.set(postEl, post);
                 this.observer.observe(postEl);
                 postEls.push(postEl);
             }
+            if (!postEls.length)
+                return;
             if (isPrepend) {
                 if (this.pinNoteToTop && this.pinnedNoteIds.length) {
                     this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(...postEls);
@@ -1089,7 +1121,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (!this._data)
                 this._data = { posts: [] };
             this._data.posts = [...posts];
-            const sortedPosts = this.sortPosts([...posts]);
+            const sortedPosts = this.sortPosts(this.filteredPosts);
             this.renderPosts(sortedPosts);
         }
         addPostToPanel(post, isPrepend) {
@@ -1114,8 +1146,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     post.isPinned = false;
                 this.addPostToPanel(post);
             }
-        }
-        onFilter(target) {
         }
         onCloseModal(name) {
             if (this[name])
