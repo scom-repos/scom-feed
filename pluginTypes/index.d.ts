@@ -596,7 +596,7 @@ declare module "@scom/scom-feed" {
         onPinButtonClicked: pinCallbackType;
         onBookmarkButtonClicked: callbackType;
         onCommunityButtonClicked: callbackType;
-        postContextMenuActions: IPostContextMenuAction[];
+        private _postContextMenuActions;
         tag: {
             light: {};
             dark: {};
@@ -632,6 +632,8 @@ declare module "@scom/scom-feed" {
         set isPublicPostLabelShown(value: boolean);
         get hasQuota(): boolean;
         set hasQuota(value: boolean);
+        get postContextMenuActions(): IPostContextMenuAction[];
+        set postContextMenuActions(actions: IPostContextMenuAction[]);
         get filters(): IPostFilter[];
         set filters(value: IPostFilter[]);
         private get filteredPosts();

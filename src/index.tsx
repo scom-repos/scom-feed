@@ -159,7 +159,7 @@ export default class ScomFeed extends Module {
     onPinButtonClicked: pinCallbackType;
     onBookmarkButtonClicked: callbackType;
     onCommunityButtonClicked: callbackType;
-    postContextMenuActions: IPostContextMenuAction[] = [];
+    private _postContextMenuActions: IPostContextMenuAction[] = [];
 
     tag = {
         light: {},
@@ -308,6 +308,16 @@ export default class ScomFeed extends Module {
     set hasQuota(value: boolean) {
         this.inputReply.hasQuota = value;
         this.inputCreatePost.hasQuota = value;
+    }
+
+    get postContextMenuActions() {
+        return this._postContextMenuActions;
+    }
+
+    set postContextMenuActions(actions: IPostContextMenuAction[]) {
+        let isChanged = this._postContextMenuActions.length != actions?.length;
+        this._postContextMenuActions = actions || [];
+        if (isChanged) this.renderActions();;
     }
 
     get filters() {
@@ -983,7 +993,7 @@ export default class ScomFeed extends Module {
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
         this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
-        this.postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this.postContextMenuActions;
+        this._postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this._postContextMenuActions;
         const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
         if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;
         const isPublicPostLabelShown = this.getAttribute('isPublicPostLabelShown', true);

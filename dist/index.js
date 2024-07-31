@@ -607,7 +607,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 });
             }, this.observerOptions);
             this.filterMap = {};
-            this.postContextMenuActions = [];
+            this._postContextMenuActions = [];
             this.tag = {
                 light: {},
                 dark: {}
@@ -725,6 +725,16 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         set hasQuota(value) {
             this.inputReply.hasQuota = value;
             this.inputCreatePost.hasQuota = value;
+        }
+        get postContextMenuActions() {
+            return this._postContextMenuActions;
+        }
+        set postContextMenuActions(actions) {
+            let isChanged = this._postContextMenuActions.length != actions?.length;
+            this._postContextMenuActions = actions || [];
+            if (isChanged)
+                this.renderActions();
+            ;
         }
         get filters() {
             return this._filters;
@@ -1324,7 +1334,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
             this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
             this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
-            this.postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this.postContextMenuActions;
+            this._postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this._postContextMenuActions;
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
                 this.apiBaseUrl = apiBaseUrl;
