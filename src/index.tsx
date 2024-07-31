@@ -148,6 +148,7 @@ export default class ScomFeed extends Module {
             }
         });
     }, this.observerOptions);
+    private filterMap: Record<string, string[]> = {};
 
     onItemClicked: callbackType;
     onPostButtonClicked: submitCallbackType;
@@ -168,6 +169,7 @@ export default class ScomFeed extends Module {
     constructor(parent?: Container, options?: any) {
         super(parent, options);
         if (dataConfig) setDataFromJson(dataConfig);
+        this._filterPost = this._filterPost.bind(this);
         this.onReplySubmit = this.onReplySubmit.bind(this);
         this.onViewPost = this.onViewPost.bind(this);
     }
@@ -317,6 +319,21 @@ export default class ScomFeed extends Module {
         this.renderFilters(value || []);
     }
 
+    private get filteredPosts() {
+        if (Object.keys(this.filterMap).length === 0) return this.posts;
+        return this._data.posts.filter(this._filterPost);
+    }
+
+    private _filterPost(post: IPostExtended) {
+        for (const property in this.filterMap) {
+            const paths = property.split('/');
+            const values = this.filterMap[property];
+            const fieldValue = this.getFieldValue(post, paths);
+            return fieldValue == null || values.includes(fieldValue);
+        }
+        return true;
+    }
+
     controlInputDisplay() {
         this.pnlInput.visible = !this.isListView && this._isComposerVisible && !this.isSmallScreen;
     }
@@ -332,6 +349,7 @@ export default class ScomFeed extends Module {
         this.inputReply.clear();
         this.pnlPosts.clearInnerHTML();
         this.isRendering = false;
+        this.filterMap = {};
     }
 
     showLoading() {
@@ -379,10 +397,16 @@ export default class ScomFeed extends Module {
         }
     }
     
-    private onFilterChanged(target: ComboBox, property: string) {
+    private onFilterChanged(target: ComboBox, property: string, isUpdatePosts: boolean = true) {
         const selectedItems: IComboItem[] = target.isMulti ? target.selectedItem as IComboItem[] : [target.selectedItem as IComboItem];
         const paths = property.split('/');
         const values = selectedItems.map(item => item.value);
+        if (values.length > 0) {
+            this.filterMap[property] = values;
+        } else {
+            delete this.filterMap[property];
+        }
+        if (!isUpdatePosts) return;
         const filteredPosts = values.length > 0 ? this._data.posts.filter(post => {
             const fieldValue = this.getFieldValue(post, paths);
             return fieldValue == null || values.includes(fieldValue);
@@ -417,7 +441,7 @@ export default class ScomFeed extends Module {
             );
             if (filter.defaultItem) {
                 combobox.selectedItem = filter.defaultItem;
-                this.onFilterChanged(combobox, filter.property);
+                this.onFilterChanged(combobox, filter.property, false);
             }
         }
     }
@@ -721,7 +745,8 @@ export default class ScomFeed extends Module {
     addPost(post: IPostExtended, isPrepend?: boolean) {
         if (post.id && this._data.posts.find(p => p.id === post.id)) return;
         this._data.posts.push(post);
-        this.addPostToPanel(post, isPrepend);
+        const isVisible = this._filterPost(post);
+        if (isVisible) this.addPostToPanel(post, isPrepend);
     }
 
     addPosts(posts: IPostExtended[], isPrepend?: boolean) {
@@ -729,11 +754,14 @@ export default class ScomFeed extends Module {
         for (let post of posts) {
             if (this._data.posts.find(p => p.id === post.id)) continue;
             this._data.posts.push(post);
+            const isVisible = this._filterPost(post);
+            if (!isVisible) continue;
             const postEl = this.constructPostElement(post);
             this.postElementMap.set(postEl, post);
             this.observer.observe(postEl);
             postEls.push(postEl);
         }
+        if (!postEls.length) return;
         if (isPrepend) {
             if (this.pinNoteToTop && this.pinnedNoteIds.length) {
                 this.pnlPosts.children[this.pinnedNoteIds.length - 1].after(...postEls);
@@ -747,7 +775,7 @@ export default class ScomFeed extends Module {
     setPosts(posts: IPostExtended[]) {
         if (!this._data) this._data = {posts: []};
         this._data.posts = [...posts];
-        const sortedPosts = this.sortPosts([...posts]);
+        const sortedPosts = this.sortPosts(this.filteredPosts);
         this.renderPosts(sortedPosts);
     }
 
@@ -771,9 +799,6 @@ export default class ScomFeed extends Module {
             if (!this.pinNoteToTop) post.isPinned = false;
             this.addPostToPanel(post);
         }
-    }
-
-    private onFilter(target: Button) {
     }
 
     private onCloseModal(name: string) {

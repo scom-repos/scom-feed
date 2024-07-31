@@ -586,6 +586,7 @@ declare module "@scom/scom-feed" {
         private postElementMap;
         private observerOptions;
         private observer;
+        private filterMap;
         onItemClicked: callbackType;
         onPostButtonClicked: submitCallbackType;
         onLikeButtonClicked: asyncCallbackType;
@@ -633,6 +634,8 @@ declare module "@scom/scom-feed" {
         set hasQuota(value: boolean);
         get filters(): IPostFilter[];
         set filters(value: IPostFilter[]);
+        private get filteredPosts();
+        private _filterPost;
         controlInputDisplay(): void;
         connectedCallback(): void;
         clear(): void;
@@ -656,7 +659,6 @@ declare module "@scom/scom-feed" {
         setPosts(posts: IPostExtended[]): void;
         private addPostToPanel;
         private renderPosts;
-        private onFilter;
         private onCloseModal;
         private onShowModal;
         private showActionModal;
