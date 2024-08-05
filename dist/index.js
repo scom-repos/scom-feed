@@ -1371,10 +1371,6 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.mdCreatePost.visible = true;
                 this.inputCreatePost.setFocus();
             });
-            if (this.env === 'prod') {
-                this.inputReply.isAttachmentDisabled = true;
-                this.inputCreatePost.isAttachmentDisabled = true;
-            }
         }
         onShow(options) {
             this.mdCreatePost.visible = options.isCreatePost;
