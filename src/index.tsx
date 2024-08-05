@@ -1022,10 +1022,6 @@ export default class ScomFeed extends Module {
             this.mdCreatePost.visible = true;
             this.inputCreatePost.setFocus();
         });
-        if(this.env === 'prod') {
-            this.inputReply.isAttachmentDisabled = true;
-            this.inputCreatePost.isAttachmentDisabled = true;
-        }
     }
 
     onShow(options) {
