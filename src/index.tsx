@@ -71,6 +71,7 @@ interface ScomFeedElement extends ControlElement {
     onPinButtonClicked?: pinCallbackType;
     onBookmarkButtonClicked?: callbackType;
     onCommunityButtonClicked?: callbackType;
+    onUnlockPostButtonClicked?: asyncCallbackType;
     isPostAudienceShown?: boolean;
     isPublicPostLabelShown?: boolean;
     postContextMenuActions?: IPostContextMenuAction[];
@@ -159,6 +160,7 @@ export default class ScomFeed extends Module {
     onPinButtonClicked: pinCallbackType;
     onBookmarkButtonClicked: callbackType;
     onCommunityButtonClicked: callbackType;
+    onUnlockPostButtonClicked: asyncCallbackType;
     private _postContextMenuActions: IPostContextMenuAction[] = [];
 
     tag = {
@@ -401,9 +403,9 @@ export default class ScomFeed extends Module {
     
     private getFieldValue(post: IPostExtended, paths: string[]) {
         if (paths.length > 1) {
-            return this.getFieldValue(post[paths[0]], paths.slice(1));
+            return this.getFieldValue(post?.[paths[0]], paths.slice(1));
         } else {
-            return post[paths[0]];
+            return post?.[paths[0]];
         }
     }
     
@@ -690,6 +692,12 @@ export default class ScomFeed extends Module {
         this.mdCreatePost.visible = false;
     }
 
+    private async handleUnlockPostButtonClicked(postEl: ScomPost, postData: IPostExtended, event?: MouseEvent) {
+        let success = await this.onUnlockPostButtonClicked(postEl, event);
+        if (success) postData.isLocked = false;
+        return success;
+    }
+
     constructPostElement(post: IPostExtended, lazyLoad: boolean = true) {
         const postEl = (
             <i-scom-post
@@ -712,6 +720,7 @@ export default class ScomFeed extends Module {
         postEl.onZapClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onZapButtonClicked(postEl, event);
         postEl.onBookmarkClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onBookmarkButtonClicked(postEl, event);
         postEl.onCommunityClicked = (target: Control, data: IPost, event?: MouseEvent) => this.onCommunityButtonClicked(postEl, event);
+        postEl.onUnlockPostClicked = async (target: Control, data: IPost, event?: MouseEvent) => await this.handleUnlockPostButtonClicked(postEl, post, event);
         return postEl;
     }
 
@@ -993,6 +1002,7 @@ export default class ScomFeed extends Module {
         this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
         this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
         this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
+        this.onUnlockPostButtonClicked = this.getAttribute('onUnlockPostButtonClicked', true) || this.onUnlockPostButtonClicked;
         this._postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this._postContextMenuActions;
         const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
         if (apiBaseUrl) this.apiBaseUrl = apiBaseUrl;

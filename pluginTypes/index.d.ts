@@ -539,6 +539,7 @@ declare module "@scom/scom-feed" {
         onPinButtonClicked?: pinCallbackType;
         onBookmarkButtonClicked?: callbackType;
         onCommunityButtonClicked?: callbackType;
+        onUnlockPostButtonClicked?: asyncCallbackType;
         isPostAudienceShown?: boolean;
         isPublicPostLabelShown?: boolean;
         postContextMenuActions?: IPostContextMenuAction[];
@@ -596,6 +597,7 @@ declare module "@scom/scom-feed" {
         onPinButtonClicked: pinCallbackType;
         onBookmarkButtonClicked: callbackType;
         onCommunityButtonClicked: callbackType;
+        onUnlockPostButtonClicked: asyncCallbackType;
         private _postContextMenuActions;
         tag: {
             light: {};
@@ -653,6 +655,7 @@ declare module "@scom/scom-feed" {
         private renderActions;
         private onViewPost;
         private onReplySubmit;
+        private handleUnlockPostButtonClicked;
         constructPostElement(post: IPostExtended, lazyLoad?: boolean): ScomPost;
         private sortPosts;
         removePost(post: IPostExtended): void;

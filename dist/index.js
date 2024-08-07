@@ -806,10 +806,10 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         getFieldValue(post, paths) {
             if (paths.length > 1) {
-                return this.getFieldValue(post[paths[0]], paths.slice(1));
+                return this.getFieldValue(post?.[paths[0]], paths.slice(1));
             }
             else {
-                return post[paths[0]];
+                return post?.[paths[0]];
             }
         }
         onFilterChanged(target, property, isUpdatePosts = true) {
@@ -1042,6 +1042,12 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.onPostButtonClicked(content, postDataArr, audience);
             this.mdCreatePost.visible = false;
         }
+        async handleUnlockPostButtonClicked(postEl, postData, event) {
+            let success = await this.onUnlockPostButtonClicked(postEl, event);
+            if (success)
+                postData.isLocked = false;
+            return success;
+        }
         constructPostElement(post, lazyLoad = true) {
             const postEl = (this.$render("i-scom-post", { data: post, type: "card", lazyLoad: lazyLoad, onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl, isPublicPostLabelShown: this.isPublicPostLabelShown && post.isPublicPost }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.showActionModal(postEl, target, data, contentElement);
@@ -1051,6 +1057,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             postEl.onZapClicked = (target, data, event) => this.onZapButtonClicked(postEl, event);
             postEl.onBookmarkClicked = (target, data, event) => this.onBookmarkButtonClicked(postEl, event);
             postEl.onCommunityClicked = (target, data, event) => this.onCommunityButtonClicked(postEl, event);
+            postEl.onUnlockPostClicked = async (target, data, event) => await this.handleUnlockPostButtonClicked(postEl, post, event);
             return postEl;
         }
         sortPosts(posts) {
@@ -1334,6 +1341,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onPostButtonClicked = this.getAttribute('onPostButtonClicked', true) || this.onPostButtonClicked;
             this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
             this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
+            this.onUnlockPostButtonClicked = this.getAttribute('onUnlockPostButtonClicked', true) || this.onUnlockPostButtonClicked;
             this._postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this._postContextMenuActions;
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
