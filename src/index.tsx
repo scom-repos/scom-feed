@@ -995,6 +995,8 @@ export default class ScomFeed extends Module {
     init() {
         super.init();
         this.env = this.getAttribute('env', true) || this.env;
+        this.inputReply.env = this.env;
+        this.inputCreatePost.env = this.env;
         this.onItemClicked = this.getAttribute('onItemClicked', true) || this.onItemClicked;
         this.onLikeButtonClicked = this.getAttribute('onLikeButtonClicked', true) || this.onLikeButtonClicked;
         this.onRepostButtonClicked = this.getAttribute('onRepostButtonClicked', true) || this.onRepostButtonClicked;
