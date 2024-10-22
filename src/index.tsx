@@ -765,7 +765,11 @@ export default class ScomFeed extends Module {
         if (post.id && this._data.posts.find(p => p.id === post.id)) return;
         this._data.posts.push(post);
         const isVisible = this._filterPost(post);
-        if (isVisible) this.addPostToPanel(post, isPrepend);
+        const postEl = this.addPostToPanel(post, isPrepend);
+        if (!isVisible) {
+            postEl.visible = false;
+        }
+        return postEl;
     }
 
     addPosts(posts: IPostExtended[], isPrepend?: boolean) {
@@ -810,6 +814,7 @@ export default class ScomFeed extends Module {
             }
         }
         else this.pnlPosts.append(postEl);
+        return postEl;
     }
 
     private renderPosts(posts: IPostExtended[]) {

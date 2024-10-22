@@ -659,7 +659,7 @@ declare module "@scom/scom-feed" {
         constructPostElement(post: IPostExtended, lazyLoad?: boolean): ScomPost;
         private sortPosts;
         removePost(post: IPostExtended): void;
-        addPost(post: IPostExtended, isPrepend?: boolean): void;
+        addPost(post: IPostExtended, isPrepend?: boolean): ScomPost;
         addPosts(posts: IPostExtended[], isPrepend?: boolean): void;
         setPosts(posts: IPostExtended[]): void;
         private addPostToPanel;

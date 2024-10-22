@@ -1104,8 +1104,11 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 return;
             this._data.posts.push(post);
             const isVisible = this._filterPost(post);
-            if (isVisible)
-                this.addPostToPanel(post, isPrepend);
+            const postEl = this.addPostToPanel(post, isPrepend);
+            if (!isVisible) {
+                postEl.visible = false;
+            }
+            return postEl;
         }
         addPosts(posts, isPrepend) {
             let postEls = [];
@@ -1155,6 +1158,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             }
             else
                 this.pnlPosts.append(postEl);
+            return postEl;
         }
         renderPosts(posts) {
             this.pnlPosts.clearInnerHTML();
