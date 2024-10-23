@@ -1049,7 +1049,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             return success;
         }
         constructPostElement(post, lazyLoad = true) {
-            const postEl = (this.$render("i-scom-post", { data: post, type: "card", lazyLoad: lazyLoad, onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl, isPublicPostLabelShown: this.isPublicPostLabelShown && post.isPublicPost }));
+            const postEl = (this.$render("i-scom-post", { data: post, type: "card", lazyLoad: lazyLoad, onClick: this.onViewPost, onQuotedPostClicked: this.onViewPost, limitHeight: true, overflowEllipse: true, isPinned: post.isPinned || false, apiBaseUrl: this.apiBaseUrl, isPublicPostLabelShown: this.isPublicPostLabelShown && post.isPublicPost, onOpenDesigner: this.onOpenDesigner }));
             postEl.onProfileClicked = (target, data, event, contentElement) => this.showActionModal(postEl, target, data, contentElement);
             postEl.onReplyClicked = (target, data, event) => this.onViewPost(postEl, event);
             postEl.onLikeClicked = async (target, data, event) => await this.onLikeButtonClicked(postEl, event);
@@ -1348,6 +1348,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.onBookmarkButtonClicked = this.getAttribute('onBookmarkButtonClicked', true) || this.onBookmarkButtonClicked;
             this.onCommunityButtonClicked = this.getAttribute('onCommunityButtonClicked', true) || this.onCommunityButtonClicked;
             this.onUnlockPostButtonClicked = this.getAttribute('onUnlockPostButtonClicked', true) || this.onUnlockPostButtonClicked;
+            this.onOpenDesigner = this.getAttribute('onOpenDesigner', true) || this.onOpenDesigner;
             this._postContextMenuActions = this.getAttribute('postContextMenuActions', true) || this._postContextMenuActions;
             const apiBaseUrl = this.getAttribute('apiBaseUrl', true);
             if (apiBaseUrl)
