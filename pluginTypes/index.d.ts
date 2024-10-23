@@ -493,7 +493,7 @@ declare module "@scom/scom-feed/index.css.ts" {
 }
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
-    import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema, IComboItem } from '@ijstech/components';
+    import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema, Control, IComboItem } from '@ijstech/components';
     import { IFeed, IPostExtended } from "@scom/scom-feed/global/index.ts";
     import { IPostData, ScomPost } from '@scom/scom-post';
     type callbackType = (target: ScomPost, event?: MouseEvent) => void;
@@ -501,6 +501,7 @@ declare module "@scom/scom-feed" {
     type submitCallbackType = (content: string, medias: IPostData[], audience?: string) => void;
     type pinCallbackType = (post: any, action: 'pin' | 'unpin', event?: MouseEvent) => Promise<void>;
     type deleteCallbackType = (post: any) => Promise<void>;
+    type openDesignerCallback = (target: Control, data: any) => Promise<void>;
     interface IPostContextMenuAction {
         caption: string;
         icon?: {
@@ -540,6 +541,7 @@ declare module "@scom/scom-feed" {
         onBookmarkButtonClicked?: callbackType;
         onCommunityButtonClicked?: callbackType;
         onUnlockPostButtonClicked?: asyncCallbackType;
+        onOpenDesigner?: openDesignerCallback;
         isPostAudienceShown?: boolean;
         isPublicPostLabelShown?: boolean;
         postContextMenuActions?: IPostContextMenuAction[];
@@ -598,6 +600,7 @@ declare module "@scom/scom-feed" {
         onBookmarkButtonClicked: callbackType;
         onCommunityButtonClicked: callbackType;
         onUnlockPostButtonClicked: asyncCallbackType;
+        onOpenDesigner: openDesignerCallback;
         private _postContextMenuActions;
         tag: {
             light: {};
