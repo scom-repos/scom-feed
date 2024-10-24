@@ -1112,7 +1112,7 @@ export default class ScomFeed extends Module {
                         height="100%" width="100%" minHeight={200}
                         position="absolute"
                         top={0} bottom={0}
-                        zIndex={999}
+                        zIndex={899}
                         background={{color: Theme.background.main}}
                         class="i-loading-overlay"
                     >
@@ -1142,7 +1142,7 @@ export default class ScomFeed extends Module {
                     showBackdrop={false}
                     border={{radius: '0.25rem', width: '1px', style: 'solid', color: Theme.divider}}
                     padding={{top: '0.5rem', left: '0.5rem', right: '0.5rem', bottom: '0.5rem'}}
-                    zIndex={999}
+                    zIndex={899}
                     mediaQueries={[
                         {
                             maxWidth: '767px',
@@ -1150,7 +1150,7 @@ export default class ScomFeed extends Module {
                                 showBackdrop: true,
                                 popupPlacement: 'bottom',
                                 position: 'fixed',
-                                zIndex: 1001,
+                                zIndex: 899,
                                 maxWidth: '100%',
                                 width: '100%',
                                 maxHeight: '50vh',
