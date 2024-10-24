@@ -557,17 +557,6 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
             },
         }
     });
-    components_1.Styles.cssRule('#mdCreatePost', {
-        $nest: {
-            '.modal': {
-                height: '100%',
-                top: 0,
-                position: 'absolute',
-                padding: 0,
-                overflow: 'hidden'
-            }
-        }
-    });
 });
 define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_2, data_json_1, index_1, index_2, index_css_1) {
     "use strict";
@@ -1435,7 +1424,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         }
                     ], onClose: () => this.removeShow('mdActions') },
                     this.$render("i-stack", { id: "pnlActions", direction: "vertical", minWidth: 0 })),
-                this.$render("i-modal", { id: "mdCreatePost", visible: false },
+                this.$render("i-modal", { id: "mdCreatePost", width: "100dvw", height: "100dvh", visible: false },
                     this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, autoFocus: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) })),
                 this.$render("i-alert", { id: "mdDeleteConfirm", status: "confirm", title: "Are you sure?", content: "Do you really want to delete this note?", onConfirm: this.deleteNote })));
         }
