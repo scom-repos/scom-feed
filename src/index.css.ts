@@ -35,15 +35,3 @@ export const comboboxStyle = Styles.style({
     },
   }
 });
-
-Styles.cssRule('#mdCreatePost', {
-  $nest: {
-    '.modal': {
-      height: '100%',
-      top: 0,
-      position: 'absolute',
-      padding: 0,
-      overflow: 'hidden'
-    }
-  }
-})

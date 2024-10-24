@@ -1163,7 +1163,7 @@ export default class ScomFeed extends Module {
                 >
                     <i-stack id="pnlActions" direction="vertical" minWidth={0}/>
                 </i-modal>
-                <i-modal id={"mdCreatePost"} visible={false}>
+                <i-modal id={"mdCreatePost"} width="100dvw" height="100dvh" visible={false}>
                     <i-scom-post-composer id={"inputCreatePost"} mobile={true} autoFocus={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)} />
                 </i-modal>
                 <i-alert
