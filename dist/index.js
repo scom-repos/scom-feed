@@ -802,7 +802,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             }
         }
         onFilterChanged(target, property, isUpdatePosts = true) {
-            const selectedItems = target.isMulti ? target.selectedItem : [target.selectedItem];
+            const selectedItems = target.isMulti ? target.selectedItems : [target.selectedItem];
             const paths = property.split('/');
             const values = selectedItems.map(item => item.value);
             if (values.length > 0) {
@@ -827,8 +827,13 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 this.pnlCustomFilters.appendChild(this.$render("i-stack", { direction: "horizontal", alignItems: "center", gap: "0.5rem" },
                     this.$render("i-label", { caption: filter.caption || "", font: { color: Theme.text.secondary }, visible: !!filter.caption }),
                     combobox));
-                if (filter.defaultItem) {
-                    combobox.selectedItem = filter.defaultItem;
+                if (filter.defaultItems) {
+                    if (filter.isMulti) {
+                        combobox.selectedItems = filter.defaultItems;
+                    }
+                    else {
+                        combobox.selectedItem = filter.defaultItems[0];
+                    }
                     this.onFilterChanged(combobox, filter.property, false);
                 }
             }
