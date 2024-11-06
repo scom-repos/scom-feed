@@ -48,7 +48,7 @@ interface IPostFilter {
     placeholder?: string;
     items: IComboItem[];
     isMulti?: boolean;
-    defaultItem?: IComboItem | IComboItem[];
+    defaultItems?: IComboItem[];
 }
 
 interface ScomFeedElement extends ControlElement {
@@ -413,7 +413,7 @@ export default class ScomFeed extends Module {
     }
     
     private onFilterChanged(target: ComboBox, property: string, isUpdatePosts: boolean = true) {
-        const selectedItems: IComboItem[] = target.isMulti ? target.selectedItem as IComboItem[] : [target.selectedItem as IComboItem];
+        const selectedItems: IComboItem[] = target.isMulti ? target.selectedItems : [target.selectedItem];
         const paths = property.split('/');
         const values = selectedItems.map(item => item.value);
         if (values.length > 0) {
@@ -454,8 +454,13 @@ export default class ScomFeed extends Module {
                     {combobox}
                 </i-stack>
             );
-            if (filter.defaultItem) {
-                combobox.selectedItem = filter.defaultItem;
+            if (filter.defaultItems) {
+                if (filter.isMulti) {
+                    combobox.selectedItems = filter.defaultItems;
+                }
+                else {
+                    combobox.selectedItem = filter.defaultItems[0];
+                }
                 this.onFilterChanged(combobox, filter.property, false);
             }
         }
