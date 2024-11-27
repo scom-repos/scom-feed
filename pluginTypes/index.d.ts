@@ -495,31 +495,43 @@ declare module "@scom/scom-feed/index.css.ts" {
 declare module "@scom/scom-feed/translations.json.ts" {
     const _default_1: {
         en: {
-            whats_on_your_mind_today: string;
-            whats_happening: string;
-            pin_note: string;
-            unpin_note: string;
-            delete_note: string;
-            cancel: string;
-            post_your_thoughts: string;
-            edit: string;
             are_you_sure: string;
+            cancel: string;
+            delete_note: string;
             do_you_really_want_to_delete_this_note: string;
+            edit: string;
+            pin_note: string;
+            post_your_thoughts: string;
             post: string;
+            unpin_note: string;
+            whats_happening: string;
+            whats_on_your_mind_today: string;
         };
-        "zh-hant": {};
-        vi: {
-            whats_on_your_mind_today: string;
-            whats_happening: string;
-            pin_note: string;
-            unpin_note: string;
-            delete_note: string;
-            cancel: string;
-            post_your_thoughts: string;
-            edit: string;
+        "zh-hant": {
             are_you_sure: string;
+            cancel: string;
+            delete_note: string;
             do_you_really_want_to_delete_this_note: string;
+            edit: string;
+            pin_note: string;
+            post_your_thoughts: string;
             post: string;
+            unpin_note: string;
+            whats_happening: string;
+            whats_on_your_mind_today: string;
+        };
+        vi: {
+            are_you_sure: string;
+            cancel: string;
+            delete_note: string;
+            do_you_really_want_to_delete_this_note: string;
+            edit: string;
+            pin_note: string;
+            post_your_thoughts: string;
+            post: string;
+            unpin_note: string;
+            whats_happening: string;
+            whats_on_your_mind_today: string;
         };
     };
     export default _default_1;
