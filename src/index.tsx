@@ -7,9 +7,7 @@ import {
     Styles,
     IDataSchema,
     IUISchema,
-    MarkdownEditor,
     Modal,
-    Label,
     Button,
     Control,
     Panel,
@@ -26,6 +24,7 @@ import {setDataFromJson} from './store/index';
 import {IPost, IPostData, ScomPost} from '@scom/scom-post';
 import {comboboxStyle, getActionButtonStyle, getHoverStyleClass} from './index.css';
 import {ScomPostComposer} from '@scom/scom-post-composer';
+import translations from './translations.json';
 
 const Theme = Styles.Theme.ThemeVars;
 type callbackType = (target: ScomPost, event?: MouseEvent) => void
@@ -97,7 +96,7 @@ type Action = {
     hoveredColor?: string;
 }
 
-const DefaultPlaceholder = "What's on your mind today?";
+const DefaultPlaceholder = "$whats_on_your_mind_today";
 
 @customElements('i-scom-feed')
 export default class ScomFeed extends Module {
@@ -469,18 +468,18 @@ export default class ScomFeed extends Module {
     private renderActions() {
         const actions: Action[] = [
             {
-                caption: 'Copy note link',
+                caption: '$copy_note_link',
                 icon: {name: 'copy'},
-                tooltip: 'The link has been copied successfully',
+                tooltip: '$the_link_has_been_copied_successfully',
                 onClick: () => {
                     application.copyToClipboard(`${window.location.origin}/#!/e/${this.currentPost.id}`);
                     this.mdActions.visible = false;
                 }
             },
             {
-                caption: 'Copy note text',
+                caption: '$copy_note_text',
                 icon: {name: 'copy'},
-                tooltip: 'The text has been copied successfully',
+                tooltip: '$the_text_has_been_copied_successfully',
                 onClick: () => {
                     // this.onCopyNoteText();
                     application.copyToClipboard(this.currentPost['eventData']?.content);
@@ -488,17 +487,17 @@ export default class ScomFeed extends Module {
                 }
             },
             {
-                caption: 'Copy note ID',
+                caption: '$copy_note_id',
                 icon: {name: 'copy'},
-                tooltip: 'The ID has been copied successfully',
+                tooltip: '$the_id_has_been_copied_successfully',
                 onClick: () => {
                     application.copyToClipboard(this.currentPost.id);
                     this.mdActions.visible = false;
                 }
             },
             {
-                caption: 'Copy raw data',
-                tooltip: 'The raw data has been copied successfully',
+                caption: '$copy_raw_data',
+                tooltip: '$the_raw_data_has_been_copied_successfully',
                 icon: {name: 'copy'},
                 onClick: () => {
                     application.copyToClipboard(JSON.stringify(this.currentPost['eventData']));
@@ -510,9 +509,9 @@ export default class ScomFeed extends Module {
             //     icon: {name: "broadcast-tower"}
             // },
             {
-                caption: 'Copy user public key',
+                caption: '$copy_user_public_key',
                 icon: {name: 'copy'},
-                tooltip: 'The public key has been copied successfully',
+                tooltip: '$the_public_key_has_been_copied_successfully',
                 onClick: () => {
                     application.copyToClipboard(this.currentPost.author.npub || '');
                     this.mdActions.visible = false;
@@ -533,7 +532,7 @@ export default class ScomFeed extends Module {
             actions.push(
                 {
                     id: 'btnPinAction',
-                    caption: 'Pin note',
+                    caption: '$pin_note',
                     icon: { name: 'thumbtack' },
                     onClick: async (target: Button, event: MouseEvent) => {
                         const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
@@ -575,7 +574,7 @@ export default class ScomFeed extends Module {
         if (this.allowDelete) {
             actions.push(
                 {
-                    caption: 'Delete note',
+                    caption: '$delete_note',
                     icon: { name: 'trash-alt' },
                     onClick: async (target: Button, event: MouseEvent) => {
                         this.mdActions.visible = false;
@@ -616,6 +615,7 @@ export default class ScomFeed extends Module {
                         height: "0.75rem",
                         display: "inline-flex",
                         name: item.icon.name as IconName,
+                        stack: {shrink: '0'},
                         fill: item.icon?.fill || Theme.text.primary
                     }}
                     onClick={(target: Control, event: MouseEvent) => {
@@ -646,7 +646,7 @@ export default class ScomFeed extends Module {
                 ]}
             >
                 <i-button
-                    caption='Cancel'
+                    caption='$cancel'
                     width="100%" minHeight={44}
                     padding={{left: 16, right: 16}}
                     font={{color: Theme.text.primary, weight: 600}}
@@ -854,7 +854,7 @@ export default class ScomFeed extends Module {
         this.currentContent = contentElement;
         if (this.btnPinAction) {
             const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-            this.btnPinAction.caption = isPinned ? 'Unpin note' : 'Pin note';
+            this.btnPinAction.caption = isPinned ? '$unpin_note' : '$pin_note';
         }
         this.onShowModal(parent, 'mdActions', contentElement);
     }
@@ -1007,6 +1007,7 @@ export default class ScomFeed extends Module {
     }
 
     init() {
+        this.i18n.init({...translations});
         super.init();
         this.env = this.getAttribute('env', true) || this.env;
         this.inputReply.env = this.env;
@@ -1053,6 +1054,8 @@ export default class ScomFeed extends Module {
 
     onShow(options) {
         this.mdCreatePost.visible = options.isCreatePost;
+        this.inputReply.placeholder = this.i18n.get('$post_your_thoughts');
+        this.inputCreatePost.placeholder = this.i18n.get('$whats_happening');
     }
 
     private handleModalClose() {
@@ -1085,9 +1088,9 @@ export default class ScomFeed extends Module {
                 >
                     <i-scom-post-composer
                         id="inputReply"
-                        buttonCaption='Post'
+                        buttonCaption='$post'
                         visible={false}
-                        placeholder={'Post your thoughts...'}
+                        placeholder="$post_your_thoughts"
                         onSubmit={this.onReplySubmit}
                    />
                 </i-panel>
@@ -1169,13 +1172,19 @@ export default class ScomFeed extends Module {
                     <i-stack id="pnlActions" direction="vertical" minWidth={0}/>
                 </i-modal>
                 <i-modal id={"mdCreatePost"} width="100dvw" height="100dvh" visible={false}>
-                    <i-scom-post-composer id={"inputCreatePost"} mobile={true} autoFocus={true} onCancel={this.handleModalClose.bind(this)} placeholder={"What's happening?"} onSubmit={this.onReplySubmit.bind(this)} />
+                    <i-scom-post-composer
+                        id={"inputCreatePost"}
+                        mobile={true} autoFocus={true}
+                        onCancel={this.handleModalClose.bind(this)}
+                        placeholder={"$whats_happening"}
+                        onSubmit={this.onReplySubmit.bind(this)}
+                    />
                 </i-modal>
                 <i-alert
                     id="mdDeleteConfirm"
                     status="confirm"
-                    title="Are you sure?"
-                    content="Do you really want to delete this note?"
+                    title="$are_you_sure"
+                    content="$do_you_really_want_to_delete_this_note"
                     onConfirm={this.deleteNote}
                 ></i-alert>
             </i-stack>

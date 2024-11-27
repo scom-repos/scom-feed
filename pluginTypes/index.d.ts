@@ -491,6 +491,39 @@ declare module "@scom/scom-feed/index.css.ts" {
     export const getActionButtonStyle: (hoveredColor: string) => string;
     export const comboboxStyle: string;
 }
+/// <amd-module name="@scom/scom-feed/translations.json.ts" />
+declare module "@scom/scom-feed/translations.json.ts" {
+    const _default_1: {
+        en: {
+            whats_on_your_mind_today: string;
+            whats_happening: string;
+            pin_note: string;
+            unpin_note: string;
+            delete_note: string;
+            cancel: string;
+            post_your_thoughts: string;
+            edit: string;
+            are_you_sure: string;
+            do_you_really_want_to_delete_this_note: string;
+            post: string;
+        };
+        "zh-hant": {};
+        vi: {
+            whats_on_your_mind_today: string;
+            whats_happening: string;
+            pin_note: string;
+            unpin_note: string;
+            delete_note: string;
+            cancel: string;
+            post_your_thoughts: string;
+            edit: string;
+            are_you_sure: string;
+            do_you_really_want_to_delete_this_note: string;
+            post: string;
+        };
+    };
+    export default _default_1;
+}
 /// <amd-module name="@scom/scom-feed" />
 declare module "@scom/scom-feed" {
     import { ControlElement, Module, Container, Markdown, IDataSchema, IUISchema, Control, IComboItem } from '@ijstech/components';

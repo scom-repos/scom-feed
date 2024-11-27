@@ -558,11 +558,45 @@ define("@scom/scom-feed/index.css.ts", ["require", "exports", "@ijstech/componen
         }
     });
 });
-define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/index.css.ts"], function (require, exports, components_2, data_json_1, index_1, index_2, index_css_1) {
+define("@scom/scom-feed/translations.json.ts", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    ///<amd-module name='@scom/scom-feed/translations.json.ts'/> 
+    exports.default = {
+        en: {
+            "whats_on_your_mind_today": "What's on your mind today?",
+            "whats_happening": "What's happening?",
+            "pin_note": "Pin note",
+            "unpin_note": "Unpin note",
+            "delete_note": "Delete note",
+            "cancel": "Cancel",
+            "post_your_thoughts": "Post your thoughts...",
+            "edit": "Edit",
+            "are_you_sure": "Are you sure?",
+            "do_you_really_want_to_delete_this_note": "Do you really want to delete this note?",
+            "post": "Post",
+        },
+        "zh-hant": {},
+        "vi": {
+            "whats_on_your_mind_today": "Hôm nay bạn đang nghĩ gì?",
+            "whats_happening": "Chuyện gì đang xảy ra?",
+            "pin_note": "Ghim bài đăng",
+            "unpin_note": "Bỏ ghim bài đăng",
+            "delete_note": "Xóa bài đăng",
+            "cancel": "Hủy",
+            "post_your_thoughts": "Đăng bình luận của bạn...",
+            "edit": "Chỉnh sửa",
+            "are_you_sure": "Bạn có chắc chắn không?",
+            "do_you_really_want_to_delete_this_note": "Bạn có chắc chắn muốn xóa bài đăng này không?",
+            "post": "Đăng bài",
+        }
+    };
+});
+define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/scom-feed/data.json.ts", "@scom/scom-feed/global/index.ts", "@scom/scom-feed/store/index.ts", "@scom/scom-feed/index.css.ts", "@scom/scom-feed/translations.json.ts"], function (require, exports, components_2, data_json_1, index_1, index_2, index_css_1, translations_json_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_2.Styles.Theme.ThemeVars;
-    const DefaultPlaceholder = "What's on your mind today?";
+    const DefaultPlaceholder = "$whats_on_your_mind_today";
     let ScomFeed = class ScomFeed extends components_2.Module {
         constructor(parent, options) {
             super(parent, options);
@@ -841,18 +875,18 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         renderActions() {
             const actions = [
                 {
-                    caption: 'Copy note link',
+                    caption: '$copy_note_link',
                     icon: { name: 'copy' },
-                    tooltip: 'The link has been copied successfully',
+                    tooltip: '$the_link_has_been_copied_successfully',
                     onClick: () => {
                         components_2.application.copyToClipboard(`${window.location.origin}/#!/e/${this.currentPost.id}`);
                         this.mdActions.visible = false;
                     }
                 },
                 {
-                    caption: 'Copy note text',
+                    caption: '$copy_note_text',
                     icon: { name: 'copy' },
-                    tooltip: 'The text has been copied successfully',
+                    tooltip: '$the_text_has_been_copied_successfully',
                     onClick: () => {
                         // this.onCopyNoteText();
                         components_2.application.copyToClipboard(this.currentPost['eventData']?.content);
@@ -860,17 +894,17 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     }
                 },
                 {
-                    caption: 'Copy note ID',
+                    caption: '$copy_note_id',
                     icon: { name: 'copy' },
-                    tooltip: 'The ID has been copied successfully',
+                    tooltip: '$the_id_has_been_copied_successfully',
                     onClick: () => {
                         components_2.application.copyToClipboard(this.currentPost.id);
                         this.mdActions.visible = false;
                     }
                 },
                 {
-                    caption: 'Copy raw data',
-                    tooltip: 'The raw data has been copied successfully',
+                    caption: '$copy_raw_data',
+                    tooltip: '$the_raw_data_has_been_copied_successfully',
                     icon: { name: 'copy' },
                     onClick: () => {
                         components_2.application.copyToClipboard(JSON.stringify(this.currentPost['eventData']));
@@ -882,9 +916,9 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                 //     icon: {name: "broadcast-tower"}
                 // },
                 {
-                    caption: 'Copy user public key',
+                    caption: '$copy_user_public_key',
                     icon: { name: 'copy' },
-                    tooltip: 'The public key has been copied successfully',
+                    tooltip: '$the_public_key_has_been_copied_successfully',
                     onClick: () => {
                         components_2.application.copyToClipboard(this.currentPost.author.npub || '');
                         this.mdActions.visible = false;
@@ -904,7 +938,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (this.allowPin) {
                 actions.push({
                     id: 'btnPinAction',
-                    caption: 'Pin note',
+                    caption: '$pin_note',
                     icon: { name: 'thumbtack' },
                     onClick: async (target, event) => {
                         const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
@@ -945,7 +979,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             }
             if (this.allowDelete) {
                 actions.push({
-                    caption: 'Delete note',
+                    caption: '$delete_note',
                     icon: { name: 'trash-alt' },
                     onClick: async (target, event) => {
                         this.mdActions.visible = false;
@@ -974,6 +1008,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         height: "0.75rem",
                         display: "inline-flex",
                         name: item.icon.name,
+                        stack: { shrink: '0' },
                         fill: item.icon?.fill || Theme.text.primary
                     }, onClick: (target, event) => {
                         if (item.onClick)
@@ -993,7 +1028,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                         properties: { visible: true }
                     }
                 ] },
-                this.$render("i-button", { caption: 'Cancel', width: "100%", minHeight: 44, padding: { left: 16, right: 16 }, font: { color: Theme.text.primary, weight: 600 }, border: { radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light }, grid: { horizontalAlignment: 'center' }, background: { color: 'transparent' }, boxShadow: "none", onClick: () => this.onCloseModal('mdActions') })));
+                this.$render("i-button", { caption: '$cancel', width: "100%", minHeight: 44, padding: { left: 16, right: 16 }, font: { color: Theme.text.primary, weight: 600 }, border: { radius: '30px', width: '1px', style: 'solid', color: Theme.colors.secondary.light }, grid: { horizontalAlignment: 'center' }, background: { color: 'transparent' }, boxShadow: "none", onClick: () => this.onCloseModal('mdActions') })));
         }
         onViewPost(target, event) {
             const videos = target.querySelectorAll('video');
@@ -1181,7 +1216,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.currentContent = contentElement;
             if (this.btnPinAction) {
                 const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-                this.btnPinAction.caption = isPinned ? 'Unpin note' : 'Pin note';
+                this.btnPinAction.caption = isPinned ? '$unpin_note' : '$pin_note';
             }
             this.onShowModal(parent, 'mdActions', contentElement);
         }
@@ -1330,6 +1365,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.updateStyle('--shadows-1', this.tag[themeVar]?.boxShadow);
         }
         init() {
+            this.i18n.init({ ...translations_json_1.default });
             super.init();
             this.env = this.getAttribute('env', true) || this.env;
             this.inputReply.env = this.env;
@@ -1383,6 +1419,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         onShow(options) {
             this.mdCreatePost.visible = options.isCreatePost;
+            this.inputReply.placeholder = this.i18n.get('$post_your_thoughts');
+            this.inputCreatePost.placeholder = this.i18n.get('$whats_happening');
         }
         handleModalClose() {
             this.mdCreatePost.visible = false;
@@ -1402,7 +1440,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         render() {
             return (this.$render("i-stack", { direction: "vertical", width: "100%", maxWidth: '100%', margin: { left: 'auto', right: 'auto' }, background: { color: Theme.background.main } },
                 this.$render("i-panel", { id: "pnlInput", padding: { top: '1.625rem', left: '1.25rem', right: '1.25rem' } },
-                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: 'Post', visible: false, placeholder: 'Post your thoughts...', onSubmit: this.onReplySubmit })),
+                    this.$render("i-scom-post-composer", { id: "inputReply", buttonCaption: '$post', visible: false, placeholder: "$post_your_thoughts", onSubmit: this.onReplySubmit })),
                 this.$render("i-stack", { id: "pnlFilter", direction: "horizontal", alignItems: "center", minHeight: '2rem', padding: { left: '1.25rem', right: '1.25rem', top: '0.5rem', bottom: '0.5rem' }, visible: false },
                     this.$render("i-icon", { width: "1rem", height: "1rem", name: "filter", fill: Theme.text.secondary, margin: { right: '0.75rem' } }),
                     this.$render("i-stack", { id: "pnlCustomFilters", direction: "horizontal", gap: "0.75rem" })),
@@ -1430,8 +1468,8 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
                     ], onClose: () => this.removeShow('mdActions') },
                     this.$render("i-stack", { id: "pnlActions", direction: "vertical", minWidth: 0 })),
                 this.$render("i-modal", { id: "mdCreatePost", width: "100dvw", height: "100dvh", visible: false },
-                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, autoFocus: true, onCancel: this.handleModalClose.bind(this), placeholder: "What's happening?", onSubmit: this.onReplySubmit.bind(this) })),
-                this.$render("i-alert", { id: "mdDeleteConfirm", status: "confirm", title: "Are you sure?", content: "Do you really want to delete this note?", onConfirm: this.deleteNote })));
+                    this.$render("i-scom-post-composer", { id: "inputCreatePost", mobile: true, autoFocus: true, onCancel: this.handleModalClose.bind(this), placeholder: "$whats_happening", onSubmit: this.onReplySubmit.bind(this) })),
+                this.$render("i-alert", { id: "mdDeleteConfirm", status: "confirm", title: "$are_you_sure", content: "$do_you_really_want_to_delete_this_note", onConfirm: this.deleteNote })));
         }
     };
     ScomFeed = __decorate([
