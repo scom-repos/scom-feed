@@ -227,7 +227,10 @@ export default class ScomFeed extends Module {
 
     set composerPlaceholder(value: string) {
         this._composerPlaceholder = value ?? '';
-        this.inputReply.placeholder = this._composerPlaceholder;
+        const placeholder = this._composerPlaceholder.startsWith('$') ?
+            this.i18n.get(this._composerPlaceholder) :
+            this._composerPlaceholder;
+        this.inputReply.placeholder = placeholder;
     }
 
     get avatar() {
@@ -1056,6 +1059,7 @@ export default class ScomFeed extends Module {
         this.mdCreatePost.visible = options.isCreatePost;
         this.inputReply.placeholder = this.i18n.get('$post_your_thoughts');
         this.inputCreatePost.placeholder = this.i18n.get('$whats_happening');
+        this.inputReply.buttonCaption = this.i18n.get('$post');
     }
 
     private handleModalClose() {
