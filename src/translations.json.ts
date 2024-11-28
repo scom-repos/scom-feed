@@ -33,7 +33,7 @@ export default {
     "edit": "Chỉnh sửa",
     "pin_note": "Ghim bài đăng",
     "post_your_thoughts": "Đăng bình luận của bạn...",
-    "post": "Đăng bài",
+    "post": "Đăng",
     "unpin_note": "Bỏ ghim bài đăng",
     "whats_happening": "Chuyện gì đang xảy ra?",
     "whats_on_your_mind_today": "Hôm nay bạn đang nghĩ gì?"

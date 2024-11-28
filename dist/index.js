@@ -597,7 +597,7 @@ define("@scom/scom-feed/translations.json.ts", ["require", "exports"], function 
             "edit": "Chỉnh sửa",
             "pin_note": "Ghim bài đăng",
             "post_your_thoughts": "Đăng bình luận của bạn...",
-            "post": "Đăng bài",
+            "post": "Đăng",
             "unpin_note": "Bỏ ghim bài đăng",
             "whats_happening": "Chuyện gì đang xảy ra?",
             "whats_on_your_mind_today": "Hôm nay bạn đang nghĩ gì?"
@@ -692,7 +692,10 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
         }
         set composerPlaceholder(value) {
             this._composerPlaceholder = value ?? '';
-            this.inputReply.placeholder = this._composerPlaceholder;
+            const placeholder = this._composerPlaceholder.startsWith('$') ?
+                this.i18n.get(this._composerPlaceholder) :
+                this._composerPlaceholder;
+            this.inputReply.placeholder = placeholder;
         }
         get avatar() {
             return this.inputReply.avatar;
@@ -1433,6 +1436,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.mdCreatePost.visible = options.isCreatePost;
             this.inputReply.placeholder = this.i18n.get('$post_your_thoughts');
             this.inputCreatePost.placeholder = this.i18n.get('$whats_happening');
+            this.inputReply.buttonCaption = this.i18n.get('$post');
         }
         handleModalClose() {
             this.mdCreatePost.visible = false;
