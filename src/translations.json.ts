@@ -15,14 +15,14 @@ export default {
   "zh-hant": {
     "are_you_sure": "你確定嗎？",
     "cancel": "取消",
-    "delete_note": "刪除筆記",
-    "do_you_really_want_to_delete_this_note": "你真的想刪除這個筆記嗎？",
+    "delete_note": "刪除帖子",
+    "do_you_really_want_to_delete_this_note": "你真的想刪除這個帖子嗎？",
     "edit": "編輯",
-    "pin_note": "釘住筆記",
-    "post_your_thoughts": "發表你的想法...",
-    "post": "發表",
-    "unpin_note": "取消釘住筆記",
-    "whats_happening": "發生了什麼事？",
+    "pin_note": "置頂",
+    "post_your_thoughts": "發布你的想法...",
+    "post": "發布",
+    "unpin_note": "取消置頂",
+    "whats_happening": "有什麼新鮮事？",
     "whats_on_your_mind_today": "你今天在想什麼？"
   },
   "vi": {

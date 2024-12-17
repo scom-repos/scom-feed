@@ -535,7 +535,7 @@ export default class ScomFeed extends Module {
             actions.push(
                 {
                     id: 'btnPinAction',
-                    caption: '$pin_note',
+                    caption: this.i18n.get('$pin_note'),
                     icon: { name: 'thumbtack' },
                     onClick: async (target: Button, event: MouseEvent) => {
                         const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
@@ -577,7 +577,7 @@ export default class ScomFeed extends Module {
         if (this.allowDelete) {
             actions.push(
                 {
-                    caption: '$delete_note',
+                    caption: this.i18n.get('$delete_note'),
                     icon: { name: 'trash-alt' },
                     onClick: async (target: Button, event: MouseEvent) => {
                         this.mdActions.visible = false;
@@ -857,7 +857,7 @@ export default class ScomFeed extends Module {
         this.currentContent = contentElement;
         if (this.btnPinAction) {
             const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-            this.btnPinAction.caption = isPinned ? '$unpin_note' : '$pin_note';
+            this.btnPinAction.caption = this.i18n.get(isPinned ? '$unpin_note' : '$pin_note');
         }
         this.onShowModal(parent, 'mdActions', contentElement);
     }
