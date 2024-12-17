@@ -579,14 +579,14 @@ define("@scom/scom-feed/translations.json.ts", ["require", "exports"], function 
         "zh-hant": {
             "are_you_sure": "你確定嗎？",
             "cancel": "取消",
-            "delete_note": "刪除筆記",
-            "do_you_really_want_to_delete_this_note": "你真的想刪除這個筆記嗎？",
+            "delete_note": "刪除帖子",
+            "do_you_really_want_to_delete_this_note": "你真的想刪除這個帖子嗎？",
             "edit": "編輯",
-            "pin_note": "釘住筆記",
-            "post_your_thoughts": "發表你的想法...",
-            "post": "發表",
-            "unpin_note": "取消釘住筆記",
-            "whats_happening": "發生了什麼事？",
+            "pin_note": "置頂",
+            "post_your_thoughts": "發布你的想法...",
+            "post": "發布",
+            "unpin_note": "取消置頂",
+            "whats_happening": "有什麼新鮮事？",
             "whats_on_your_mind_today": "你今天在想什麼？"
         },
         "vi": {
@@ -953,7 +953,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             if (this.allowPin) {
                 actions.push({
                     id: 'btnPinAction',
-                    caption: '$pin_note',
+                    caption: this.i18n.get('$pin_note'),
                     icon: { name: 'thumbtack' },
                     onClick: async (target, event) => {
                         const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
@@ -994,7 +994,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             }
             if (this.allowDelete) {
                 actions.push({
-                    caption: '$delete_note',
+                    caption: this.i18n.get('$delete_note'),
                     icon: { name: 'trash-alt' },
                     onClick: async (target, event) => {
                         this.mdActions.visible = false;
@@ -1231,7 +1231,7 @@ define("@scom/scom-feed", ["require", "exports", "@ijstech/components", "@scom/s
             this.currentContent = contentElement;
             if (this.btnPinAction) {
                 const isPinned = this.pinnedNoteIds.includes(this.currentPost.id);
-                this.btnPinAction.caption = isPinned ? '$unpin_note' : '$pin_note';
+                this.btnPinAction.caption = this.i18n.get(isPinned ? '$unpin_note' : '$pin_note');
             }
             this.onShowModal(parent, 'mdActions', contentElement);
         }
